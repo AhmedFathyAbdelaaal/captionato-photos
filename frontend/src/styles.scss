@@ -1,0 +1,136 @@
+/* ───────────────────────────────────────────────────────────────────────
+   Captionato Photos — design system
+   Tokens come in pairs (light default + dark). A gallery page can override
+   --color-accent / force a theme by setting data-theme on a wrapper element.
+   ─────────────────────────────────────────────────────────────────────── */
+
+:root,
+[data-theme='light'] {
+  --color-paper: #fafaf8;
+  --color-ink: #14140f;
+  --color-accent: #b23a52;
+  --color-muted: #6b6b65;
+  --color-surface: #f0efeb;
+  --color-border: #e0ded8;
+
+  --font-display: 'Space Grotesk', system-ui, sans-serif;
+  --font-body: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --radius: 4px;
+  --gap: 16px;
+  --max-width: 1600px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+[data-theme='dark'] {
+  --color-paper: #0f0f0a;
+  --color-ink: #fafaf8;
+  --color-accent: #c4455e;
+  --color-muted: #9b9b93;
+  --color-surface: #1a1a14;
+  --color-border: #2a2a22;
+}
+
+/* Follow system preference when no explicit theme is set on <html>. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --color-paper: #0f0f0a;
+    --color-ink: #fafaf8;
+    --color-accent: #c4455e;
+    --color-muted: #9b9b93;
+    --color-surface: #1a1a14;
+    --color-border: #2a2a22;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.4s var(--ease), color 0.4s var(--ease);
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  margin: 0 0 0.5em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+/* Shared skeleton shimmer for loading cells. */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+.skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+  animation: skeleton-shimmer 1.4s infinite;
+}
+@keyframes skeleton-shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Accent button used across admin + public chrome. */
+.btn-accent {
+  background: var(--color-accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius);
+  padding: 0.6rem 1.1rem;
+  font-weight: 600;
+  transition: filter 0.2s var(--ease);
+}
+.btn-accent:hover {
+  filter: brightness(1.08);
+}
+.btn-ghost {
+  background: transparent;
+  color: var(--color-ink);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 0.6rem 1.1rem;
+}

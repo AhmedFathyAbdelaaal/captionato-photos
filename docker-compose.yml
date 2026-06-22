@@ -1,0 +1,48 @@
+version: "3.8"
+
+# Local / single-host compose. On Coolify, prefer two apps (backend + frontend)
+# pointed at the sub-folders, with a managed Postgres — same pattern as Death Bot.
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: photos
+      POSTGRES_PASSWORD: photos
+      POSTGRES_DB: captionato_photos
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    expose:
+      - "5432"
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://photos:photos@db:5432/captionato_photos
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
+      ADMIN_USERNAME: ${ADMIN_USERNAME:-capcap}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme}
+      PHOTOS_ORIGINAL_PATH: /data/photos/originals
+      PHOTOS_THUMB_PATH: /data/photos/thumbs
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8080,http://localhost:4200}
+    volumes:
+      - photos:/data/photos
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    environment:
+      API_BASE_URL: ${API_BASE_URL:-http://localhost:8000}
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+volumes:
+  pgdata:
+  photos:
