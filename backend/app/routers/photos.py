@@ -1,3 +1,4 @@
+import shutil
 import uuid
 from pathlib import Path
 
@@ -92,8 +93,9 @@ def upload_photos(
         original_abs = originals_dir / f"{photo_id}{ext}"
         thumb_abs = thumbs_dir / f"{photo_id}.jpg"
 
+        # Stream to disk in chunks so a 25MB+ file never sits fully in memory.
         with original_abs.open("wb") as out:
-            out.write(upload.file.read())
+            shutil.copyfileobj(upload.file, out, length=1024 * 1024)
 
         try:
             exif, width, height = process_upload(original_abs, thumb_abs)
@@ -200,12 +202,17 @@ def serve_thumb(photo_id: uuid.UUID, db: Session = Depends(get_db)):
 
 
 @router.get("/{photo_id}/original")
-def serve_original(photo_id: uuid.UUID, db: Session = Depends(get_db)):
+def serve_original(
+    photo_id: uuid.UUID,
+    download: bool = Query(False),
+    db: Session = Depends(get_db),
+):
     photo = db.get(Photo, photo_id)
     if photo is None or not Path(photo.original_path).exists():
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Original not found")
-    return FileResponse(
-        photo.original_path,
-        filename=photo.filename,
-        headers={"Cache-Control": "public, max-age=31536000, immutable"},
-    )
+    headers = {"Cache-Control": "public, max-age=31536000, immutable"}
+    if download:
+        # Force a browser download with the original filename.
+        return FileResponse(photo.original_path, filename=photo.filename, headers=headers)
+    # Inline — served for display in the lightbox <img>.
+    return FileResponse(photo.original_path, headers=headers)

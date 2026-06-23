@@ -7,9 +7,15 @@ lightbox display; full-res is only ever served from the original.
 from fractions import Fraction
 from pathlib import Path
 
-from PIL import ExifTags, Image, ImageOps
+from PIL import ExifTags, Image, ImageFile, ImageOps
 
 from .config import settings
+
+# Uploads are admin-only (trusted), so lift Pillow's decompression-bomb guard
+# to allow very large panoramas / high-megapixel files, and tolerate slightly
+# truncated JPEGs rather than failing the whole upload.
+Image.MAX_IMAGE_PIXELS = None
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # Reverse lookup: human-readable tag name -> numeric EXIF id.
 _TAG_IDS = {name: num for num, name in ExifTags.TAGS.items()}
@@ -34,6 +40,16 @@ def _format_shutter(value) -> str | None:
     return f"{frac.numerator}/{frac.denominator}s"
 
 
+def _clean(value) -> str:
+    """Normalise an EXIF string for storage. Some cameras (e.g. OPPO) NUL-pad
+    their string fields; PostgreSQL text/JSONB cannot hold NUL (\\u0000), so we
+    strip NULs and other C0 control chars, collapse stray whitespace, and trim.
+    """
+    text = str(value).replace("\x00", "")
+    text = "".join(ch for ch in text if ch >= " " or ch in "\t")
+    return text.strip()
+
+
 def extract_exif(img: Image.Image) -> dict:
     """Pull the photographic EXIF fields the lightbox displays. Missing values
     are simply omitted so the UI never renders an empty field."""
@@ -43,10 +59,11 @@ def extract_exif(img: Image.Image) -> dict:
 
     exif: dict[str, object] = {}
 
-    make = raw.get(_TAG_IDS.get("Make"))
-    model = raw.get(_TAG_IDS.get("Model"))
-    if make or model:
-        exif["camera"] = " ".join(str(p).strip() for p in (make, model) if p)
+    make = _clean(raw.get(_TAG_IDS.get("Make")) or "")
+    model = _clean(raw.get(_TAG_IDS.get("Model")) or "")
+    camera = " ".join(p for p in (make, model) if p)
+    if camera:
+        exif["camera"] = camera
 
     # Lens / aperture / shutter / iso / focal live in the Exif sub-IFD.
     try:
@@ -57,9 +74,9 @@ def extract_exif(img: Image.Image) -> dict:
     def sub_get(name):
         return sub.get(_TAG_IDS.get(name))
 
-    lens = sub_get("LensModel")
+    lens = _clean(sub_get("LensModel") or "")
     if lens:
-        exif["lens"] = str(lens).strip()
+        exif["lens"] = lens
 
     focal = _rational_to_float(sub_get("FocalLength"))
     if focal:
@@ -77,27 +94,44 @@ def extract_exif(img: Image.Image) -> dict:
     if iso:
         exif["iso"] = f"ISO {iso}"
 
-    taken = sub_get("DateTimeOriginal") or raw.get(_TAG_IDS.get("DateTime"))
+    taken = _clean(sub_get("DateTimeOriginal") or raw.get(_TAG_IDS.get("DateTime")) or "")
     if taken:
-        exif["date_taken"] = str(taken).strip()
+        exif["date_taken"] = taken
 
-    return exif
+    # Defensive final pass: guarantee no NUL/control chars reach Postgres,
+    # whatever the camera wrote.
+    return {
+        k: (_clean(v) if isinstance(v, str) else v)
+        for k, v in exif.items()
+        if not (isinstance(v, str) and not _clean(v))
+    }
 
 
 def process_upload(original_abs: Path, thumb_abs: Path) -> tuple[dict, int | None, int | None]:
     """Given an already-saved original, generate its thumbnail and return
-    (exif_dict, width, height). The original file is never modified."""
+    (exif_dict, width, height). The original file is never modified.
+
+    Memory-light: EXIF and dimensions are read from the file header (no full
+    decode), and `draft()` lets the JPEG decoder downscale during decode so a
+    high-megapixel photo never expands to its full raster in RAM.
+    """
     thumb_abs.parent.mkdir(parents=True, exist_ok=True)
+    edge = settings.THUMB_MAX_EDGE
 
     with Image.open(original_abs) as img:
-        img = ImageOps.exif_transpose(img)  # honour orientation tag
-        width, height = img.size
+        # Read from headers before any decode — cheap and full-resolution.
         exif = extract_exif(img)
 
-        thumb = img.copy()
-        thumb.thumbnail(
-            (settings.THUMB_MAX_EDGE, settings.THUMB_MAX_EDGE), Image.LANCZOS
-        )
+        # Ask the (JPEG) decoder to load at a reduced scale near the thumb size.
+        # No-op for formats that don't support it; harmless either way.
+        img.draft("RGB", (edge, edge))
+
+        thumb = ImageOps.exif_transpose(img)  # decodes + honours orientation
+        thumb.thumbnail((edge, edge), Image.LANCZOS)
+        # The thumbnail's dimensions carry the (orientation-correct) aspect
+        # ratio the masonry grid needs.
+        width, height = thumb.size
+
         if thumb.mode in ("RGBA", "P", "LA"):
             thumb = thumb.convert("RGB")
         thumb.save(thumb_abs, format="JPEG", quality=85, optimize=True)
