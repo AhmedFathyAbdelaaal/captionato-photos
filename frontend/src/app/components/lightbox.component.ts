@@ -34,8 +34,16 @@ interface ExifRow {
 
       <figure class="stage" (click)="$event.stopPropagation()">
         <div class="frame">
-          <!-- Thumbnail placeholder, blurred until the original loads. -->
-          <img class="thumb" [class.hidden]="fullLoaded()" [src]="api.imageUrl(current.thumbnail_url)" alt="" />
+          <!-- Skeleton placeholder (sized to the photo's aspect ratio) shown
+               until the full-resolution original decodes. No thumbnail. -->
+          <div
+            class="skeleton-box"
+            *ngIf="!fullLoaded() && !fullError()"
+            [style.aspectRatio]="ratio()"
+          >
+            <span class="spinner"></span>
+            <span class="loading-label mono">loading full resolution…</span>
+          </div>
 
           <!-- Full-resolution original. -->
           <img
@@ -46,12 +54,6 @@ interface ExifRow {
             (load)="fullLoaded.set(true)"
             (error)="fullError.set(true)"
           />
-
-          <!-- Loading spinner while the original is in flight. -->
-          <div class="loader" *ngIf="!fullLoaded() && !fullError()">
-            <span class="spinner"></span>
-            <span class="loading-label mono">loading full resolution…</span>
-          </div>
 
           <!-- Fallback if the original fails to load. -->
           <div class="loader err" *ngIf="fullError()">
@@ -124,13 +126,37 @@ interface ExifRow {
         border-radius: var(--radius);
         grid-area: 1 / 1;
       }
-      .thumb {
-        filter: blur(12px);
-        transform: scale(1.02);
-        transition: opacity 0.3s var(--ease);
+      .skeleton-box {
+        position: relative;
+        overflow: hidden;
+        grid-area: 1 / 1;
+        width: min(88vw, 1100px);
+        max-height: 82vh;
+        border-radius: var(--radius);
+        background: rgba(255, 255, 255, 0.06);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 0.7rem;
       }
-      .thumb.hidden {
-        opacity: 0;
+      .skeleton-box::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        transform: translateX(-100%);
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.09),
+          transparent
+        );
+        animation: skeleton-shimmer 1.4s infinite;
+      }
+      @keyframes skeleton-shimmer {
+        100% {
+          transform: translateX(100%);
+        }
       }
       .full {
         opacity: 0;
@@ -157,10 +183,14 @@ interface ExifRow {
         background: rgba(0, 0, 0, 0.55);
       }
       .loading-label {
+        position: relative;
+        z-index: 1;
         font-size: 0.75rem;
         color: #d9d9d2;
       }
       .spinner {
+        position: relative;
+        z-index: 1;
         width: 2.4rem;
         height: 2.4rem;
         border-radius: 50%;
@@ -310,6 +340,13 @@ export class LightboxComponent implements OnChanges {
 
   get downloadUrl(): string {
     return this.api.imageUrl(this.current.original_url) + '?download=1';
+  }
+
+  /** Aspect ratio for the skeleton placeholder, so it matches the incoming
+   *  image and there's no layout jump when the full-res swaps in. */
+  ratio(): string {
+    const p = this.current;
+    return p?.width && p?.height ? `${p.width} / ${p.height}` : '3 / 2';
   }
 
   ngOnChanges(): void {
