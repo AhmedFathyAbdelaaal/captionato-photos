@@ -1,3 +1,4 @@
+import shutil
 import uuid
 from pathlib import Path
 
@@ -92,8 +93,9 @@ def upload_photos(
         original_abs = originals_dir / f"{photo_id}{ext}"
         thumb_abs = thumbs_dir / f"{photo_id}.jpg"
 
+        # Stream to disk in chunks so a 25MB+ file never sits fully in memory.
         with original_abs.open("wb") as out:
-            out.write(upload.file.read())
+            shutil.copyfileobj(upload.file, out, length=1024 * 1024)
 
         try:
             exif, width, height = process_upload(original_abs, thumb_abs)

@@ -7,9 +7,15 @@ lightbox display; full-res is only ever served from the original.
 from fractions import Fraction
 from pathlib import Path
 
-from PIL import ExifTags, Image, ImageOps
+from PIL import ExifTags, Image, ImageFile, ImageOps
 
 from .config import settings
+
+# Uploads are admin-only (trusted), so lift Pillow's decompression-bomb guard
+# to allow very large panoramas / high-megapixel files, and tolerate slightly
+# truncated JPEGs rather than failing the whole upload.
+Image.MAX_IMAGE_PIXELS = None
+ImageFile.LOAD_TRUNCATED_IMAGES = True
 
 # Reverse lookup: human-readable tag name -> numeric EXIF id.
 _TAG_IDS = {name: num for num, name in ExifTags.TAGS.items()}
@@ -86,18 +92,29 @@ def extract_exif(img: Image.Image) -> dict:
 
 def process_upload(original_abs: Path, thumb_abs: Path) -> tuple[dict, int | None, int | None]:
     """Given an already-saved original, generate its thumbnail and return
-    (exif_dict, width, height). The original file is never modified."""
+    (exif_dict, width, height). The original file is never modified.
+
+    Memory-light: EXIF and dimensions are read from the file header (no full
+    decode), and `draft()` lets the JPEG decoder downscale during decode so a
+    high-megapixel photo never expands to its full raster in RAM.
+    """
     thumb_abs.parent.mkdir(parents=True, exist_ok=True)
+    edge = settings.THUMB_MAX_EDGE
 
     with Image.open(original_abs) as img:
-        img = ImageOps.exif_transpose(img)  # honour orientation tag
-        width, height = img.size
+        # Read from headers before any decode — cheap and full-resolution.
         exif = extract_exif(img)
 
-        thumb = img.copy()
-        thumb.thumbnail(
-            (settings.THUMB_MAX_EDGE, settings.THUMB_MAX_EDGE), Image.LANCZOS
-        )
+        # Ask the (JPEG) decoder to load at a reduced scale near the thumb size.
+        # No-op for formats that don't support it; harmless either way.
+        img.draft("RGB", (edge, edge))
+
+        thumb = ImageOps.exif_transpose(img)  # decodes + honours orientation
+        thumb.thumbnail((edge, edge), Image.LANCZOS)
+        # The thumbnail's dimensions carry the (orientation-correct) aspect
+        # ratio the masonry grid needs.
+        width, height = thumb.size
+
         if thumb.mode in ("RGBA", "P", "LA"):
             thumb = thumb.convert("RGB")
         thumb.save(thumb_abs, format="JPEG", quality=85, optimize=True)
