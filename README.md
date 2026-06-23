@@ -326,7 +326,7 @@ Real issues hit while shipping this — documented so you don't re-hit them:
   (`volumes additional properties '... Photos Store' not allowed`). Use
   `photos-store`. The **mount path** (`/data/photos`) is what actually matters.
 - **EXIF NUL bytes break Postgres.** Some cameras (e.g. OPPO phones) NUL-pad
-  their EXIF string fields. PostgreSQL **cannot store ` `** in text/JSONB,
+  their EXIF string fields. PostgreSQL **cannot store `\u0000`** in text/JSONB,
   so the photo INSERT fails — and the browser misreports it as a **CORS error**
   (the failed response just lacks the CORS header). `imaging.py` now strips NUL
   and control chars from every EXIF string. If you ever see a phantom CORS error
@@ -377,5 +377,4 @@ Real issues hit while shipping this — documented so you don't re-hit them:
   existing photos.
 - Mobile responsiveness audit (masonry, lightbox, admin).
 - Photo migration from the previous Next.js gallery.
-```
 
