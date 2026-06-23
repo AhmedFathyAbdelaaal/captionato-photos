@@ -40,6 +40,16 @@ def _format_shutter(value) -> str | None:
     return f"{frac.numerator}/{frac.denominator}s"
 
 
+def _clean(value) -> str:
+    """Normalise an EXIF string for storage. Some cameras (e.g. OPPO) NUL-pad
+    their string fields; PostgreSQL text/JSONB cannot hold NUL (\\u0000), so we
+    strip NULs and other C0 control chars, collapse stray whitespace, and trim.
+    """
+    text = str(value).replace("\x00", "")
+    text = "".join(ch for ch in text if ch >= " " or ch in "\t")
+    return text.strip()
+
+
 def extract_exif(img: Image.Image) -> dict:
     """Pull the photographic EXIF fields the lightbox displays. Missing values
     are simply omitted so the UI never renders an empty field."""
@@ -49,10 +59,11 @@ def extract_exif(img: Image.Image) -> dict:
 
     exif: dict[str, object] = {}
 
-    make = raw.get(_TAG_IDS.get("Make"))
-    model = raw.get(_TAG_IDS.get("Model"))
-    if make or model:
-        exif["camera"] = " ".join(str(p).strip() for p in (make, model) if p)
+    make = _clean(raw.get(_TAG_IDS.get("Make")) or "")
+    model = _clean(raw.get(_TAG_IDS.get("Model")) or "")
+    camera = " ".join(p for p in (make, model) if p)
+    if camera:
+        exif["camera"] = camera
 
     # Lens / aperture / shutter / iso / focal live in the Exif sub-IFD.
     try:
@@ -63,9 +74,9 @@ def extract_exif(img: Image.Image) -> dict:
     def sub_get(name):
         return sub.get(_TAG_IDS.get(name))
 
-    lens = sub_get("LensModel")
+    lens = _clean(sub_get("LensModel") or "")
     if lens:
-        exif["lens"] = str(lens).strip()
+        exif["lens"] = lens
 
     focal = _rational_to_float(sub_get("FocalLength"))
     if focal:
@@ -83,11 +94,17 @@ def extract_exif(img: Image.Image) -> dict:
     if iso:
         exif["iso"] = f"ISO {iso}"
 
-    taken = sub_get("DateTimeOriginal") or raw.get(_TAG_IDS.get("DateTime"))
+    taken = _clean(sub_get("DateTimeOriginal") or raw.get(_TAG_IDS.get("DateTime")) or "")
     if taken:
-        exif["date_taken"] = str(taken).strip()
+        exif["date_taken"] = taken
 
-    return exif
+    # Defensive final pass: guarantee no NUL/control chars reach Postgres,
+    # whatever the camera wrote.
+    return {
+        k: (_clean(v) if isinstance(v, str) else v)
+        for k, v in exif.items()
+        if not (isinstance(v, str) and not _clean(v))
+    }
 
 
 def process_upload(original_abs: Path, thumb_abs: Path) -> tuple[dict, int | None, int | None]:
