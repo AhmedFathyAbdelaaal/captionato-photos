@@ -62,11 +62,48 @@ const THEMES: ForceTheme[] = ['system', 'light', 'dark'];
               <option *ngFor="let t of themes" [value]="t">{{ t }}</option>
             </select>
           </label>
-          <label class="accent">
-            Accent
-            <input type="color" [ngModel]="g.accent_color || '#b23a52'" (ngModelChange)="g.accent_color = $event" name="a{{ g.id }}" />
-            <button type="button" class="clear" (click)="g.accent_color = null">default</button>
-          </label>
+          <div class="accent-field">
+            <span class="af-label">Accent color</span>
+            <div class="swatches">
+              <button
+                type="button"
+                class="swatch none"
+                [class.on]="!g.accent_color"
+                (click)="g.accent_color = null"
+                title="Default"
+              >
+                ✕
+              </button>
+              <button
+                type="button"
+                class="swatch"
+                *ngFor="let c of presets"
+                [style.background]="c"
+                [class.on]="g.accent_color === c"
+                (click)="g.accent_color = c"
+                [title]="c"
+              ></button>
+              <label
+                class="swatch custom"
+                [class.on]="isCustom(g.accent_color)"
+                [style.background]="isCustom(g.accent_color) ? g.accent_color : 'transparent'"
+                title="Custom hex"
+              >
+                <input
+                  type="color"
+                  [ngModel]="g.accent_color || '#b23a52'"
+                  (ngModelChange)="g.accent_color = $event"
+                  name="a{{ g.id }}"
+                />
+                <span *ngIf="!isCustom(g.accent_color)">+</span>
+              </label>
+            </div>
+            <div class="accent-preview" [style.--pa]="g.accent_color || defaultAccent">
+              <span class="pa-title">{{ g.name || 'Gallery title' }}</span>
+              <span class="pa-rule"></span>
+              <button type="button" class="pa-btn">Button</button>
+            </div>
+          </div>
           <div class="actions">
             <button class="btn-accent" (click)="saveEdit(g)">Save</button>
             <button class="btn-ghost danger" (click)="remove(g)">Delete</button>
@@ -187,6 +224,83 @@ const THEMES: ForceTheme[] = ['system', 'light', 'dark'];
         color: var(--color-accent);
         border-color: var(--color-accent);
       }
+
+      /* ── Accent picker ── */
+      .accent-field {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        gap: 0.55rem;
+      }
+      .af-label {
+        font-size: 0.8rem;
+        color: var(--color-muted);
+      }
+      .swatches {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.4rem;
+      }
+      .swatch {
+        position: relative;
+        width: 2rem;
+        height: 2rem;
+        padding: 0;
+        border-radius: 50%;
+        border: 2px solid var(--color-border);
+        cursor: pointer;
+        display: grid;
+        place-items: center;
+        color: #fff;
+      }
+      .swatch.on {
+        box-shadow: 0 0 0 2px var(--color-paper), 0 0 0 4px var(--color-ink);
+      }
+      .swatch.none {
+        background: var(--color-surface);
+        color: var(--color-muted);
+      }
+      .swatch.custom {
+        overflow: hidden;
+        color: var(--color-muted);
+        font-size: 1.1rem;
+        line-height: 1;
+      }
+      .swatch.custom input {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        cursor: pointer;
+      }
+      .accent-preview {
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        padding: 0.6rem 0.8rem;
+        background: var(--color-paper);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+      }
+      .pa-title {
+        font-family: var(--font-display);
+        font-weight: 600;
+      }
+      .pa-rule {
+        width: 38px;
+        height: 3px;
+        border-radius: 2px;
+        background: var(--pa);
+      }
+      .pa-btn {
+        margin-left: auto;
+        background: var(--pa);
+        color: #fff;
+        border: none;
+        border-radius: var(--radius);
+        padding: 0.3rem 0.7rem;
+        font-size: 0.8rem;
+      }
+
       @media (max-width: 560px) {
         .row {
           grid-template-columns: 48px 1fr auto;
@@ -212,6 +326,21 @@ export class AdminGalleriesComponent implements OnInit {
   draft: GalleryInput = { name: '', slug: '' };
   layouts = LAYOUTS;
   themes = THEMES;
+  defaultAccent = '#b23a52';
+  presets = [
+    '#E0901E', // amber
+    '#1FA6A6', // teal
+    '#6C5CE7', // violet
+    '#2E7D5B', // forest
+    '#3A6EA5', // ocean
+    '#C9A227', // gold
+    '#B5179E', // magenta
+    '#5A5A52', // slate
+  ];
+
+  isCustom(c: string | null | undefined): boolean {
+    return !!c && c !== this.defaultAccent && !this.presets.includes(c);
+  }
 
   constructor(public api: ApiService) {}
 

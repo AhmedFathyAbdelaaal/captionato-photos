@@ -16,6 +16,7 @@ import { RevealDirective } from '../components/reveal.directive';
     <div class="wrap" *ngIf="gallery() as g">
       <header class="head">
         <h1>{{ g.name }}</h1>
+        <div class="accent-rule"></div>
         <p *ngIf="g.description">{{ g.description }}</p>
       </header>
 
@@ -99,10 +100,17 @@ import { RevealDirective } from '../components/reveal.directive';
       .head h1 {
         font-size: clamp(2rem, 6vw, 3.4rem);
       }
+      .accent-rule {
+        width: 64px;
+        height: 4px;
+        margin: 0.7rem auto 0;
+        border-radius: 2px;
+        background: var(--color-accent);
+      }
       .head p {
         color: var(--color-muted);
         max-width: 60ch;
-        margin: -0.3rem auto 0;
+        margin: 0.8rem auto 0;
       }
       figure {
         margin: 0;
