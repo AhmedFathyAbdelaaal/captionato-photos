@@ -11,6 +11,10 @@ const LAYOUTS: GalleryLayout[] = [
   'editorial',
   'slideshow',
   'moodboard',
+  'collage',
+  'polaroid',
+  'filmstrip',
+  'marquee',
 ];
 const THEMES: ForceTheme[] = ['system', 'light', 'dark'];
 

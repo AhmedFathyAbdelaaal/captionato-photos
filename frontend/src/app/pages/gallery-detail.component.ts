@@ -73,6 +73,51 @@ import { RevealDirective } from '../components/reveal.directive';
             <img [src]="api.imageUrl(p.thumbnail_url)" [alt]="p.title || p.filename" loading="lazy" />
           </figure>
         </section>
+
+        <!-- COLLAGE / OVERLAP -->
+        <section *ngSwitchCase="'collage'" class="collage">
+          <figure
+            class="cell"
+            appReveal
+            *ngFor="let p of g.photos; let i = index"
+            [style.width.px]="collageWidth(p)"
+            [style.--rot.deg]="collageRotate(p)"
+            [style.zIndex]="collageZ(p)"
+            (click)="open(i)"
+          >
+            <img [src]="api.imageUrl(p.thumbnail_url)" [alt]="p.title || p.filename" loading="lazy" />
+          </figure>
+        </section>
+
+        <!-- POLAROID WALL -->
+        <section *ngSwitchCase="'polaroid'" class="polaroid">
+          <figure class="cell" appReveal *ngFor="let p of g.photos; let i = index" (click)="open(i)">
+            <div class="frame" [style.--rot.deg]="collageRotate(p)">
+              <img [src]="api.imageUrl(p.thumbnail_url)" [alt]="p.title || p.filename" loading="lazy" />
+              <span class="cap">{{ p.title || p.caption || ' ' }}</span>
+            </div>
+          </figure>
+        </section>
+
+        <!-- FILMSTRIP -->
+        <section *ngSwitchCase="'filmstrip'" class="filmstrip">
+          <div class="reel">
+            <figure class="frame" *ngFor="let p of g.photos; let i = index" (click)="open(i)">
+              <img [src]="api.imageUrl(p.thumbnail_url)" [alt]="p.title || p.filename" loading="lazy" />
+            </figure>
+          </div>
+        </section>
+
+        <!-- MARQUEE DRIFT -->
+        <section *ngSwitchCase="'marquee'" class="marquee">
+          <div class="row" *ngFor="let row of marqueeRows(g.photos); let r = index" [class.reverse]="r % 2 === 1">
+            <div class="track" [style.animationDuration.s]="38 + r * 12">
+              <figure *ngFor="let p of dup(row)" (click)="openPhoto(p)">
+                <img [src]="api.imageUrl(p.thumbnail_url)" [alt]="p.title || p.filename" loading="lazy" />
+              </figure>
+            </div>
+          </div>
+        </section>
       </ng-container>
     </div>
 
@@ -241,6 +286,168 @@ import { RevealDirective } from '../components/reveal.directive';
         z-index: 2;
       }
 
+      /* ── COLLAGE / OVERLAP ── */
+      .collage {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        padding: clamp(2rem, 5vw, 4rem) 0;
+      }
+      .collage .cell {
+        margin: clamp(-2.4rem, -3vw, -1.2rem);
+        transform: rotate(var(--rot)) translateY(18px);
+        transition: transform 0.3s var(--ease), opacity 0.6s var(--ease);
+        border-radius: var(--radius);
+        overflow: hidden;
+        box-shadow: 0 16px 44px rgba(0, 0, 0, 0.4);
+      }
+      .collage .cell.revealed {
+        transform: rotate(var(--rot)) translateY(0);
+      }
+      .collage .cell:hover {
+        transform: rotate(0deg) scale(1.07);
+        z-index: 999 !important;
+        box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+      }
+      .collage .cell img {
+        display: block;
+        width: 100%;
+      }
+
+      /* ── POLAROID WALL ── */
+      .polaroid {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: flex-start;
+        gap: clamp(0.6rem, 2vw, 1.6rem);
+        padding: 2rem 0;
+      }
+      .polaroid .cell {
+        width: clamp(180px, 24vw, 280px);
+      }
+      .polaroid .frame {
+        background: #fdfdfb;
+        padding: 12px 12px 0;
+        border-radius: 2px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        transform: rotate(var(--rot));
+        transition: transform 0.25s var(--ease);
+      }
+      .polaroid .frame img {
+        display: block;
+        width: 100%;
+        aspect-ratio: 1;
+        object-fit: cover;
+        border-radius: 0;
+      }
+      .polaroid .cap {
+        display: block;
+        text-align: center;
+        color: #2a2a26;
+        font-family: 'Caveat', cursive;
+        font-size: 1.3rem;
+        line-height: 1.2;
+        padding: 0.45rem 0.3rem 0.7rem;
+        min-height: 1.9rem;
+      }
+      .polaroid .cell:hover .frame {
+        transform: rotate(0deg) scale(1.04);
+      }
+
+      /* ── FILMSTRIP ── */
+      .filmstrip {
+        overflow-x: auto;
+        padding: 1rem 0 2rem;
+      }
+      .reel {
+        position: relative;
+        display: inline-flex;
+        gap: 6px;
+        padding: 24px 12px;
+        background: #141414;
+        border-radius: 4px;
+      }
+      .reel::before,
+      .reel::after {
+        content: '';
+        position: absolute;
+        left: 10px;
+        right: 10px;
+        height: 9px;
+        background: repeating-linear-gradient(
+          to right,
+          #d9d9d9 0 9px,
+          transparent 9px 21px
+        );
+        border-radius: 2px;
+      }
+      .reel::before {
+        top: 7px;
+      }
+      .reel::after {
+        bottom: 7px;
+      }
+      .filmstrip .frame {
+        flex: 0 0 auto;
+        margin: 0;
+        width: clamp(220px, 40vw, 360px);
+      }
+      .filmstrip .frame img {
+        display: block;
+        width: 100%;
+        height: clamp(160px, 30vh, 260px);
+        object-fit: cover;
+        border: 1px solid #000;
+        border-radius: 0;
+      }
+
+      /* ── MARQUEE DRIFT ── */
+      .marquee {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        overflow: hidden;
+        padding: 1rem 0;
+      }
+      .marquee .row {
+        overflow: hidden;
+      }
+      .marquee .track {
+        display: flex;
+        gap: 12px;
+        width: max-content;
+        animation-name: marquee-scroll;
+        animation-timing-function: linear;
+        animation-iteration-count: infinite;
+      }
+      .marquee .row.reverse .track {
+        animation-direction: reverse;
+      }
+      .marquee .track:hover {
+        animation-play-state: paused;
+      }
+      @keyframes marquee-scroll {
+        from {
+          transform: translateX(0);
+        }
+        to {
+          transform: translateX(-50%);
+        }
+      }
+      .marquee figure {
+        flex: 0 0 auto;
+        margin: 0;
+        height: clamp(140px, 22vh, 220px);
+      }
+      .marquee figure img {
+        display: block;
+        height: 100%;
+        width: auto;
+        border-radius: var(--radius);
+      }
+
       .hint {
         text-align: center;
         color: var(--color-muted);
@@ -293,10 +500,43 @@ export class GalleryDetailComponent implements OnInit, OnDestroy {
     this.slide.set((this.slide() - 1 + len) % len);
   }
 
-  /** Stable small rotation seeded by photo id, so mood boards don't reshuffle. */
-  rotation(p: Photo): number {
+  /** Stable hash seeded by photo id, so seeded layouts don't reshuffle on
+   *  re-render. */
+  private hash(id: string): number {
     let h = 0;
-    for (const ch of p.id) h = (h * 31 + ch.charCodeAt(0)) & 0xffff;
-    return ((h % 11) - 5) * 0.8; // -4°..+4°
+    for (const ch of id) h = (h * 31 + ch.charCodeAt(0)) & 0xffff;
+    return h;
+  }
+
+  /** Stable small rotation seeded by photo id (mood board + collage + polaroid). */
+  rotation(p: Photo): number {
+    return ((this.hash(p.id) % 11) - 5) * 0.8; // -4°..+4°
+  }
+  collageRotate(p: Photo): number {
+    return ((this.hash(p.id + 'r') % 13) - 6) * 0.9; // -5.4°..+5.4°
+  }
+  /** Seeded width tier so the collage has wildly varied sizes. */
+  collageWidth(p: Photo): number {
+    return 170 + (this.hash(p.id + 'w') % 5) * 48; // 170..362px
+  }
+  /** Seeded stacking order so some photos sit in front of others. */
+  collageZ(p: Photo): number {
+    return 1 + (this.hash(p.id + 'z') % 20);
+  }
+
+  /** Split photos into three rows for the marquee, spread evenly. */
+  marqueeRows(photos: Photo[]): Photo[][] {
+    const rows: Photo[][] = [[], [], []];
+    photos.forEach((p, i) => rows[i % 3].push(p));
+    return rows.filter((r) => r.length > 0);
+  }
+  /** Duplicate a row so the marquee animation loops seamlessly. */
+  dup(row: Photo[]): Photo[] {
+    return [...row, ...row];
+  }
+  /** Open the lightbox at a photo's position in the full gallery. */
+  openPhoto(p: Photo): void {
+    const idx = this.gallery()?.photos.findIndex((x) => x.id === p.id) ?? -1;
+    if (idx >= 0) this.lightboxIndex.set(idx);
   }
 }

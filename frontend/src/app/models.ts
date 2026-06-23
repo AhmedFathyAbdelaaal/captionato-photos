@@ -37,7 +37,11 @@ export type GalleryLayout =
   | 'grid'
   | 'editorial'
   | 'slideshow'
-  | 'moodboard';
+  | 'moodboard'
+  | 'collage'
+  | 'polaroid'
+  | 'filmstrip'
+  | 'marquee';
 
 export type ForceTheme = 'system' | 'light' | 'dark';
 
