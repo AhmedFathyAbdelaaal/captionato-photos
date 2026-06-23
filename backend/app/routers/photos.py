@@ -12,14 +12,21 @@ from fastapi import (
     status,
 )
 from fastapi.responses import FileResponse
-from sqlalchemy import delete, func, select
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session, selectinload
 
 from ..config import settings
 from ..deps import get_current_admin, get_db
 from ..imaging import process_upload
-from ..models import GalleryPhoto, Photo
-from ..schemas import PhotoOut, PhotoPage, PhotoUpdate
+from ..models import Gallery, GalleryPhoto, Photo
+from ..schemas import (
+    BulkAddGalleries,
+    BulkIds,
+    BulkVisibility,
+    PhotoOut,
+    PhotoPage,
+    PhotoUpdate,
+)
 from ..serializers import photo_out
 
 router = APIRouter(prefix="/photos", tags=["photos"])
@@ -123,6 +130,63 @@ def upload_photos(
     for p in created:
         db.refresh(p)
     return [photo_out(p) for p in created]
+
+
+# ── Bulk actions ──
+@router.post("/bulk/visibility", status_code=status.HTTP_204_NO_CONTENT)
+def bulk_set_visibility(
+    body: BulkVisibility,
+    _admin=Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    if body.photo_ids:
+        db.execute(
+            update(Photo)
+            .where(Photo.id.in_(body.photo_ids))
+            .values(visible=body.visible)
+        )
+        db.commit()
+
+
+@router.post("/bulk/delete", status_code=status.HTTP_204_NO_CONTENT)
+def bulk_delete(
+    body: BulkIds,
+    _admin=Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    photos = db.scalars(select(Photo).where(Photo.id.in_(body.photo_ids))).all()
+    for photo in photos:
+        Path(photo.original_path).unlink(missing_ok=True)
+        Path(photo.thumb_path).unlink(missing_ok=True)
+        db.delete(photo)
+    db.commit()
+
+
+@router.post("/bulk/galleries", status_code=status.HTTP_204_NO_CONTENT)
+def bulk_add_to_galleries(
+    body: BulkAddGalleries,
+    _admin=Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Append the selected photos to each gallery, skipping any that are already
+    members (existing memberships are preserved)."""
+    for gid in body.gallery_ids:
+        if db.get(Gallery, gid) is None:
+            continue
+        next_order = (
+            db.scalar(
+                select(func.coalesce(func.max(GalleryPhoto.display_order), -1))
+                .where(GalleryPhoto.gallery_id == gid)
+            )
+            + 1
+        )
+        for pid in body.photo_ids:
+            if db.get(GalleryPhoto, (gid, pid)) is None:
+                db.add(
+                    GalleryPhoto(gallery_id=gid, photo_id=pid, display_order=next_order)
+                )
+                next_order += 1
+    db.commit()
 
 
 # ── Update metadata / visibility / gallery membership ──

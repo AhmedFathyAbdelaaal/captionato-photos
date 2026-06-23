@@ -187,6 +187,20 @@ const THEMES: ForceTheme[] = ['system', 'light', 'dark'];
         color: var(--color-accent);
         border-color: var(--color-accent);
       }
+      @media (max-width: 560px) {
+        .row {
+          grid-template-columns: 48px 1fr auto;
+        }
+        /* Move the reorder arrows onto their own line on narrow screens. */
+        .ord {
+          grid-row: 2;
+          grid-column: 1 / -1;
+          justify-content: flex-end;
+        }
+        .create input {
+          flex: 1 1 100%;
+        }
+      }
     `,
   ],
 })

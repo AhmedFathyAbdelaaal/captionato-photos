@@ -96,15 +96,36 @@ import { AuthService } from '../services/auth.service';
           grid-template-columns: 1fr;
         }
         .side {
-          position: static;
+          position: sticky;
+          top: 0;
+          z-index: 30;
           height: auto;
           flex-direction: row;
           flex-wrap: wrap;
           align-items: center;
+          gap: 0.6rem 1rem;
+          padding: 0.8rem 1rem;
+        }
+        .brand {
+          flex: 1 1 auto;
+        }
+        nav {
+          flex-direction: row;
+          order: 3;
+          flex-basis: 100%;
+          overflow-x: auto;
+        }
+        nav a {
+          white-space: nowrap;
         }
         .foot {
-          margin: 0 0 0 auto;
+          margin: 0;
           flex-direction: row;
+          align-items: center;
+          gap: 0.6rem;
+        }
+        .foot .view {
+          display: none; /* keep the bar compact on phones */
         }
       }
     `,

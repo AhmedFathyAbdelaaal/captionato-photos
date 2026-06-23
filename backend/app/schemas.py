@@ -53,6 +53,19 @@ class PhotoPage(BaseModel):
     page_size: int
 
 
+# ── Bulk photo actions ──
+class BulkIds(BaseModel):
+    photo_ids: list[uuid.UUID]
+
+
+class BulkVisibility(BulkIds):
+    visible: bool
+
+
+class BulkAddGalleries(BulkIds):
+    gallery_ids: list[uuid.UUID]  # photos are appended to each (membership kept)
+
+
 # ── Galleries ──
 class GalleryBase(BaseModel):
     name: str

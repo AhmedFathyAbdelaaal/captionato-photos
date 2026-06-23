@@ -76,6 +76,23 @@ export class ApiService {
     return this.http.delete(`${this.base}/photos/${id}`);
   }
 
+  // ── Bulk photo actions ──
+  bulkSetVisibility(photo_ids: string[], visible: boolean) {
+    return this.http.post(`${this.base}/photos/bulk/visibility`, {
+      photo_ids,
+      visible,
+    });
+  }
+  bulkDelete(photo_ids: string[]) {
+    return this.http.post(`${this.base}/photos/bulk/delete`, { photo_ids });
+  }
+  bulkAddToGalleries(photo_ids: string[], gallery_ids: string[]) {
+    return this.http.post(`${this.base}/photos/bulk/galleries`, {
+      photo_ids,
+      gallery_ids,
+    });
+  }
+
   // ── Galleries ──
   getGalleries(): Observable<Gallery[]> {
     return this.http.get<Gallery[]>(`${this.base}/galleries`);
