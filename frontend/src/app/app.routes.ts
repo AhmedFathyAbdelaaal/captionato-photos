@@ -47,6 +47,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'collages',
+        loadComponent: () =>
+          import('./admin/admin-collages.component').then(
+            (m) => m.AdminCollagesComponent,
+          ),
+      },
+      {
+        path: 'collages/:id',
+        loadComponent: () =>
+          import('./admin/collage-editor.component').then(
+            (m) => m.CollageEditorComponent,
+          ),
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./admin/admin-settings.component').then(

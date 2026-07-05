@@ -1,0 +1,64 @@
+{
+  "nodes": [
+    {
+      "id": "service:frontend/.dockerignore",
+      "type": "service",
+      "name": ".dockerignore",
+      "filePath": "frontend/.dockerignore",
+      "summary": "Docker build context exclusion file for the Angular frontend, preventing node_modules, dist artifacts, .angular cache, git history, and log files from being sent to the Docker daemon.",
+      "tags": ["infrastructure", "containerization", "configuration", "build-system"],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:frontend/Dockerfile",
+      "type": "service",
+      "name": "Dockerfile",
+      "filePath": "frontend/Dockerfile",
+      "summary": "Multi-stage Docker build for the Angular 16 frontend: a Node 18 Alpine build stage compiles the app, then a minimal nginx:alpine serve stage hosts the static output on port 80 with a runtime entrypoint script that injects API_BASE_URL into /assets/config.json at container start.",
+      "tags": ["containerization", "infrastructure", "deployment", "build-system"],
+      "complexity": "moderate",
+      "languageNotes": "Multi-stage builds are used here for a significant size reduction — Node and its build dependencies are discarded; only the compiled Angular static files are copied into the nginx image. The docker-entrypoint.sh hook pattern allows runtime environment injection without rebuilding the image."
+    },
+    {
+      "id": "service:frontend/Dockerfile:build",
+      "type": "service",
+      "name": "build",
+      "filePath": "frontend/Dockerfile",
+      "summary": "Build stage using node:18-alpine that installs npm dependencies and compiles the Angular application via npm run build.",
+      "tags": ["containerization", "build-system", "compilation"],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:frontend/Dockerfile:nginx",
+      "type": "service",
+      "name": "nginx",
+      "filePath": "frontend/Dockerfile",
+      "summary": "Serve stage using nginx:alpine that hosts the compiled Angular static files on port 80 with a custom nginx config and a runtime entrypoint script for API base URL injection.",
+      "tags": ["containerization", "infrastructure", "deployment"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "service:frontend/Dockerfile",
+      "target": "service:frontend/Dockerfile:build",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "service:frontend/Dockerfile",
+      "target": "service:frontend/Dockerfile:nginx",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "service:frontend/Dockerfile",
+      "target": "service:frontend/.dockerignore",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ]
+}

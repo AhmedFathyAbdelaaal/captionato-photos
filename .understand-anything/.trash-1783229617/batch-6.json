@@ -1,0 +1,59 @@
+{
+  "nodes": [
+    {
+      "id": "config:backend/.env.example",
+      "type": "config",
+      "name": ".env.example",
+      "filePath": "backend/.env.example",
+      "summary": "Template environment file declaring all required runtime variables for the backend: database connection URL, JWT secret key, initial admin credentials, image storage paths, and CORS allowed origins. Serves as the canonical reference for operators configuring a new deployment.",
+      "tags": ["configuration", "environment", "security", "deployment"],
+      "complexity": "simple",
+      "languageNotes": "DATABASE_URL uses the postgresql:// scheme consumed by SQLAlchemy; ALLOWED_ORIGINS is comma-separated and parsed by pydantic-settings in the app."
+    },
+    {
+      "id": "config:backend/alembic.ini",
+      "type": "config",
+      "name": "alembic.ini",
+      "filePath": "backend/alembic.ini",
+      "summary": "Alembic database migration tool configuration pointing to the alembic/ migrations directory; the SQLAlchemy connection URL is intentionally left blank and injected at runtime from application settings via env.py. Configures console logging for root, SQLAlchemy, and alembic loggers.",
+      "tags": ["configuration", "database", "migration", "build-system"],
+      "complexity": "simple",
+      "languageNotes": "sqlalchemy.url is left empty on purpose — Alembic's env.py overrides it programmatically so no credentials are stored in this file."
+    },
+    {
+      "id": "document:backend/requirements.txt",
+      "type": "document",
+      "name": "requirements.txt",
+      "filePath": "backend/requirements.txt",
+      "summary": "Pinned Python dependency manifest for the FastAPI backend, covering the web framework (fastapi, uvicorn), ORM and migrations (SQLAlchemy, alembic, psycopg2-binary), validation (pydantic, pydantic-settings), authentication (python-jose, passlib, bcrypt), multipart uploads, and image processing (Pillow).",
+      "tags": ["documentation", "configuration", "dependency-management"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/start.sh",
+      "type": "file",
+      "name": "start.sh",
+      "filePath": "backend/start.sh",
+      "summary": "Container entrypoint shell script that runs pending Alembic database migrations to HEAD on every boot, then hands off to uvicorn to serve the FastAPI application on port 8000. The migration step is idempotent, making it safe to run on every container restart.",
+      "tags": ["entry-point", "deployment", "infrastructure", "script"],
+      "complexity": "simple",
+      "languageNotes": "Uses exec to replace the shell process with uvicorn, ensuring signals (SIGTERM) propagate correctly to the API server inside the container."
+    }
+  ],
+  "edges": [
+    {
+      "source": "config:backend/.env.example",
+      "target": "config:backend/alembic.ini",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:backend/start.sh",
+      "target": "config:backend/alembic.ini",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ]
+}

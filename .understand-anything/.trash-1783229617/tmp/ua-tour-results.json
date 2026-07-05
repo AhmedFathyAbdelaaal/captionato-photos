@@ -1,0 +1,582 @@
+{
+  "scriptCompleted": true,
+  "entryPointCandidates": [
+    {
+      "id": "file:backend/app/main.py",
+      "score": 5,
+      "name": "main.py",
+      "summary": "FastAPI app factory: CORS, router mounts, admin seed, /health."
+    },
+    {
+      "id": "file:frontend/src/main.ts",
+      "score": 5,
+      "name": "main.ts",
+      "summary": "Angular bootstrap entry: reads runtime config, bootstrapApplication."
+    },
+    {
+      "id": "document:README.md",
+      "score": 5,
+      "name": "README.md",
+      "summary": "Comprehensive docs: architecture, image pipeline, auth, data model, API reference, roadmap."
+    },
+    {
+      "id": "file:backend/start.sh",
+      "score": 3,
+      "name": "start.sh",
+      "summary": "Container entrypoint: alembic upgrade head then uvicorn."
+    },
+    {
+      "id": "file:backend/app/deps.py",
+      "score": 2,
+      "name": "deps.py",
+      "summary": "FastAPI DI callables: DB session + admin JWT auth."
+    }
+  ],
+  "fanInRanking": [
+    {
+      "id": "file:backend/app/models.py",
+      "fanIn": 2,
+      "name": "models.py"
+    },
+    {
+      "id": "file:backend/app/imaging.py",
+      "fanIn": 1,
+      "name": "imaging.py"
+    },
+    {
+      "id": "file:backend/app/routers/auth.py",
+      "fanIn": 1,
+      "name": "auth.py"
+    },
+    {
+      "id": "file:backend/app/routers/galleries.py",
+      "fanIn": 1,
+      "name": "galleries.py"
+    },
+    {
+      "id": "file:backend/app/routers/photos.py",
+      "fanIn": 1,
+      "name": "photos.py"
+    },
+    {
+      "id": "file:backend/app/schemas.py",
+      "fanIn": 1,
+      "name": "schemas.py"
+    },
+    {
+      "id": "file:backend/app/security.py",
+      "fanIn": 1,
+      "name": "security.py"
+    },
+    {
+      "id": "file:frontend/src/app/components/lightbox.component.ts",
+      "fanIn": 1,
+      "name": "lightbox.component.ts"
+    },
+    {
+      "id": "file:frontend/src/app/models.ts",
+      "fanIn": 1,
+      "name": "models.ts"
+    },
+    {
+      "id": "file:frontend/src/app/services/api.service.ts",
+      "fanIn": 1,
+      "name": "api.service.ts"
+    },
+    {
+      "id": "file:frontend/src/app/services/theme.service.ts",
+      "fanIn": 1,
+      "name": "theme.service.ts"
+    },
+    {
+      "id": "file:frontend/src/app/app.component.ts",
+      "fanIn": 1,
+      "name": "app.component.ts"
+    },
+    {
+      "id": "file:frontend/src/app/app.config.ts",
+      "fanIn": 1,
+      "name": "app.config.ts"
+    },
+    {
+      "id": "file:frontend/src/app/app.routes.ts",
+      "fanIn": 1,
+      "name": "app.routes.ts"
+    },
+    {
+      "id": "file:backend/alembic/versions/0001_initial.py",
+      "fanIn": 1,
+      "name": "0001_initial.py"
+    },
+    {
+      "id": "file:backend/alembic/env.py",
+      "fanIn": 0,
+      "name": "env.py"
+    },
+    {
+      "id": "file:backend/app/__init__.py",
+      "fanIn": 0,
+      "name": "__init__.py"
+    },
+    {
+      "id": "file:backend/app/config.py",
+      "fanIn": 0,
+      "name": "config.py"
+    },
+    {
+      "id": "file:backend/app/database.py",
+      "fanIn": 0,
+      "name": "database.py"
+    },
+    {
+      "id": "file:backend/app/deps.py",
+      "fanIn": 0,
+      "name": "deps.py"
+    }
+  ],
+  "fanOutRanking": [
+    {
+      "id": "file:backend/app/main.py",
+      "fanOut": 3,
+      "name": "main.py"
+    },
+    {
+      "id": "file:backend/app/routers/photos.py",
+      "fanOut": 3,
+      "name": "photos.py"
+    },
+    {
+      "id": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "fanOut": 2,
+      "name": "gallery-detail.component.ts"
+    },
+    {
+      "id": "file:frontend/src/main.ts",
+      "fanOut": 2,
+      "name": "main.ts"
+    },
+    {
+      "id": "file:backend/app/deps.py",
+      "fanOut": 1,
+      "name": "deps.py"
+    },
+    {
+      "id": "file:backend/app/serializers.py",
+      "fanOut": 1,
+      "name": "serializers.py"
+    },
+    {
+      "id": "file:frontend/src/app/services/api.service.ts",
+      "fanOut": 1,
+      "name": "api.service.ts"
+    },
+    {
+      "id": "file:frontend/src/app/app.config.ts",
+      "fanOut": 1,
+      "name": "app.config.ts"
+    },
+    {
+      "id": "file:frontend/src/app/services/auth.service.ts",
+      "fanOut": 1,
+      "name": "auth.service.ts"
+    },
+    {
+      "id": "service:docker-compose.yml",
+      "fanOut": 1,
+      "name": "docker-compose.yml"
+    },
+    {
+      "id": "file:backend/start.sh",
+      "fanOut": 1,
+      "name": "start.sh"
+    },
+    {
+      "id": "file:backend/alembic/env.py",
+      "fanOut": 0,
+      "name": "env.py"
+    },
+    {
+      "id": "file:backend/app/__init__.py",
+      "fanOut": 0,
+      "name": "__init__.py"
+    },
+    {
+      "id": "file:backend/app/config.py",
+      "fanOut": 0,
+      "name": "config.py"
+    },
+    {
+      "id": "file:backend/app/database.py",
+      "fanOut": 0,
+      "name": "database.py"
+    },
+    {
+      "id": "file:backend/app/imaging.py",
+      "fanOut": 0,
+      "name": "imaging.py"
+    },
+    {
+      "id": "file:backend/app/models.py",
+      "fanOut": 0,
+      "name": "models.py"
+    },
+    {
+      "id": "file:backend/app/routers/auth.py",
+      "fanOut": 0,
+      "name": "auth.py"
+    },
+    {
+      "id": "file:backend/app/routers/galleries.py",
+      "fanOut": 0,
+      "name": "galleries.py"
+    },
+    {
+      "id": "file:backend/app/schemas.py",
+      "fanOut": 0,
+      "name": "schemas.py"
+    }
+  ],
+  "bfsTraversal": {
+    "startNode": "file:backend/app/main.py",
+    "order": [
+      "file:backend/app/main.py",
+      "file:backend/app/routers/photos.py",
+      "file:backend/app/routers/galleries.py",
+      "file:backend/app/routers/auth.py",
+      "file:backend/app/imaging.py",
+      "file:backend/app/models.py",
+      "file:backend/app/schemas.py"
+    ],
+    "depthMap": {
+      "file:backend/app/main.py": 0,
+      "file:backend/app/routers/photos.py": 1,
+      "file:backend/app/routers/galleries.py": 1,
+      "file:backend/app/routers/auth.py": 1,
+      "file:backend/app/imaging.py": 2,
+      "file:backend/app/models.py": 2,
+      "file:backend/app/schemas.py": 2
+    },
+    "byDepth": {
+      "0": [
+        "file:backend/app/main.py"
+      ],
+      "1": [
+        "file:backend/app/routers/photos.py",
+        "file:backend/app/routers/galleries.py",
+        "file:backend/app/routers/auth.py"
+      ],
+      "2": [
+        "file:backend/app/imaging.py",
+        "file:backend/app/models.py",
+        "file:backend/app/schemas.py"
+      ]
+    }
+  },
+  "nonCodeFiles": {
+    "documentation": [
+      {
+        "id": "document:README.md",
+        "name": "README.md",
+        "summary": "Comprehensive docs: architecture, image pipeline, auth, data model, API reference, roadmap."
+      }
+    ],
+    "infrastructure": [
+      {
+        "id": "service:backend/Dockerfile",
+        "name": "Dockerfile",
+        "type": "service",
+        "summary": "python:3.11-slim FastAPI image with Pillow libs and start.sh entrypoint."
+      },
+      {
+        "id": "service:frontend/Dockerfile",
+        "name": "Dockerfile",
+        "type": "service",
+        "summary": "Multi-stage: Node 18 compile + nginx:alpine serve + runtime config injection."
+      },
+      {
+        "id": "service:docker-compose.yml",
+        "name": "docker-compose.yml",
+        "type": "service",
+        "summary": "3-service stack: PostgreSQL, FastAPI backend, Angular/nginx frontend."
+      }
+    ],
+    "data": [],
+    "config": [
+      {
+        "id": "config:backend/.env.example",
+        "name": ".env.example",
+        "summary": "Template env file: DB, JWT, admin creds, paths, CORS."
+      }
+    ]
+  },
+  "clusters": [],
+  "layers": {
+    "count": 8,
+    "list": [
+      {
+        "id": "layer:api",
+        "name": "API Layer",
+        "description": "FastAPI routers handling HTTP endpoints for auth, photos, and galleries"
+      },
+      {
+        "id": "layer:service",
+        "name": "Service Layer",
+        "description": "Backend DI providers, image processing, security, serializers; frontend Angular services"
+      },
+      {
+        "id": "layer:data",
+        "name": "Data Layer",
+        "description": "SQLAlchemy ORM models, database session, Pydantic schemas, Alembic migrations"
+      },
+      {
+        "id": "layer:ui",
+        "name": "UI Layer",
+        "description": "Angular page components, admin components, shared UI components, directives, styles"
+      },
+      {
+        "id": "layer:bootstrap",
+        "name": "Bootstrap Layer",
+        "description": "App entry points and configuration for both frontend and backend"
+      },
+      {
+        "id": "layer:infrastructure",
+        "name": "Infrastructure Layer",
+        "description": "Docker containers, nginx, deployment scripts, container orchestration"
+      },
+      {
+        "id": "layer:build-config",
+        "name": "Build & Config Layer",
+        "description": "Build toolchain configs: Angular CLI, TypeScript, npm, Alembic, env templates"
+      },
+      {
+        "id": "layer:documentation",
+        "name": "Documentation Layer",
+        "description": "README and tooling config docs"
+      }
+    ]
+  },
+  "nodeSummaryIndex": {
+    "file:backend/alembic/env.py": {
+      "name": "env.py",
+      "type": "file",
+      "summary": "Alembic migration runner wiring SQLAlchemy metadata and DB URL."
+    },
+    "file:backend/app/__init__.py": {
+      "name": "__init__.py",
+      "type": "file",
+      "summary": "Empty package initializer."
+    },
+    "file:backend/app/config.py": {
+      "name": "config.py",
+      "type": "file",
+      "summary": "Pydantic BaseSettings reading all env vars for DB, JWT, admin, CORS."
+    },
+    "file:backend/app/database.py": {
+      "name": "database.py",
+      "type": "file",
+      "summary": "SQLAlchemy engine, session factory, declarative Base."
+    },
+    "file:backend/app/deps.py": {
+      "name": "deps.py",
+      "type": "file",
+      "summary": "FastAPI DI callables: DB session + admin JWT auth."
+    },
+    "file:backend/app/imaging.py": {
+      "name": "imaging.py",
+      "type": "file",
+      "summary": "EXIF extraction and Pillow thumbnail generation."
+    },
+    "file:backend/app/main.py": {
+      "name": "main.py",
+      "type": "file",
+      "summary": "FastAPI app factory: CORS, router mounts, admin seed, /health."
+    },
+    "file:backend/app/models.py": {
+      "name": "models.py",
+      "type": "file",
+      "summary": "SQLAlchemy ORM: Photo, Gallery, GalleryPhoto, AdminUser."
+    },
+    "file:backend/app/routers/auth.py": {
+      "name": "auth.py",
+      "type": "file",
+      "summary": "Auth endpoints: login (JWT), me, change_password."
+    },
+    "file:backend/app/routers/galleries.py": {
+      "name": "galleries.py",
+      "type": "file",
+      "summary": "Gallery CRUD + ordering API."
+    },
+    "file:backend/app/routers/photos.py": {
+      "name": "photos.py",
+      "type": "file",
+      "summary": "Photo lifecycle: upload, bulk ops, EXIF, file serving."
+    },
+    "file:backend/app/schemas.py": {
+      "name": "schemas.py",
+      "type": "file",
+      "summary": "Pydantic request/response schemas for all endpoints."
+    },
+    "file:backend/app/security.py": {
+      "name": "security.py",
+      "type": "file",
+      "summary": "bcrypt password hashing + JWT create/decode."
+    },
+    "file:backend/app/serializers.py": {
+      "name": "serializers.py",
+      "type": "file",
+      "summary": "ORM→Pydantic conversion helpers for Photo and Gallery."
+    },
+    "file:frontend/src/app/admin/admin-galleries.component.ts": {
+      "name": "admin-galleries.component.ts",
+      "type": "file",
+      "summary": "Admin: gallery CRUD, layout/theme/accent settings."
+    },
+    "file:frontend/src/app/admin/admin-photos.component.ts": {
+      "name": "admin-photos.component.ts",
+      "type": "file",
+      "summary": "Admin: photo upload, bulk ops, visibility, gallery assignment."
+    },
+    "file:frontend/src/app/admin/admin-settings.component.ts": {
+      "name": "admin-settings.component.ts",
+      "type": "file",
+      "summary": "Admin: password-change form."
+    },
+    "file:frontend/src/app/components/lightbox.component.ts": {
+      "name": "lightbox.component.ts",
+      "type": "file",
+      "summary": "Full-screen lightbox: keyboard nav, EXIF panel, lazy full-res loading, download."
+    },
+    "file:frontend/src/app/components/reveal.directive.ts": {
+      "name": "reveal.directive.ts",
+      "type": "file",
+      "summary": "IntersectionObserver scroll-reveal directive."
+    },
+    "file:frontend/src/app/models.ts": {
+      "name": "models.ts",
+      "type": "file",
+      "summary": "Shared TS interfaces: Photo, Gallery, ExifData, GalleryLayout union type."
+    },
+    "file:frontend/src/app/pages/galleries.component.ts": {
+      "name": "galleries.component.ts",
+      "type": "file",
+      "summary": "Public gallery list page."
+    },
+    "file:frontend/src/app/pages/gallery-detail.component.ts": {
+      "name": "gallery-detail.component.ts",
+      "type": "file",
+      "summary": "Gallery detail: 9 layout modes, lightbox integration, theme override."
+    },
+    "file:frontend/src/app/pages/landing.component.ts": {
+      "name": "landing.component.ts",
+      "type": "file",
+      "summary": "Landing: paginated masonry grid, infinite scroll, lightbox."
+    },
+    "file:frontend/src/app/services/api.service.ts": {
+      "name": "api.service.ts",
+      "type": "file",
+      "summary": "Singleton Angular HTTP service: all REST endpoints + image URL helpers."
+    },
+    "file:frontend/src/app/services/theme.service.ts": {
+      "name": "theme.service.ts",
+      "type": "file",
+      "summary": "Theme: light/dark state, localStorage, OS media-query, per-gallery accent overrides."
+    },
+    "file:frontend/src/app/admin/admin.component.ts": {
+      "name": "admin.component.ts",
+      "type": "file",
+      "summary": "Admin dashboard shell + logout."
+    },
+    "file:frontend/src/app/admin/login.component.ts": {
+      "name": "login.component.ts",
+      "type": "file",
+      "summary": "Login form → AuthService → redirect to admin."
+    },
+    "file:frontend/src/app/app.component.ts": {
+      "name": "app.component.ts",
+      "type": "file",
+      "summary": "Root Angular component: URL signal, conditional chrome, theme delegation."
+    },
+    "file:frontend/src/app/app.config.ts": {
+      "name": "app.config.ts",
+      "type": "file",
+      "summary": "Angular bootstrap config: router + authInterceptor."
+    },
+    "file:frontend/src/app/app.routes.ts": {
+      "name": "app.routes.ts",
+      "type": "file",
+      "summary": "Route table: lazy-loaded components, authGuard on admin."
+    },
+    "file:frontend/src/app/config.ts": {
+      "name": "config.ts",
+      "type": "file",
+      "summary": "APP_CONFIG injection token for runtime API base URL."
+    },
+    "file:frontend/src/app/services/auth.guard.ts": {
+      "name": "auth.guard.ts",
+      "type": "file",
+      "summary": "Route guard: isAuthed check, redirect to login."
+    },
+    "file:frontend/src/app/services/auth.interceptor.ts": {
+      "name": "auth.interceptor.ts",
+      "type": "file",
+      "summary": "HTTP interceptor: Bearer token + 401 auto-logout."
+    },
+    "file:frontend/src/app/services/auth.service.ts": {
+      "name": "auth.service.ts",
+      "type": "file",
+      "summary": "Auth state: JWT in localStorage, login/logout, isAuthed signal."
+    },
+    "file:frontend/src/main.ts": {
+      "name": "main.ts",
+      "type": "file",
+      "summary": "Angular bootstrap entry: reads runtime config, bootstrapApplication."
+    },
+    "service:backend/Dockerfile": {
+      "name": "Dockerfile",
+      "type": "service",
+      "summary": "python:3.11-slim FastAPI image with Pillow libs and start.sh entrypoint."
+    },
+    "service:frontend/Dockerfile": {
+      "name": "Dockerfile",
+      "type": "service",
+      "summary": "Multi-stage: Node 18 compile + nginx:alpine serve + runtime config injection."
+    },
+    "service:docker-compose.yml": {
+      "name": "docker-compose.yml",
+      "type": "service",
+      "summary": "3-service stack: PostgreSQL, FastAPI backend, Angular/nginx frontend."
+    },
+    "config:backend/.env.example": {
+      "name": ".env.example",
+      "type": "config",
+      "summary": "Template env file: DB, JWT, admin creds, paths, CORS."
+    },
+    "file:backend/start.sh": {
+      "name": "start.sh",
+      "type": "file",
+      "summary": "Container entrypoint: alembic upgrade head then uvicorn."
+    },
+    "file:backend/alembic/versions/0001_initial.py": {
+      "name": "0001_initial.py",
+      "type": "file",
+      "summary": "Initial migration: all 4 tables (photos, galleries, gallery_photos, admin_users)."
+    },
+    "file:frontend/nginx.conf": {
+      "name": "nginx.conf",
+      "type": "file",
+      "summary": "Nginx SPA: no-store for config/index, immutable cache for hashed assets, SPA fallback."
+    },
+    "file:frontend/src/styles.scss": {
+      "name": "styles.scss",
+      "type": "file",
+      "summary": "Global SCSS: CSS custom properties design system, dark/light theme tokens."
+    },
+    "document:README.md": {
+      "name": "README.md",
+      "type": "document",
+      "summary": "Comprehensive docs: architecture, image pipeline, auth, data model, API reference, roadmap."
+    }
+  },
+  "totalNodes": 44,
+  "totalEdges": 17
+}

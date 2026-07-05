@@ -1,0 +1,37 @@
+{
+  "projectRoot": "D:/Organized Work/MYSELF/captionatoPics/captionato-photos",
+  "batchFiles": [
+    {"path": "backend/alembic/env.py", "language": "python", "sizeLines": 47, "fileCategory": "code"},
+    {"path": "backend/app/__init__.py", "language": "python", "sizeLines": 0, "fileCategory": "code"},
+    {"path": "backend/app/config.py", "language": "python", "sizeLines": 44, "fileCategory": "code"},
+    {"path": "backend/app/database.py", "language": "python", "sizeLines": 12, "fileCategory": "code"},
+    {"path": "backend/app/deps.py", "language": "python", "sizeLines": 40, "fileCategory": "code"},
+    {"path": "backend/app/imaging.py", "language": "python", "sizeLines": 139, "fileCategory": "code"},
+    {"path": "backend/app/main.py", "language": "python", "sizeLines": 59, "fileCategory": "code"},
+    {"path": "backend/app/models.py", "language": "python", "sizeLines": 102, "fileCategory": "code"},
+    {"path": "backend/app/routers/__init__.py", "language": "python", "sizeLines": 0, "fileCategory": "code"},
+    {"path": "backend/app/routers/auth.py", "language": "python", "sizeLines": 42, "fileCategory": "code"},
+    {"path": "backend/app/routers/galleries.py", "language": "python", "sizeLines": 148, "fileCategory": "code"},
+    {"path": "backend/app/routers/photos.py", "language": "python", "sizeLines": 282, "fileCategory": "code"},
+    {"path": "backend/app/schemas.py", "language": "python", "sizeLines": 111, "fileCategory": "code"},
+    {"path": "backend/app/security.py", "language": "python", "sizeLines": 33, "fileCategory": "code"},
+    {"path": "backend/app/serializers.py", "language": "python", "sizeLines": 51, "fileCategory": "code"}
+  ],
+  "batchImportData": {
+    "backend/alembic/env.py": ["backend/app/__init__.py","backend/app/config.py","backend/app/database.py","backend/app/models.py"],
+    "backend/app/__init__.py": [],
+    "backend/app/config.py": [],
+    "backend/app/database.py": ["backend/app/config.py"],
+    "backend/app/deps.py": ["backend/app/database.py","backend/app/models.py","backend/app/security.py"],
+    "backend/app/imaging.py": ["backend/app/config.py"],
+    "backend/app/main.py": ["backend/app/config.py","backend/app/database.py","backend/app/models.py","backend/app/routers/__init__.py","backend/app/routers/auth.py","backend/app/routers/galleries.py","backend/app/routers/photos.py","backend/app/security.py"],
+    "backend/app/models.py": ["backend/app/database.py"],
+    "backend/app/routers/__init__.py": [],
+    "backend/app/routers/auth.py": ["backend/app/deps.py","backend/app/models.py","backend/app/schemas.py","backend/app/security.py"],
+    "backend/app/routers/galleries.py": ["backend/app/deps.py","backend/app/models.py","backend/app/schemas.py","backend/app/serializers.py"],
+    "backend/app/routers/photos.py": ["backend/app/config.py","backend/app/deps.py","backend/app/imaging.py","backend/app/models.py","backend/app/schemas.py","backend/app/serializers.py"],
+    "backend/app/schemas.py": [],
+    "backend/app/security.py": ["backend/app/config.py"],
+    "backend/app/serializers.py": ["backend/app/models.py","backend/app/schemas.py"]
+  }
+}

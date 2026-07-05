@@ -1,0 +1,2858 @@
+{
+  "version": "1.0.0",
+  "gitCommitHash": "64dddbb85d704b4719cadf8f035600df184c8ca4",
+  "generatedAt": "2026-07-05T05:33:23.497Z",
+  "files": {
+    ".understand-anything/.understandignore": {
+      "filePath": ".understand-anything/.understandignore",
+      "contentHash": "3ad20974b53de446e51dd4c662bb08c71007fb24535513484afce01f3c4fa75e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 12,
+      "hasStructuralAnalysis": false
+    },
+    "backend/.dockerignore": {
+      "filePath": "backend/.dockerignore",
+      "contentHash": "b9ebcc96692569f9084ce98e3ded879544878c435a3702eefacf1f9146c23018",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 9,
+      "hasStructuralAnalysis": false
+    },
+    "backend/.env.example": {
+      "filePath": "backend/.env.example",
+      "contentHash": "13c195ee85b2f00c0a2b8311e8674a705f37fb74aa937710c5694d861f7fde05",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 17,
+      "hasStructuralAnalysis": true
+    },
+    "backend/alembic.ini": {
+      "filePath": "backend/alembic.ini",
+      "contentHash": "ccc2096280d61ba4513e35d4fd3eee97463227a11e01d151fe0bb669f1084e6a",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 41,
+      "hasStructuralAnalysis": false
+    },
+    "backend/alembic/env.py": {
+      "filePath": "backend/alembic/env.py",
+      "contentHash": "6477c7d489e5c81c001aac0c26863cd58f433f194828b2e93142d34eb0bfbe26",
+      "functions": [
+        {
+          "name": "run_migrations_offline",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "run_migrations_online",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 10
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "logging.config",
+          "specifiers": [
+            "fileConfig"
+          ]
+        },
+        {
+          "source": "alembic",
+          "specifiers": [
+            "context"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "engine_from_config",
+            "pool"
+          ]
+        },
+        {
+          "source": "app.config",
+          "specifiers": [
+            "settings"
+          ]
+        },
+        {
+          "source": "app.database",
+          "specifiers": [
+            "Base"
+          ]
+        },
+        {
+          "source": "app",
+          "specifiers": [
+            "models"
+          ]
+        }
+      ],
+      "exports": [
+        "run_migrations_offline",
+        "run_migrations_online"
+      ],
+      "totalLines": 48,
+      "hasStructuralAnalysis": true
+    },
+    "backend/alembic/script.py.mako": {
+      "filePath": "backend/alembic/script.py.mako",
+      "contentHash": "c20f6ab92d4ed36d77fbccb82bc410cd2ced42f2c162eebb43ddd45ae93dd90e",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 25,
+      "hasStructuralAnalysis": false
+    },
+    "backend/alembic/versions/0001_initial.py": {
+      "filePath": "backend/alembic/versions/0001_initial.py",
+      "contentHash": "a9207335a49b1653c72ef1111dbda09fce1fe6689729e5c4187fd3023b26a4c2",
+      "functions": [
+        {
+          "name": "upgrade",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 73
+        },
+        {
+          "name": "downgrade",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "typing",
+          "specifiers": [
+            "Sequence",
+            "Union"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "sa"
+          ]
+        },
+        {
+          "source": "alembic",
+          "specifiers": [
+            "op"
+          ]
+        },
+        {
+          "source": "sqlalchemy.dialects",
+          "specifiers": [
+            "postgresql"
+          ]
+        }
+      ],
+      "exports": [
+        "upgrade",
+        "downgrade"
+      ],
+      "totalLines": 103,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/__init__.py": {
+      "filePath": "backend/app/__init__.py",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/config.py": {
+      "filePath": "backend/app/config.py",
+      "contentHash": "dd786433501a90af6097366a2ba20e95831c44a90b6e905ae44919b855630d57",
+      "functions": [
+        {
+          "name": "get_settings",
+          "params": [],
+          "returnType": "Settings",
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "classes": [
+        {
+          "name": "Settings",
+          "methods": [
+            "allowed_origins_list"
+          ],
+          "properties": [
+            "DATABASE_URL",
+            "SECRET_KEY",
+            "JWT_ALGORITHM",
+            "JWT_EXPIRE_MINUTES",
+            "ADMIN_USERNAME",
+            "ADMIN_PASSWORD",
+            "PHOTOS_ORIGINAL_PATH",
+            "PHOTOS_THUMB_PATH",
+            "THUMB_MAX_EDGE",
+            "ALLOWED_ORIGINS"
+          ],
+          "exported": true,
+          "lineCount": 31
+        }
+      ],
+      "imports": [
+        {
+          "source": "functools",
+          "specifiers": [
+            "lru_cache"
+          ]
+        },
+        {
+          "source": "pydantic_settings",
+          "specifiers": [
+            "BaseSettings",
+            "SettingsConfigDict"
+          ]
+        }
+      ],
+      "exports": [
+        "Settings",
+        "get_settings"
+      ],
+      "totalLines": 45,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/database.py": {
+      "filePath": "backend/app/database.py",
+      "contentHash": "5e422aa5c0a9b062794328d3c8e8d79f2bec9fbd63a86a4a73a777c34e00cd2e",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Base",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "create_engine"
+          ]
+        },
+        {
+          "source": "sqlalchemy.orm",
+          "specifiers": [
+            "DeclarativeBase",
+            "sessionmaker"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        "Base"
+      ],
+      "totalLines": 13,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/deps.py": {
+      "filePath": "backend/app/deps.py",
+      "contentHash": "c67fd448d1409f87b7b5e8cb97a1fda4b00fc3aa55f44f31b42a9dc910748357",
+      "functions": [
+        {
+          "name": "get_db",
+          "params": [],
+          "returnType": "Generator[Session, None, None]",
+          "exported": true,
+          "lineCount": 6
+        },
+        {
+          "name": "get_current_admin",
+          "params": [
+            "creds",
+            "db"
+          ],
+          "returnType": "AdminUser",
+          "exported": true,
+          "lineCount": 18
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "collections.abc",
+          "specifiers": [
+            "Generator"
+          ]
+        },
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "Depends",
+            "HTTPException",
+            "status"
+          ]
+        },
+        {
+          "source": "fastapi.security",
+          "specifiers": [
+            "HTTPAuthorizationCredentials",
+            "HTTPBearer"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "select"
+          ]
+        },
+        {
+          "source": "sqlalchemy.orm",
+          "specifiers": [
+            "Session"
+          ]
+        },
+        {
+          "source": ".database",
+          "specifiers": [
+            "SessionLocal"
+          ]
+        },
+        {
+          "source": ".models",
+          "specifiers": [
+            "AdminUser"
+          ]
+        },
+        {
+          "source": ".security",
+          "specifiers": [
+            "decode_access_token"
+          ]
+        }
+      ],
+      "exports": [
+        "get_db",
+        "get_current_admin"
+      ],
+      "totalLines": 41,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/imaging.py": {
+      "filePath": "backend/app/imaging.py",
+      "contentHash": "2d637621f84a4faee240c72acd6715841ba6ca43bf96cd6a2a394aa67a684b1f",
+      "functions": [
+        {
+          "name": "_rational_to_float",
+          "params": [
+            "value"
+          ],
+          "returnType": "float | None",
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "_format_shutter",
+          "params": [
+            "value"
+          ],
+          "returnType": "str | None",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "_clean",
+          "params": [
+            "value"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "extract_exif",
+          "params": [
+            "img"
+          ],
+          "returnType": "dict",
+          "exported": true,
+          "lineCount": 55
+        },
+        {
+          "name": "process_upload",
+          "params": [
+            "original_abs",
+            "thumb_abs"
+          ],
+          "returnType": "tuple[dict, int | None, int | None]",
+          "exported": true,
+          "lineCount": 30
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "fractions",
+          "specifiers": [
+            "Fraction"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "PIL",
+          "specifiers": [
+            "ExifTags",
+            "Image",
+            "ImageFile",
+            "ImageOps"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        "_rational_to_float",
+        "_format_shutter",
+        "_clean",
+        "extract_exif",
+        "process_upload"
+      ],
+      "totalLines": 140,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/main.py": {
+      "filePath": "backend/app/main.py",
+      "contentHash": "cd146874c7ecf7391d57f13bc4e41b20a6fd36a37084117bcc14c3ca1dc8bd09",
+      "functions": [
+        {
+          "name": "seed_admin",
+          "params": [],
+          "returnType": "None",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "lifespan",
+          "params": [
+            "app"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "health",
+          "params": [],
+          "exported": true,
+          "lineCount": 2
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "contextlib",
+          "specifiers": [
+            "asynccontextmanager"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "FastAPI"
+          ]
+        },
+        {
+          "source": "fastapi.middleware.cors",
+          "specifiers": [
+            "CORSMiddleware"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "select"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "settings"
+          ]
+        },
+        {
+          "source": ".database",
+          "specifiers": [
+            "SessionLocal"
+          ]
+        },
+        {
+          "source": ".models",
+          "specifiers": [
+            "AdminUser"
+          ]
+        },
+        {
+          "source": ".routers",
+          "specifiers": [
+            "auth",
+            "galleries",
+            "photos"
+          ]
+        },
+        {
+          "source": ".security",
+          "specifiers": [
+            "hash_password"
+          ]
+        }
+      ],
+      "exports": [
+        "seed_admin",
+        "lifespan",
+        "health"
+      ],
+      "totalLines": 60,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/models.py": {
+      "filePath": "backend/app/models.py",
+      "contentHash": "784bc88381446dfd1eff0107ed88d82e43e200927e74f7241a223d6cce62a614",
+      "functions": [],
+      "classes": [
+        {
+          "name": "Photo",
+          "methods": [],
+          "properties": [
+            "id",
+            "filename",
+            "original_path",
+            "thumb_path",
+            "title",
+            "caption",
+            "visible",
+            "width",
+            "height",
+            "exif",
+            "uploaded_at",
+            "gallery_links"
+          ],
+          "exported": true,
+          "lineCount": 26
+        },
+        {
+          "name": "Gallery",
+          "methods": [],
+          "properties": [
+            "id",
+            "name",
+            "slug",
+            "description",
+            "cover_photo_id",
+            "layout",
+            "force_theme",
+            "accent_color",
+            "display_order",
+            "created_at",
+            "photo_links"
+          ],
+          "exported": true,
+          "lineCount": 27
+        },
+        {
+          "name": "GalleryPhoto",
+          "methods": [],
+          "properties": [
+            "gallery_id",
+            "photo_id",
+            "display_order",
+            "gallery",
+            "photo"
+          ],
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "AdminUser",
+          "methods": [],
+          "properties": [
+            "id",
+            "username",
+            "password_hash"
+          ],
+          "exported": true,
+          "lineCount": 8
+        }
+      ],
+      "imports": [
+        {
+          "source": "uuid",
+          "specifiers": [
+            "uuid"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "Boolean",
+            "DateTime",
+            "ForeignKey",
+            "Integer",
+            "String",
+            "Text",
+            "func"
+          ]
+        },
+        {
+          "source": "sqlalchemy.dialects.postgresql",
+          "specifiers": [
+            "JSONB",
+            "UUID"
+          ]
+        },
+        {
+          "source": "sqlalchemy.orm",
+          "specifiers": [
+            "Mapped",
+            "mapped_column",
+            "relationship"
+          ]
+        },
+        {
+          "source": ".database",
+          "specifiers": [
+            "Base"
+          ]
+        }
+      ],
+      "exports": [
+        "Photo",
+        "Gallery",
+        "GalleryPhoto",
+        "AdminUser"
+      ],
+      "totalLines": 103,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/routers/__init__.py": {
+      "filePath": "backend/app/routers/__init__.py",
+      "contentHash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 1,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/routers/auth.py": {
+      "filePath": "backend/app/routers/auth.py",
+      "contentHash": "b1c10939f841ffb5f73bcf93b98b5d9968692b4e45540c026719553bee73eb93",
+      "functions": [
+        {
+          "name": "login",
+          "params": [
+            "body",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "me",
+          "params": [
+            "current"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "change_password",
+          "params": [
+            "body",
+            "current",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 13
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "APIRouter",
+            "Depends",
+            "HTTPException",
+            "status"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "select"
+          ]
+        },
+        {
+          "source": "sqlalchemy.orm",
+          "specifiers": [
+            "Session"
+          ]
+        },
+        {
+          "source": "..deps",
+          "specifiers": [
+            "get_current_admin",
+            "get_db"
+          ]
+        },
+        {
+          "source": "..models",
+          "specifiers": [
+            "AdminUser"
+          ]
+        },
+        {
+          "source": "..schemas",
+          "specifiers": [
+            "LoginRequest",
+            "PasswordChange",
+            "TokenResponse"
+          ]
+        },
+        {
+          "source": "..security",
+          "specifiers": [
+            "create_access_token",
+            "hash_password",
+            "verify_password"
+          ]
+        }
+      ],
+      "exports": [
+        "login",
+        "me",
+        "change_password"
+      ],
+      "totalLines": 43,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/routers/galleries.py": {
+      "filePath": "backend/app/routers/galleries.py",
+      "contentHash": "34a05f08f5990357421f63b507cd83bb48965e0ee41c838f75a9336399b16673",
+      "functions": [
+        {
+          "name": "_cover_for",
+          "params": [
+            "db",
+            "gallery"
+          ],
+          "returnType": "Photo | None",
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "list_galleries",
+          "params": [
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "get_gallery",
+          "params": [
+            "slug",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 15
+        },
+        {
+          "name": "create_gallery",
+          "params": [
+            "body",
+            "_admin",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 14
+        },
+        {
+          "name": "update_gallery",
+          "params": [
+            "gallery_id",
+            "body",
+            "_admin",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 20
+        },
+        {
+          "name": "delete_gallery",
+          "params": [
+            "gallery_id",
+            "_admin",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "reorder_galleries",
+          "params": [
+            "body",
+            "_admin",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 10
+        },
+        {
+          "name": "reorder_gallery_photos",
+          "params": [
+            "gallery_id",
+            "body",
+            "_admin",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 11
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "uuid",
+          "specifiers": [
+            "uuid"
+          ]
+        },
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "APIRouter",
+            "Depends",
+            "HTTPException",
+            "status"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "select"
+          ]
+        },
+        {
+          "source": "sqlalchemy.orm",
+          "specifiers": [
+            "Session",
+            "selectinload"
+          ]
+        },
+        {
+          "source": "..deps",
+          "specifiers": [
+            "get_current_admin",
+            "get_db"
+          ]
+        },
+        {
+          "source": "..models",
+          "specifiers": [
+            "Gallery",
+            "GalleryPhoto",
+            "Photo"
+          ]
+        },
+        {
+          "source": "..schemas",
+          "specifiers": [
+            "GalleryCreate",
+            "GalleryDetailOut",
+            "GalleryOut",
+            "GalleryUpdate",
+            "ReorderRequest"
+          ]
+        },
+        {
+          "source": "..serializers",
+          "specifiers": [
+            "gallery_out",
+            "photo_out"
+          ]
+        }
+      ],
+      "exports": [
+        "_cover_for",
+        "list_galleries",
+        "get_gallery",
+        "create_gallery",
+        "update_gallery",
+        "delete_gallery",
+        "reorder_galleries",
+        "reorder_gallery_photos"
+      ],
+      "totalLines": 149,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/routers/photos.py": {
+      "filePath": "backend/app/routers/photos.py",
+      "contentHash": "4a9e9cf11bd4cdb0a6552c40e0c2e3f3e86be7e6e7d5dac0a4d3a86d43f47381",
+      "functions": [
+        {
+          "name": "_paginate",
+          "params": [
+            "db",
+            "stmt",
+            "page",
+            "page_size",
+            "include_galleries"
+          ],
+          "returnType": "PhotoPage",
+          "exported": true,
+          "lineCount": 17
+        },
+        {
+          "name": "list_public_photos",
+          "params": [
+            "page",
+            "page_size",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "list_admin_photos",
+          "params": [
+            "page",
+            "page_size",
+            "_admin",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 7
+        },
+        {
+          "name": "upload_photos",
+          "params": [
+            "files",
+            "_admin",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 53
+        },
+        {
+          "name": "bulk_set_visibility",
+          "params": [
+            "body",
+            "_admin",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 12
+        },
+        {
+          "name": "bulk_delete",
+          "params": [
+            "body",
+            "_admin",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 11
+        },
+        {
+          "name": "bulk_add_to_galleries",
+          "params": [
+            "body",
+            "_admin",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 24
+        },
+        {
+          "name": "update_photo",
+          "params": [
+            "photo_id",
+            "body",
+            "_admin",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 34
+        },
+        {
+          "name": "delete_photo",
+          "params": [
+            "photo_id",
+            "_admin",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 13
+        },
+        {
+          "name": "get_exif",
+          "params": [
+            "photo_id",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "serve_thumb",
+          "params": [
+            "photo_id",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "serve_original",
+          "params": [
+            "photo_id",
+            "download",
+            "db"
+          ],
+          "exported": true,
+          "lineCount": 14
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "shutil",
+          "specifiers": [
+            "shutil"
+          ]
+        },
+        {
+          "source": "uuid",
+          "specifiers": [
+            "uuid"
+          ]
+        },
+        {
+          "source": "pathlib",
+          "specifiers": [
+            "Path"
+          ]
+        },
+        {
+          "source": "fastapi",
+          "specifiers": [
+            "APIRouter",
+            "Depends",
+            "File",
+            "HTTPException",
+            "Query",
+            "UploadFile",
+            "status"
+          ]
+        },
+        {
+          "source": "fastapi.responses",
+          "specifiers": [
+            "FileResponse"
+          ]
+        },
+        {
+          "source": "sqlalchemy",
+          "specifiers": [
+            "delete",
+            "func",
+            "select",
+            "update"
+          ]
+        },
+        {
+          "source": "sqlalchemy.orm",
+          "specifiers": [
+            "Session",
+            "selectinload"
+          ]
+        },
+        {
+          "source": "..config",
+          "specifiers": [
+            "settings"
+          ]
+        },
+        {
+          "source": "..deps",
+          "specifiers": [
+            "get_current_admin",
+            "get_db"
+          ]
+        },
+        {
+          "source": "..imaging",
+          "specifiers": [
+            "process_upload"
+          ]
+        },
+        {
+          "source": "..models",
+          "specifiers": [
+            "Gallery",
+            "GalleryPhoto",
+            "Photo"
+          ]
+        },
+        {
+          "source": "..schemas",
+          "specifiers": [
+            "BulkAddGalleries",
+            "BulkIds",
+            "BulkVisibility",
+            "PhotoOut",
+            "PhotoPage",
+            "PhotoUpdate"
+          ]
+        },
+        {
+          "source": "..serializers",
+          "specifiers": [
+            "photo_out"
+          ]
+        }
+      ],
+      "exports": [
+        "_paginate",
+        "list_public_photos",
+        "list_admin_photos",
+        "upload_photos",
+        "bulk_set_visibility",
+        "bulk_delete",
+        "bulk_add_to_galleries",
+        "update_photo",
+        "delete_photo",
+        "get_exif",
+        "serve_thumb",
+        "serve_original"
+      ],
+      "totalLines": 283,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/schemas.py": {
+      "filePath": "backend/app/schemas.py",
+      "contentHash": "56a9b11ec35f8d44d1e6780327ba92564c09dcc410a91e4e051575a4c5210c8c",
+      "functions": [],
+      "classes": [
+        {
+          "name": "LoginRequest",
+          "methods": [],
+          "properties": [
+            "username",
+            "password"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "TokenResponse",
+          "methods": [],
+          "properties": [
+            "access_token",
+            "token_type"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "PasswordChange",
+          "methods": [],
+          "properties": [
+            "current_password",
+            "new_password"
+          ],
+          "exported": true,
+          "lineCount": 3
+        },
+        {
+          "name": "PhotoOut",
+          "methods": [],
+          "properties": [
+            "id",
+            "filename",
+            "title",
+            "caption",
+            "visible",
+            "width",
+            "height",
+            "exif",
+            "uploaded_at",
+            "thumbnail_url",
+            "original_url",
+            "gallery_ids"
+          ],
+          "exported": true,
+          "lineCount": 16
+        },
+        {
+          "name": "PhotoUpdate",
+          "methods": [],
+          "properties": [
+            "title",
+            "caption",
+            "visible",
+            "gallery_ids"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "PhotoPage",
+          "methods": [],
+          "properties": [
+            "items",
+            "total",
+            "page",
+            "page_size"
+          ],
+          "exported": true,
+          "lineCount": 5
+        },
+        {
+          "name": "BulkIds",
+          "methods": [],
+          "properties": [
+            "photo_ids"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "BulkVisibility",
+          "methods": [],
+          "properties": [
+            "visible"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "BulkAddGalleries",
+          "methods": [],
+          "properties": [
+            "gallery_ids"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "GalleryBase",
+          "methods": [],
+          "properties": [
+            "name",
+            "slug",
+            "description",
+            "cover_photo_id",
+            "layout",
+            "force_theme",
+            "accent_color"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "GalleryCreate",
+          "methods": [],
+          "properties": [],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "GalleryUpdate",
+          "methods": [],
+          "properties": [
+            "name",
+            "slug",
+            "description",
+            "cover_photo_id",
+            "layout",
+            "force_theme",
+            "accent_color",
+            "display_order"
+          ],
+          "exported": true,
+          "lineCount": 9
+        },
+        {
+          "name": "GalleryOut",
+          "methods": [],
+          "properties": [
+            "id",
+            "display_order",
+            "created_at",
+            "photo_count",
+            "cover_thumbnail_url"
+          ],
+          "exported": true,
+          "lineCount": 8
+        },
+        {
+          "name": "GalleryDetailOut",
+          "methods": [],
+          "properties": [
+            "photos"
+          ],
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "ReorderRequest",
+          "methods": [],
+          "properties": [
+            "ids"
+          ],
+          "exported": true,
+          "lineCount": 3
+        }
+      ],
+      "imports": [
+        {
+          "source": "uuid",
+          "specifiers": [
+            "uuid"
+          ]
+        },
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime"
+          ]
+        },
+        {
+          "source": "pydantic",
+          "specifiers": [
+            "BaseModel",
+            "ConfigDict",
+            "Field"
+          ]
+        }
+      ],
+      "exports": [
+        "LoginRequest",
+        "TokenResponse",
+        "PasswordChange",
+        "PhotoOut",
+        "PhotoUpdate",
+        "PhotoPage",
+        "BulkIds",
+        "BulkVisibility",
+        "BulkAddGalleries",
+        "GalleryBase",
+        "GalleryCreate",
+        "GalleryUpdate",
+        "GalleryOut",
+        "GalleryDetailOut",
+        "ReorderRequest"
+      ],
+      "totalLines": 112,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/security.py": {
+      "filePath": "backend/app/security.py",
+      "contentHash": "3c748a4d85098df97f6d22fc3bb1770e43bc8b4077b3899797a211114d28f296",
+      "functions": [
+        {
+          "name": "hash_password",
+          "params": [
+            "password"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "verify_password",
+          "params": [
+            "plain",
+            "hashed"
+          ],
+          "returnType": "bool",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "create_access_token",
+          "params": [
+            "subject"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 4
+        },
+        {
+          "name": "decode_access_token",
+          "params": [
+            "token"
+          ],
+          "returnType": "str | None",
+          "exported": true,
+          "lineCount": 9
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "datetime",
+          "specifiers": [
+            "datetime",
+            "timedelta",
+            "timezone"
+          ]
+        },
+        {
+          "source": "jose",
+          "specifiers": [
+            "JWTError",
+            "jwt"
+          ]
+        },
+        {
+          "source": "passlib.context",
+          "specifiers": [
+            "CryptContext"
+          ]
+        },
+        {
+          "source": ".config",
+          "specifiers": [
+            "settings"
+          ]
+        }
+      ],
+      "exports": [
+        "hash_password",
+        "verify_password",
+        "create_access_token",
+        "decode_access_token"
+      ],
+      "totalLines": 34,
+      "hasStructuralAnalysis": true
+    },
+    "backend/app/serializers.py": {
+      "filePath": "backend/app/serializers.py",
+      "contentHash": "24bff006dfd37051188081ba25f7d7205abbd0245992ce40faca98776ded8988",
+      "functions": [
+        {
+          "name": "thumb_url",
+          "params": [
+            "photo"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "original_url",
+          "params": [
+            "photo"
+          ],
+          "returnType": "str",
+          "exported": true,
+          "lineCount": 2
+        },
+        {
+          "name": "photo_out",
+          "params": [
+            "photo",
+            "include_galleries"
+          ],
+          "returnType": "PhotoOut",
+          "exported": true,
+          "lineCount": 19
+        },
+        {
+          "name": "gallery_out",
+          "params": [
+            "gallery",
+            "cover"
+          ],
+          "returnType": "GalleryOut",
+          "exported": true,
+          "lineCount": 15
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": ".models",
+          "specifiers": [
+            "Gallery",
+            "Photo"
+          ]
+        },
+        {
+          "source": ".schemas",
+          "specifiers": [
+            "GalleryOut",
+            "PhotoOut"
+          ]
+        }
+      ],
+      "exports": [
+        "thumb_url",
+        "original_url",
+        "photo_out",
+        "gallery_out"
+      ],
+      "totalLines": 52,
+      "hasStructuralAnalysis": true
+    },
+    "backend/Dockerfile": {
+      "filePath": "backend/Dockerfile",
+      "contentHash": "c70f759ba7d86756bfd5da8e99c071da088f3cfa83ac3c4daf6160975ea41368",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 22,
+      "hasStructuralAnalysis": true
+    },
+    "backend/requirements.txt": {
+      "filePath": "backend/requirements.txt",
+      "contentHash": "8feebd9aa25f1b5eeff35cca8ad95def5b311a43ea4a8b6078cb65f7fe662e56",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 13,
+      "hasStructuralAnalysis": false
+    },
+    "backend/start.sh": {
+      "filePath": "backend/start.sh",
+      "contentHash": "846ceb16ca8b06f6d5e1fe33982297108018cf43df1d86ad059327affda73528",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 11,
+      "hasStructuralAnalysis": true
+    },
+    "docker-compose.yml": {
+      "filePath": "docker-compose.yml",
+      "contentHash": "ef01c08159ced5b94f86ee3a9041e7b0466b1142e87d79dd86a2040e79f8919d",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 49,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/.dockerignore": {
+      "filePath": "frontend/.dockerignore",
+      "contentHash": "e0b77666abc1c19601b4d0fe0cbc26b619fda94c88379dcb7709aa06e89b63a6",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 6,
+      "hasStructuralAnalysis": false
+    },
+    "frontend/angular.json": {
+      "filePath": "frontend/angular.json",
+      "contentHash": "75c89945c5437746ffe08abf21e0bc7b384dca9065baf10bf66fc35be8637914",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 74,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/docker-entrypoint.sh": {
+      "filePath": "frontend/docker-entrypoint.sh",
+      "contentHash": "1800e5aceac106f3107f7e8edfe20e6b507fba8fd7de8fc7200210342c9b1dcb",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 15,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/Dockerfile": {
+      "filePath": "frontend/Dockerfile",
+      "contentHash": "0a49fbc7960b9cbab6ac9882ece3a3484600a028558dbbe3af900570297dea8f",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 19,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/nginx.conf": {
+      "filePath": "frontend/nginx.conf",
+      "contentHash": "bdc3881d7f1a6e1181056a7e23874089b37bc3b2d023912ebd7aa28a5b5240f2",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 27,
+      "hasStructuralAnalysis": false
+    },
+    "frontend/package.json": {
+      "filePath": "frontend/package.json",
+      "contentHash": "6ab8aa037096adad2da91f9e09b78b9b7835d71c7d485df213cb6b7fabac7b47",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 31,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/admin/admin-galleries.component.ts": {
+      "filePath": "frontend/src/app/admin/admin-galleries.component.ts",
+      "contentHash": "7eaabccd89068fd4ece7901d11a2e0534c964faf5e9aab887f08725809771fa7",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AdminGalleriesComponent",
+          "methods": [
+            "isCustom",
+            "constructor",
+            "ngOnInit",
+            "load",
+            "autoSlug",
+            "create",
+            "saveEdit",
+            "remove",
+            "move"
+          ],
+          "properties": [
+            "galleries",
+            "loading",
+            "expand",
+            "error",
+            "draft",
+            "layouts",
+            "themes",
+            "defaultAccent",
+            "presets"
+          ],
+          "exported": true,
+          "lineCount": 92
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/common",
+          "specifiers": [
+            "CommonModule"
+          ]
+        },
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Component",
+            "OnInit",
+            "signal"
+          ]
+        },
+        {
+          "source": "@angular/forms",
+          "specifiers": [
+            "FormsModule"
+          ]
+        },
+        {
+          "source": "../models",
+          "specifiers": [
+            "Gallery",
+            "GalleryInput",
+            "GalleryLayout",
+            "ForceTheme"
+          ]
+        },
+        {
+          "source": "../services/api.service",
+          "specifiers": [
+            "ApiService"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminGalleriesComponent"
+      ],
+      "totalLines": 417,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/admin/admin-photos.component.ts": {
+      "filePath": "frontend/src/app/admin/admin-photos.component.ts",
+      "contentHash": "b71618f17be02a2a297b5e59680cbfb7598e3a564c327d54f334f32eb2d7d051",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AdminPhotosComponent",
+          "methods": [
+            "constructor",
+            "ngOnInit",
+            "onPick",
+            "onDrop",
+            "upload",
+            "isSelected",
+            "toggleSelect",
+            "clearSelection",
+            "toggleSelectAll",
+            "selectedIds",
+            "bulkVisibility",
+            "bulkDelete",
+            "togglePicker",
+            "applyGalleries",
+            "toggleVisible",
+            "inGallery",
+            "toggleGallery",
+            "save",
+            "remove"
+          ],
+          "properties": [
+            "photos",
+            "galleries",
+            "total",
+            "loading",
+            "uploading",
+            "uploadCount",
+            "dragOver",
+            "editing",
+            "error",
+            "selected",
+            "showPicker",
+            "pickerSel",
+            "busy",
+            "allSelected"
+          ],
+          "exported": true,
+          "lineCount": 187
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/common",
+          "specifiers": [
+            "CommonModule"
+          ]
+        },
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Component",
+            "OnInit",
+            "computed",
+            "signal"
+          ]
+        },
+        {
+          "source": "@angular/forms",
+          "specifiers": [
+            "FormsModule"
+          ]
+        },
+        {
+          "source": "rxjs",
+          "specifiers": [
+            "forkJoin"
+          ]
+        },
+        {
+          "source": "../models",
+          "specifiers": [
+            "Gallery",
+            "Photo"
+          ]
+        },
+        {
+          "source": "../services/api.service",
+          "specifiers": [
+            "ApiService"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminPhotosComponent"
+      ],
+      "totalLines": 544,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/admin/admin-settings.component.ts": {
+      "filePath": "frontend/src/app/admin/admin-settings.component.ts",
+      "contentHash": "182683b26d10c75913089f19edd760000fea97201a1797d1f9640efb1e8bee3a",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AdminSettingsComponent",
+          "methods": [
+            "constructor",
+            "submit"
+          ],
+          "properties": [
+            "current",
+            "next",
+            "confirm",
+            "busy",
+            "ok",
+            "msg"
+          ],
+          "exported": true,
+          "lineCount": 38
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/common",
+          "specifiers": [
+            "CommonModule"
+          ]
+        },
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Component",
+            "signal"
+          ]
+        },
+        {
+          "source": "@angular/forms",
+          "specifiers": [
+            "FormsModule"
+          ]
+        },
+        {
+          "source": "../services/api.service",
+          "specifiers": [
+            "ApiService"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminSettingsComponent"
+      ],
+      "totalLines": 107,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/admin/admin.component.ts": {
+      "filePath": "frontend/src/app/admin/admin.component.ts",
+      "contentHash": "9708482ae8699ec82875564ce8659b122e067e8dfecd108b1c76ebc11d77241e",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AdminComponent",
+          "methods": [
+            "constructor",
+            "logout"
+          ],
+          "properties": [],
+          "exported": true,
+          "lineCount": 8
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/common",
+          "specifiers": [
+            "CommonModule"
+          ]
+        },
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Component"
+          ]
+        },
+        {
+          "source": "@angular/router",
+          "specifiers": [
+            "Router",
+            "RouterLink",
+            "RouterLinkActive",
+            "RouterOutlet"
+          ]
+        },
+        {
+          "source": "../services/auth.service",
+          "specifiers": [
+            "AuthService"
+          ]
+        }
+      ],
+      "exports": [
+        "AdminComponent"
+      ],
+      "totalLines": 142,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/admin/login.component.ts": {
+      "filePath": "frontend/src/app/admin/login.component.ts",
+      "contentHash": "c4f0cdcdea449a5b907e1131ced4e544ee7607109ddb482086ff464a2e72577f",
+      "functions": [],
+      "classes": [
+        {
+          "name": "LoginComponent",
+          "methods": [
+            "constructor",
+            "submit"
+          ],
+          "properties": [
+            "username",
+            "password",
+            "busy",
+            "error"
+          ],
+          "exported": true,
+          "lineCount": 23
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/common",
+          "specifiers": [
+            "CommonModule"
+          ]
+        },
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Component",
+            "signal"
+          ]
+        },
+        {
+          "source": "@angular/forms",
+          "specifiers": [
+            "FormsModule"
+          ]
+        },
+        {
+          "source": "@angular/router",
+          "specifiers": [
+            "Router"
+          ]
+        },
+        {
+          "source": "../services/auth.service",
+          "specifiers": [
+            "AuthService"
+          ]
+        }
+      ],
+      "exports": [
+        "LoginComponent"
+      ],
+      "totalLines": 129,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/app.component.ts": {
+      "filePath": "frontend/src/app/app.component.ts",
+      "contentHash": "1a223252418daf1c6198436ec3ba6081815cbbd50770465e9a0ee93cb32a68f3",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AppComponent",
+          "methods": [
+            "constructor"
+          ],
+          "properties": [
+            "url",
+            "showChrome"
+          ],
+          "exported": true,
+          "lineCount": 11
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/common",
+          "specifiers": [
+            "CommonModule"
+          ]
+        },
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Component",
+            "computed",
+            "signal"
+          ]
+        },
+        {
+          "source": "@angular/router",
+          "specifiers": [
+            "NavigationEnd",
+            "Router",
+            "RouterLink",
+            "RouterLinkActive",
+            "RouterOutlet"
+          ]
+        },
+        {
+          "source": "rxjs",
+          "specifiers": [
+            "filter"
+          ]
+        },
+        {
+          "source": "./services/theme.service",
+          "specifiers": [
+            "ThemeService"
+          ]
+        }
+      ],
+      "exports": [
+        "AppComponent"
+      ],
+      "totalLines": 96,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/app.config.ts": {
+      "filePath": "frontend/src/app/app.config.ts",
+      "contentHash": "4052ce66f3a94a0d251eb0936af09eb6a32cf6a2d0cf778ba15a6fa143471b5c",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "ApplicationConfig"
+          ]
+        },
+        {
+          "source": "@angular/common/http",
+          "specifiers": [
+            "provideHttpClient",
+            "withInterceptors"
+          ]
+        },
+        {
+          "source": "@angular/router",
+          "specifiers": [
+            "provideRouter",
+            "withInMemoryScrolling"
+          ]
+        },
+        {
+          "source": "./app.routes",
+          "specifiers": [
+            "routes"
+          ]
+        },
+        {
+          "source": "./services/auth.interceptor",
+          "specifiers": [
+            "authInterceptor"
+          ]
+        }
+      ],
+      "exports": [
+        "appConfig"
+      ],
+      "totalLines": 17,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/app.routes.ts": {
+      "filePath": "frontend/src/app/app.routes.ts",
+      "contentHash": "3e733fad1fc189a35319207c2e4e7e89bbb7f634f92144164ef80074da31aa0f",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@angular/router",
+          "specifiers": [
+            "Routes"
+          ]
+        },
+        {
+          "source": "./services/auth.guard",
+          "specifiers": [
+            "authGuard"
+          ]
+        }
+      ],
+      "exports": [
+        "routes"
+      ],
+      "totalLines": 60,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/components/lightbox.component.ts": {
+      "filePath": "frontend/src/app/components/lightbox.component.ts",
+      "contentHash": "82aa95ca7e71a900e9ee48656526d8d324fd44f4e67e2ab5d0fd9ae88c7d069e",
+      "functions": [],
+      "classes": [
+        {
+          "name": "LightboxComponent",
+          "methods": [
+            "constructor",
+            "current",
+            "fullSrc",
+            "downloadUrl",
+            "ratio",
+            "ngOnChanges",
+            "refresh",
+            "retry",
+            "buildExif",
+            "next",
+            "prev",
+            "onBackdrop",
+            "onKey"
+          ],
+          "properties": [
+            "photos",
+            "index",
+            "close",
+            "fullLoaded",
+            "fullError",
+            "exifRows",
+            "retryCount"
+          ],
+          "exported": true,
+          "lineCount": 88
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/common",
+          "specifiers": [
+            "CommonModule"
+          ]
+        },
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Component",
+            "EventEmitter",
+            "HostListener",
+            "Input",
+            "OnChanges",
+            "Output",
+            "signal"
+          ]
+        },
+        {
+          "source": "../models",
+          "specifiers": [
+            "Exif",
+            "Photo"
+          ]
+        },
+        {
+          "source": "../services/api.service",
+          "specifiers": [
+            "ApiService"
+          ]
+        }
+      ],
+      "exports": [
+        "LightboxComponent"
+      ],
+      "totalLines": 406,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/components/reveal.directive.ts": {
+      "filePath": "frontend/src/app/components/reveal.directive.ts",
+      "contentHash": "11f2e8569bc203805c2d598d465c9c15c209de25abad8a407e2a11c938491cad",
+      "functions": [],
+      "classes": [
+        {
+          "name": "RevealDirective",
+          "methods": [
+            "ngAfterViewInit",
+            "ngOnDestroy"
+          ],
+          "properties": [
+            "el",
+            "observer"
+          ],
+          "exported": true,
+          "lineCount": 28
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "AfterViewInit",
+            "Directive",
+            "ElementRef",
+            "OnDestroy",
+            "inject"
+          ]
+        }
+      ],
+      "exports": [
+        "RevealDirective"
+      ],
+      "totalLines": 47,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/config.ts": {
+      "filePath": "frontend/src/app/config.ts",
+      "contentHash": "5124cf3da35fd2e449b9c5847837675906b3c13b815dc8d0b9d17d12433101db",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "InjectionToken"
+          ]
+        }
+      ],
+      "exports": [
+        "APP_CONFIG"
+      ],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/models.ts": {
+      "filePath": "frontend/src/app/models.ts",
+      "contentHash": "1dfd2c2b88c459c33a75e55ac35b66c724d275a6d95919771ec084a548d59bfd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 77,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/pages/galleries.component.ts": {
+      "filePath": "frontend/src/app/pages/galleries.component.ts",
+      "contentHash": "7e7f299cb50d303d3c4d06fb431cc4b1cee47dace137158d8ee9d42402a3e149",
+      "functions": [],
+      "classes": [
+        {
+          "name": "GalleriesComponent",
+          "methods": [
+            "constructor",
+            "ngOnInit"
+          ],
+          "properties": [
+            "galleries",
+            "loading"
+          ],
+          "exported": true,
+          "lineCount": 16
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/common",
+          "specifiers": [
+            "CommonModule"
+          ]
+        },
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Component",
+            "OnInit",
+            "signal"
+          ]
+        },
+        {
+          "source": "@angular/router",
+          "specifiers": [
+            "RouterLink"
+          ]
+        },
+        {
+          "source": "../models",
+          "specifiers": [
+            "Gallery"
+          ]
+        },
+        {
+          "source": "../services/api.service",
+          "specifiers": [
+            "ApiService"
+          ]
+        }
+      ],
+      "exports": [
+        "GalleriesComponent"
+      ],
+      "totalLines": 150,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/pages/gallery-detail.component.ts": {
+      "filePath": "frontend/src/app/pages/gallery-detail.component.ts",
+      "contentHash": "8467159a2fdf6673951bb9610784898b609a1ad3141355b228589143848e0ae4",
+      "functions": [],
+      "classes": [
+        {
+          "name": "GalleryDetailComponent",
+          "methods": [
+            "constructor",
+            "ngOnInit",
+            "ngOnDestroy",
+            "open",
+            "slideNext",
+            "slidePrev",
+            "hash",
+            "rotation",
+            "collageRotate",
+            "collageWidth",
+            "collageZ",
+            "marqueeRows",
+            "dup",
+            "openPhoto"
+          ],
+          "properties": [
+            "gallery",
+            "loading",
+            "notFound",
+            "lightboxIndex",
+            "slide"
+          ],
+          "exported": true,
+          "lineCount": 83
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/common",
+          "specifiers": [
+            "CommonModule"
+          ]
+        },
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Component",
+            "OnDestroy",
+            "OnInit",
+            "signal"
+          ]
+        },
+        {
+          "source": "@angular/router",
+          "specifiers": [
+            "ActivatedRoute"
+          ]
+        },
+        {
+          "source": "../models",
+          "specifiers": [
+            "GalleryDetail",
+            "Photo"
+          ]
+        },
+        {
+          "source": "../services/api.service",
+          "specifiers": [
+            "ApiService"
+          ]
+        },
+        {
+          "source": "../services/theme.service",
+          "specifiers": [
+            "ThemeService"
+          ]
+        },
+        {
+          "source": "../components/lightbox.component",
+          "specifiers": [
+            "LightboxComponent"
+          ]
+        },
+        {
+          "source": "../components/reveal.directive",
+          "specifiers": [
+            "RevealDirective"
+          ]
+        }
+      ],
+      "exports": [
+        "GalleryDetailComponent"
+      ],
+      "totalLines": 543,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/pages/landing.component.ts": {
+      "filePath": "frontend/src/app/pages/landing.component.ts",
+      "contentHash": "9ff1ef73028b11d8523f596fcf5f8af55df629e03a4a9250fed082e24e672447",
+      "functions": [],
+      "classes": [
+        {
+          "name": "LandingComponent",
+          "methods": [
+            "constructor",
+            "ngOnInit",
+            "ratio",
+            "open",
+            "loadMore",
+            "onScroll"
+          ],
+          "properties": [
+            "photos",
+            "loading",
+            "lightboxIndex",
+            "loaded",
+            "page",
+            "pageSize",
+            "total"
+          ],
+          "exported": true,
+          "lineCount": 46
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/common",
+          "specifiers": [
+            "CommonModule"
+          ]
+        },
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Component",
+            "HostListener",
+            "OnInit",
+            "signal"
+          ]
+        },
+        {
+          "source": "../models",
+          "specifiers": [
+            "Photo"
+          ]
+        },
+        {
+          "source": "../services/api.service",
+          "specifiers": [
+            "ApiService"
+          ]
+        },
+        {
+          "source": "../components/lightbox.component",
+          "specifiers": [
+            "LightboxComponent"
+          ]
+        },
+        {
+          "source": "../components/reveal.directive",
+          "specifiers": [
+            "RevealDirective"
+          ]
+        }
+      ],
+      "exports": [
+        "LandingComponent"
+      ],
+      "totalLines": 185,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/services/api.service.ts": {
+      "filePath": "frontend/src/app/services/api.service.ts",
+      "contentHash": "45f5daed8b13f19a6adc77c47141dc91f3c489acb99e23c0cde22b6bd1f5f82e",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ApiService",
+          "methods": [
+            "constructor",
+            "imageUrl",
+            "login",
+            "changePassword",
+            "getPhotos",
+            "getExif",
+            "getAdminPhotos",
+            "uploadPhotos",
+            "updatePhoto",
+            "deletePhoto",
+            "bulkSetVisibility",
+            "bulkDelete",
+            "bulkAddToGalleries",
+            "getGalleries",
+            "getGallery",
+            "createGallery",
+            "updateGallery",
+            "deleteGallery",
+            "reorderGalleries",
+            "reorderGalleryPhotos"
+          ],
+          "properties": [
+            "base"
+          ],
+          "exported": true,
+          "lineCount": 104
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/common/http",
+          "specifiers": [
+            "HttpClient"
+          ]
+        },
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Inject",
+            "Injectable"
+          ]
+        },
+        {
+          "source": "rxjs",
+          "specifiers": [
+            "Observable"
+          ]
+        },
+        {
+          "source": "../config",
+          "specifiers": [
+            "APP_CONFIG",
+            "AppConfig"
+          ]
+        },
+        {
+          "source": "../models",
+          "specifiers": [
+            "Gallery",
+            "GalleryDetail",
+            "GalleryInput",
+            "Photo",
+            "PhotoPage"
+          ]
+        }
+      ],
+      "exports": [
+        "ApiService"
+      ],
+      "totalLines": 121,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/services/auth.guard.ts": {
+      "filePath": "frontend/src/app/services/auth.guard.ts",
+      "contentHash": "a283c4269d17aac6198714fc9144e6800f6a7b72dedab40777af22189d60a4e3",
+      "functions": [
+        {
+          "name": "authGuard",
+          "params": [],
+          "exported": true,
+          "lineCount": 7
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "inject"
+          ]
+        },
+        {
+          "source": "@angular/router",
+          "specifiers": [
+            "CanActivateFn",
+            "Router"
+          ]
+        },
+        {
+          "source": "./auth.service",
+          "specifiers": [
+            "AuthService"
+          ]
+        }
+      ],
+      "exports": [
+        "authGuard"
+      ],
+      "totalLines": 13,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/services/auth.interceptor.ts": {
+      "filePath": "frontend/src/app/services/auth.interceptor.ts",
+      "contentHash": "a86c34927b390331dc0c844f8bc07c390158b150407e5b1e1de65d0a7fc06475",
+      "functions": [
+        {
+          "name": "authInterceptor",
+          "params": [
+            "req",
+            "next"
+          ],
+          "exported": true,
+          "lineCount": 19
+        }
+      ],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@angular/common/http",
+          "specifiers": [
+            "HttpInterceptorFn"
+          ]
+        },
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "inject"
+          ]
+        },
+        {
+          "source": "@angular/router",
+          "specifiers": [
+            "Router"
+          ]
+        },
+        {
+          "source": "rxjs",
+          "specifiers": [
+            "catchError",
+            "throwError"
+          ]
+        },
+        {
+          "source": "./auth.service",
+          "specifiers": [
+            "AuthService"
+          ]
+        }
+      ],
+      "exports": [
+        "authInterceptor"
+      ],
+      "totalLines": 28,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/services/auth.service.ts": {
+      "filePath": "frontend/src/app/services/auth.service.ts",
+      "contentHash": "e4d1cb0ed5cfef5b78b090800007102afa5d8f85707e7ab4ba0a6c5aeeba0f5f",
+      "functions": [],
+      "classes": [
+        {
+          "name": "AuthService",
+          "methods": [
+            "constructor",
+            "login",
+            "logout"
+          ],
+          "properties": [
+            "_token",
+            "token",
+            "isAuthed"
+          ],
+          "exported": true,
+          "lineCount": 23
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Injectable",
+            "signal"
+          ]
+        },
+        {
+          "source": "rxjs",
+          "specifiers": [
+            "tap"
+          ]
+        },
+        {
+          "source": "./api.service",
+          "specifiers": [
+            "ApiService"
+          ]
+        }
+      ],
+      "exports": [
+        "AuthService"
+      ],
+      "totalLines": 33,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/app/services/theme.service.ts": {
+      "filePath": "frontend/src/app/services/theme.service.ts",
+      "contentHash": "ed0529d5e16aa06e5ae0fdb11de6cf284a4d049baad7030e3a1a38ab9688f945",
+      "functions": [],
+      "classes": [
+        {
+          "name": "ThemeService",
+          "methods": [
+            "constructor",
+            "toggle",
+            "setGalleryOverride",
+            "clearGalleryOverride",
+            "apply",
+            "readPref"
+          ],
+          "properties": [
+            "userPref",
+            "galleryOverride",
+            "mode",
+            "media"
+          ],
+          "exported": true,
+          "lineCount": 66
+        }
+      ],
+      "imports": [
+        {
+          "source": "@angular/core",
+          "specifiers": [
+            "Injectable",
+            "signal"
+          ]
+        },
+        {
+          "source": "../models",
+          "specifiers": [
+            "ForceTheme"
+          ]
+        }
+      ],
+      "exports": [
+        "ThemeService"
+      ],
+      "totalLines": 84,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/assets/config.json": {
+      "filePath": "frontend/src/assets/config.json",
+      "contentHash": "61e504a458cd651787e96d5e649ba038a817d9dcede1bc153da7420f959794b7",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 4,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/index.html": {
+      "filePath": "frontend/src/index.html",
+      "contentHash": "b239e754958d01941a0a1f8bb4584d78fd772814f0866434c76e17396895c5bd",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 20,
+      "hasStructuralAnalysis": false
+    },
+    "frontend/src/main.ts": {
+      "filePath": "frontend/src/main.ts",
+      "contentHash": "48d3c923a56367a2c3640b10a2106bcf75e0794b5d6f6134b8a10af5cc07c70f",
+      "functions": [],
+      "classes": [],
+      "imports": [
+        {
+          "source": "@angular/platform-browser",
+          "specifiers": [
+            "bootstrapApplication"
+          ]
+        },
+        {
+          "source": "./app/app.component",
+          "specifiers": [
+            "AppComponent"
+          ]
+        },
+        {
+          "source": "./app/app.config",
+          "specifiers": [
+            "appConfig"
+          ]
+        },
+        {
+          "source": "./app/config",
+          "specifiers": [
+            "APP_CONFIG",
+            "AppConfig"
+          ]
+        }
+      ],
+      "exports": [],
+      "totalLines": 20,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/src/styles.scss": {
+      "filePath": "frontend/src/styles.scss",
+      "contentHash": "e37b58ea06b4f603f71dc0a2656b29571ffc17d7adf396da73c25a42120cefdf",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 137,
+      "hasStructuralAnalysis": false
+    },
+    "frontend/tsconfig.app.json": {
+      "filePath": "frontend/tsconfig.app.json",
+      "contentHash": "5f4183f0947c9a412d936e7ae2a5967d5692a0c9952325f9e8050fccb135d82a",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 10,
+      "hasStructuralAnalysis": true
+    },
+    "frontend/tsconfig.json": {
+      "filePath": "frontend/tsconfig.json",
+      "contentHash": "6087676647703b600bda56a24bb1bf60963b8317fa3d8c83ae437ae0c98507cb",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 29,
+      "hasStructuralAnalysis": true
+    },
+    "README.md": {
+      "filePath": "README.md",
+      "contentHash": "042148590b08cd8f52413b6239df8df95b01945ef30af6977e6d15ece84cdcd4",
+      "functions": [],
+      "classes": [],
+      "imports": [],
+      "exports": [],
+      "totalLines": 381,
+      "hasStructuralAnalysis": true
+    }
+  }
+}

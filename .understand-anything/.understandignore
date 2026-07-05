@@ -1,0 +1,11 @@
+# .understandignore — patterns for files/dirs to exclude from analysis
+# Syntax: same as .gitignore (globs, # comments, ! negation, trailing / for dirs)
+
+# User-specified exclusions
+backend/.venv/
+backend/venv/
+frontend/dist/
+frontend/.angular/
+data/
+*.pyc
+*.sqlite3

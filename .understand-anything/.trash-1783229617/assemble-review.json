@@ -1,0 +1,17 @@
+{
+  "fixedSectionOk": true,
+  "nodesRecovered": 0,
+  "edgesRestored": 0,
+  "crossBatchEdgesAdded": 0,
+  "typesRemapped": 0,
+  "complexityRemapped": 0,
+  "notes": [
+    "The merge script report shows 0 mechanical fixes applied (no func: prefixes, no unknown complexity values, no dropped edges), which is consistent with a clean LLM output across all 8 batches.",
+    "All 108 nodes have valid IDs. Node types are limited to the well-known set: file (44), function (26), class (22), config (7), service (7), document (2).",
+    "All complexity values are canonical: simple (60), moderate (31), complex (17). No unmapped values were found.",
+    "All 68 import-map edges are already present in the assembled graph as imports edges. Cross-batch verification found zero gaps — no edges needed to be added.",
+    "All 189 edges reference nodes that exist in the node set. No dangling edges detected.",
+    "Edge type variety is healthy: contains (50), exports (34), imports (68), calls (14), depends_on (10), configures (5), documents (3), serves (2), related (2), deploys (1).",
+    "The graph faithfully represents a FastAPI + Angular 16 fullstack photo-sharing application with Docker infrastructure. No structural concerns."
+  ]
+}

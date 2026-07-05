@@ -26,6 +26,17 @@ class Settings(BaseSettings):
     PHOTOS_THUMB_PATH: str = "/data/photos/thumbs"
     THUMB_MAX_EDGE: int = 1600  # longest-edge px for grid/lightbox thumbnails
 
+    # ── Collage maker ──
+    # One-off collage images (not part of the permanent library) live here,
+    # in a subfolder per collage id, and are deleted on export / sweep.
+    COLLAGE_ONEOFF_PATH: str = "/data/photos/collage-oneoffs"
+    # Drafts untouched for this many days get their one-off images swept.
+    COLLAGE_SWEEP_DAYS: int = 30
+    # JPEG quality for exported collages.
+    COLLAGE_EXPORT_QUALITY: int = 92
+    # Border color for layers with border enabled (site accent).
+    COLLAGE_BORDER_COLOR: str = "#B23A52"
+
     # ── CORS ──
     # Comma-separated list of allowed origins, e.g.
     # "https://photos.captionato.tech,http://localhost:4200"

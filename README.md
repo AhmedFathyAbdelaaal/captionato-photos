@@ -175,11 +175,43 @@ admin_users
   id             UUID  PK
   username       text  unique
   password_hash  text          -- bcrypt
+
+collages                        -- admin collage-maker drafts
+  id               UUID  PK
+  format           varchar(10)         -- story (1080x1920) | post (1080x1080)
+  background_color varchar(9) = '#000000'
+  status           varchar(10) = 'draft'  -- draft | exported
+  created_at / updated_at / exported_at
+
+collage_layers                  -- one placed photo on a collage canvas
+  id             UUID  PK
+  collage_id     UUID → collages.id (ON DELETE CASCADE)
+  photo_id       UUID  null → photos.id (ON DELETE CASCADE)  -- library photo…
+  one_off_path   text  null    -- …or a temp one-off upload (exactly one is set)
+  pos_x/pos_y/width/height  float  -- normalized 0..1 fractions of the canvas
+  rotation       float = 0     -- degrees, clockwise
+  crop_x/crop_y/crop_width/crop_height  float  -- normalized source crop
+  border_enabled bool  = false
+  z_index        int   = 0
 ```
 
 A photo can live in multiple galleries. Deleting a gallery unassigns its photos
-(it does not delete them). The schema is created by Alembic migration
-`0001_initial`, which `start.sh` runs (`alembic upgrade head`) on every boot.
+(it does not delete them). The schema is created by Alembic migrations
+(`0001_initial`, `0002_collages`), which `start.sh` runs
+(`alembic upgrade head`) on every boot.
+
+### Collage maker
+
+The admin-only Collage Maker (`/admin/collages`) builds Instagram-ready
+images out of library photos (plus optional one-off uploads). The editor works
+against thumbnails at a scaled-down working canvas; **export** re-renders the
+same normalized layer geometry server-side with Pillow against the
+full-resolution originals at 1080×1080 (post) or 1080×1920 (story) and
+downloads the result (JPG default, PNG optional). "Auto-chaotic" mode
+generates three seeded random arrangements of selected photos; the picked one
+becomes a normal editable draft. One-off images live under
+`COLLAGE_ONEOFF_PATH/<collage-id>/` and are deleted on export, and a daily
+sweep also cleans them from drafts untouched for `COLLAGE_SWEEP_DAYS` days.
 
 ---
 
@@ -198,11 +230,14 @@ captionato-photos/
 │   │   ├── deps.py          # get_db, get_current_admin (HTTPBearer)
 │   │   ├── imaging.py       # Pillow: EXIF extract + sanitise + thumbnail
 │   │   ├── serializers.py   # ORM → response schema (+ image URL building)
+│   │   ├── collage_render.py# Pillow full-res collage composition (export)
+│   │   ├── collage_layout.py# seeded auto-chaotic layout generator
 │   │   └── routers/
 │   │       ├── auth.py      # login, me, change password
 │   │       ├── photos.py    # list/upload/update/delete + thumb/original/exif
-│   │       └── galleries.py # CRUD + reorder
-│   ├── alembic/             # migrations (env.py + versions/0001_initial.py)
+│   │       ├── galleries.py # CRUD + reorder
+│   │       └── collages.py  # collage drafts, layers, one-offs, export, sweep
+│   ├── alembic/             # migrations (env.py + versions/)
 │   ├── requirements.txt
 │   ├── Dockerfile           # python:3.11-slim
 │   ├── start.sh             # alembic upgrade head && uvicorn
@@ -216,7 +251,8 @@ captionato-photos/
 │   │   ├── services/               # api, auth, auth.guard, auth.interceptor, theme
 │   │   ├── components/             # lightbox, reveal.directive
 │   │   ├── pages/                  # landing, galleries, gallery-detail
-│   │   └── admin/                  # login, admin shell, photos, galleries, settings
+│   │   └── admin/                  # login, shell, photos, galleries, collages
+│   │                               #   + collage editor, settings
 │   ├── src/styles.scss             # design tokens (colors, fonts, skeletons)
 │   ├── Dockerfile                  # node:18 build → nginx:alpine serve
 │   ├── nginx.conf                  # SPA fallback + cache headers
@@ -280,9 +316,12 @@ docker compose up --build             # frontend :8080, backend :8000, postgres
 | `ADMIN_PASSWORD` | Initial admin password (bcrypt-hashed on seed) | `your-password` |
 | `PHOTOS_ORIGINAL_PATH` | Volume path for originals | `/data/photos/originals` |
 | `PHOTOS_THUMB_PATH` | Volume path for thumbnails | `/data/photos/thumbs` |
+| `COLLAGE_ONEOFF_PATH` | Volume path for one-off collage images | `/data/photos/collage-oneoffs` |
 | `ALLOWED_ORIGINS` | Comma-separated CORS origins | `https://photos.captionato.tech,http://localhost:4200` |
 
-Optional: `THUMB_MAX_EDGE` (default 1600), `JWT_EXPIRE_MINUTES` (default 1 week).
+Optional: `THUMB_MAX_EDGE` (default 1600), `JWT_EXPIRE_MINUTES` (default 1 week),
+`COLLAGE_SWEEP_DAYS` (default 30), `COLLAGE_EXPORT_QUALITY` (default 92),
+`COLLAGE_BORDER_COLOR` (default `#B23A52`).
 
 ### Frontend
 
@@ -363,6 +402,18 @@ Real issues hit while shipping this — documented so you don't re-hit them:
 | DELETE | `/galleries/{id}` | ✔ | Delete (photos kept, just unassigned) |
 | POST | `/galleries/reorder` | ✔ | Reorder galleries (`{ ids: [...] }`) |
 | POST | `/galleries/{id}/photos/reorder` | ✔ | Reorder photos within a gallery |
+| GET | `/collages` | ✔ | Draft list (with layers for previews) |
+| POST | `/collages` | ✔ | New draft (`{ format, background_color }`) |
+| GET | `/collages/{id}` | ✔ | Draft detail incl. layers |
+| PATCH | `/collages/{id}` | ✔ | Background color / status |
+| DELETE | `/collages/{id}` | ✔ | Delete draft + its one-off images |
+| POST | `/collages/{id}/layers` | ✔ | Add layer (`photo_id` or `one_off_path`) |
+| PATCH | `/collages/{id}/layers/{lid}` | ✔ | Position/size/rotation/crop/border/z |
+| DELETE | `/collages/{id}/layers/{lid}` | ✔ | Remove layer (+ one-off files) |
+| POST | `/collages/{id}/upload-one-off` | ✔ | Temp image just for this collage |
+| GET | `/collages/{id}/one-off/{file}` | – | Serve one-off image (UUID names) |
+| POST | `/collages/generate-auto` | ✔ | 3 seeded arrangements as drafts |
+| POST | `/collages/{id}/export` | ✔ | Full-res render → download (`?format=jpg\|png`) |
 | GET | `/health` | – | Liveness check |
 
 ---

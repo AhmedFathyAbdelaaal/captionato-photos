@@ -1,0 +1,201 @@
+{
+  "nodes": [
+    {
+      "id": "file:.understand-anything/.understandignore",
+      "type": "file",
+      "name": ".understandignore",
+      "filePath": ".understand-anything/.understandignore",
+      "summary": "Gitignore-style pattern file that tells the Understand-Anything scanner which files and directories to exclude from knowledge graph analysis.",
+      "tags": ["configuration", "tooling", "ignore-rules"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/alembic/script.py.mako",
+      "type": "file",
+      "name": "script.py.mako",
+      "filePath": "backend/alembic/script.py.mako",
+      "summary": "Mako template used by Alembic to scaffold new migration script files, providing the standard boilerplate revision metadata and empty upgrade/downgrade function stubs.",
+      "tags": ["database", "migration", "template", "alembic"],
+      "complexity": "simple",
+      "languageNotes": "Mako template syntax is embedded in a Python skeleton; Alembic renders this file when `alembic revision` is run."
+    },
+    {
+      "id": "file:backend/alembic/versions/0001_initial.py",
+      "type": "file",
+      "name": "0001_initial.py",
+      "filePath": "backend/alembic/versions/0001_initial.py",
+      "summary": "Initial Alembic migration that creates all four core tables — photos, galleries, gallery_photos (join), and admin_users — along with their indexes and foreign-key constraints.",
+      "tags": ["database", "migration", "schema-definition", "alembic"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/alembic/versions/0001_initial.py:upgrade",
+      "type": "function",
+      "name": "upgrade",
+      "filePath": "backend/alembic/versions/0001_initial.py",
+      "lineRange": [19, 91],
+      "summary": "Applies the initial schema by creating the photos, galleries, gallery_photos, and admin_users tables with all columns, indexes, and foreign keys.",
+      "tags": ["database", "migration", "schema-definition"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/alembic/versions/0001_initial.py:downgrade",
+      "type": "function",
+      "name": "downgrade",
+      "filePath": "backend/alembic/versions/0001_initial.py",
+      "lineRange": [94, 102],
+      "summary": "Rolls back the initial migration by dropping all four tables and their associated indexes in dependency-safe order.",
+      "tags": ["database", "migration"],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:docker-compose.yml",
+      "type": "service",
+      "name": "docker-compose.yml",
+      "filePath": "docker-compose.yml",
+      "summary": "Defines the three-service local stack — PostgreSQL (db), FastAPI backend, and Nginx-fronted Angular frontend — wiring them together with environment variables, named volumes, and port mappings.",
+      "tags": ["orchestration", "infrastructure", "containerization", "deployment"],
+      "complexity": "moderate",
+      "languageNotes": "Uses Docker Compose v3.8; the frontend receives API_BASE_URL at startup and rewrites config.json via an entrypoint script so the Angular SPA can discover the backend URL at runtime."
+    },
+    {
+      "id": "file:frontend/nginx.conf",
+      "type": "file",
+      "name": "nginx.conf",
+      "filePath": "frontend/nginx.conf",
+      "summary": "Nginx server block for the Angular SPA container: disables caching on config.json and index.html, sets immutable long-lived cache headers on hashed assets, and falls back every unknown path to index.html for client-side routing.",
+      "tags": ["infrastructure", "configuration", "serving", "spa-routing"],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:frontend/src/assets/config.json",
+      "type": "config",
+      "name": "config.json",
+      "filePath": "frontend/src/assets/config.json",
+      "summary": "Runtime configuration file loaded by the Angular app on startup to supply the backend API base URL; overwritten at container start from the API_BASE_URL environment variable so no rebuild is needed.",
+      "tags": ["configuration", "runtime-config", "api-endpoint"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/index.html",
+      "type": "file",
+      "name": "index.html",
+      "filePath": "frontend/src/index.html",
+      "summary": "Angular application shell HTML that sets the page title, viewport meta, loads four Google Fonts families (Space Grotesk, Inter, JetBrains Mono, Caveat), and mounts the root component.",
+      "tags": ["markup", "entry-point", "angular"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/styles.scss",
+      "type": "file",
+      "name": "styles.scss",
+      "filePath": "frontend/src/styles.scss",
+      "summary": "Global SCSS stylesheet defining CSS custom properties for the design system (colors, spacing, typography, radius tokens), base resets, shared utility classes, and dark/light theme variables used across all Angular components.",
+      "tags": ["styles", "design-system", "theming", "global-css"],
+      "complexity": "moderate",
+      "languageNotes": "Uses CSS custom properties (variables) as design tokens and a `prefers-color-scheme` media query for automatic dark/light switching."
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Comprehensive project documentation covering architecture overview, image pipeline, auth flow, data model, local development setup, environment variables, Coolify deployment, API reference, and roadmap across 21 sections.",
+      "tags": ["documentation", "entry-point", "overview", "architecture"],
+      "complexity": "complex"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:backend/alembic/versions/0001_initial.py",
+      "target": "function:backend/alembic/versions/0001_initial.py:upgrade",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/alembic/versions/0001_initial.py",
+      "target": "function:backend/alembic/versions/0001_initial.py:downgrade",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/alembic/versions/0001_initial.py",
+      "target": "function:backend/alembic/versions/0001_initial.py:upgrade",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/alembic/versions/0001_initial.py",
+      "target": "function:backend/alembic/versions/0001_initial.py:downgrade",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "file:backend/alembic/versions/0001_initial.py",
+      "type": "deploys",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "file:frontend/nginx.conf",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "config:frontend/src/assets/config.json",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:frontend/nginx.conf",
+      "target": "file:frontend/src/index.html",
+      "type": "serves",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/nginx.conf",
+      "target": "config:frontend/src/assets/config.json",
+      "type": "serves",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "config:frontend/src/assets/config.json",
+      "target": "service:docker-compose.yml",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:README.md",
+      "target": "service:docker-compose.yml",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:backend/alembic/versions/0001_initial.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:frontend/src/index.html",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "projectRoot": "D:/Organized Work/MYSELF/captionatoPics/captionato-photos",
+  "batchFiles": [
+    {"path": "frontend/.dockerignore", "language": "unknown", "sizeLines": 5, "fileCategory": "infra"},
+    {"path": "frontend/Dockerfile", "language": "dockerfile", "sizeLines": 18, "fileCategory": "infra"}
+  ],
+  "batchImportData": {
+    "frontend/.dockerignore": [],
+    "frontend/Dockerfile": []
+  }
+}

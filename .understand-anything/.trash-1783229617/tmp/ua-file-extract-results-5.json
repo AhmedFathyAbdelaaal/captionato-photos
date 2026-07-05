@@ -1,0 +1,110 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 2,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "frontend/.dockerignore",
+      "language": "unknown",
+      "fileCategory": "infra",
+      "totalLines": 5,
+      "nonEmptyLines": 5,
+      "metrics": {}
+    },
+    {
+      "path": "frontend/Dockerfile",
+      "language": "dockerfile",
+      "fileCategory": "infra",
+      "totalLines": 18,
+      "nonEmptyLines": 17,
+      "services": [
+        {
+          "name": "build",
+          "image": "node:18-alpine",
+          "ports": [],
+          "startLine": 3,
+          "endLine": 10
+        },
+        {
+          "name": "nginx",
+          "image": "nginx:alpine",
+          "ports": [
+            80
+          ],
+          "startLine": 11,
+          "endLine": 19
+        }
+      ],
+      "steps": [
+        {
+          "name": "FROM node:18-alpine AS build",
+          "startLine": 3,
+          "endLine": 3
+        },
+        {
+          "name": "WORKDIR /app",
+          "startLine": 4,
+          "endLine": 4
+        },
+        {
+          "name": "COPY package*.json ./",
+          "startLine": 5,
+          "endLine": 5
+        },
+        {
+          "name": "RUN npm ci",
+          "startLine": 6,
+          "endLine": 6
+        },
+        {
+          "name": "COPY . .",
+          "startLine": 7,
+          "endLine": 7
+        },
+        {
+          "name": "RUN npm run build",
+          "startLine": 8,
+          "endLine": 8
+        },
+        {
+          "name": "FROM nginx:alpine",
+          "startLine": 11,
+          "endLine": 11
+        },
+        {
+          "name": "COPY nginx.conf /etc/nginx/conf.d/default.conf",
+          "startLine": 12,
+          "endLine": 12
+        },
+        {
+          "name": "COPY --from=build /app/dist/captionato-photos-web /usr/share/ngin",
+          "startLine": 13,
+          "endLine": 13
+        },
+        {
+          "name": "COPY docker-entrypoint.sh /docker-entrypoint.d/40-captionato-conf",
+          "startLine": 16,
+          "endLine": 16
+        },
+        {
+          "name": "RUN chmod +x /docker-entrypoint.d/40-captionato-config.sh",
+          "startLine": 17,
+          "endLine": 17
+        },
+        {
+          "name": "EXPOSE 80",
+          "startLine": 18,
+          "endLine": 18
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0,
+        "serviceCount": 2,
+        "stepCount": 12
+      }
+    }
+  ]
+}

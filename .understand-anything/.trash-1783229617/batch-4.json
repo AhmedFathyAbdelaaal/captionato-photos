@@ -1,0 +1,32 @@
+{
+  "nodes": [
+    {
+      "id": "service:backend/Dockerfile",
+      "type": "service",
+      "name": "Dockerfile",
+      "filePath": "backend/Dockerfile",
+      "summary": "Single-stage Docker build for the FastAPI backend using python:3.11-slim, installing Pillow system libraries (JPEG/PNG/WEBP/TIFF), Python dependencies from requirements.txt, and launching the application via a start.sh entrypoint on port 8000.",
+      "tags": ["containerization", "infrastructure", "deployment", "build-system"],
+      "complexity": "simple",
+      "languageNotes": "Installs native image-processing libs (libjpeg62-turbo, libwebp7, libtiff6) at the OS level before pip-installing Pillow, which is the correct pattern for Pillow binary compatibility on slim Debian images."
+    },
+    {
+      "id": "service:backend/.dockerignore",
+      "type": "service",
+      "name": ".dockerignore",
+      "filePath": "backend/.dockerignore",
+      "summary": "Docker build context exclusion file that strips Python caches, virtual environments, SQLite databases, and test/type-check cache directories from the image to keep the build context lean and prevent secrets (.env) from leaking into the image.",
+      "tags": ["infrastructure", "containerization", "security", "configuration"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "service:backend/Dockerfile",
+      "target": "service:backend/.dockerignore",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ]
+}

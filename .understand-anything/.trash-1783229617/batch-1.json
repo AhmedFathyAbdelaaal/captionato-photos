@@ -1,0 +1,1031 @@
+{
+  "nodes": [
+    {
+      "id": "file:backend/alembic/env.py",
+      "type": "file",
+      "name": "env.py",
+      "filePath": "backend/alembic/env.py",
+      "summary": "Alembic migration environment configuration that wires the project's SQLAlchemy metadata and database URL into Alembic's offline and online migration runners.",
+      "tags": ["database", "migration", "configuration", "entry-point"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/alembic/env.py:run_migrations_offline",
+      "type": "function",
+      "name": "run_migrations_offline",
+      "filePath": "backend/alembic/env.py",
+      "lineRange": [21, 29],
+      "summary": "Executes Alembic migrations in offline mode using a configured URL without an active database connection.",
+      "tags": ["database", "migration", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/alembic/env.py:run_migrations_online",
+      "type": "function",
+      "name": "run_migrations_online",
+      "filePath": "backend/alembic/env.py",
+      "lineRange": [32, 41],
+      "summary": "Executes Alembic migrations in online mode by establishing a live engine connection and running migrations within a transaction.",
+      "tags": ["database", "migration", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "backend/app/__init__.py",
+      "summary": "Empty package initializer that marks the backend/app directory as a Python package.",
+      "tags": ["entry-point", "barrel"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/config.py",
+      "type": "file",
+      "name": "config.py",
+      "filePath": "backend/app/config.py",
+      "summary": "Defines the application settings via a Pydantic BaseSettings class, reading values from environment variables for database, JWT, admin credentials, file storage paths, and CORS origins.",
+      "tags": ["configuration", "singleton", "utility"],
+      "complexity": "simple",
+      "languageNotes": "Uses Pydantic BaseSettings for typed environment-variable binding and a @lru_cache-decorated get_settings factory to produce a shared singleton."
+    },
+    {
+      "id": "class:backend/app/config.py:Settings",
+      "type": "class",
+      "name": "Settings",
+      "filePath": "backend/app/config.py",
+      "lineRange": [6, 36],
+      "summary": "Pydantic BaseSettings model holding all runtime configuration: database URL, JWT secret/algorithm/expiry, admin credentials, photo storage paths, thumbnail size, and allowed CORS origins.",
+      "tags": ["configuration", "data-model", "singleton"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/app/database.py",
+      "type": "file",
+      "name": "database.py",
+      "filePath": "backend/app/database.py",
+      "summary": "Creates the SQLAlchemy engine and session factory from the app settings, and exposes the declarative Base class used by all ORM models.",
+      "tags": ["database", "configuration", "service"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/deps.py",
+      "type": "file",
+      "name": "deps.py",
+      "filePath": "backend/app/deps.py",
+      "summary": "Provides FastAPI dependency injection callables for yielding a scoped database session and for authenticating the current admin user from a Bearer JWT.",
+      "tags": ["middleware", "api-handler", "security"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/deps.py:get_db",
+      "type": "function",
+      "name": "get_db",
+      "filePath": "backend/app/deps.py",
+      "lineRange": [15, 20],
+      "summary": "FastAPI dependency that opens a SQLAlchemy session, yields it to the route handler, and closes it afterwards.",
+      "tags": ["middleware", "database", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/deps.py:get_current_admin",
+      "type": "function",
+      "name": "get_current_admin",
+      "filePath": "backend/app/deps.py",
+      "lineRange": [23, 40],
+      "summary": "FastAPI dependency that validates a Bearer JWT, decodes the admin username, and queries the database to confirm the user exists, raising 401 on any failure.",
+      "tags": ["security", "middleware", "api-handler"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/app/imaging.py",
+      "type": "file",
+      "name": "imaging.py",
+      "filePath": "backend/app/imaging.py",
+      "summary": "Handles image processing on upload: EXIF metadata extraction (camera, lens, exposure, GPS) and thumbnail generation with correct EXIF orientation using Pillow.",
+      "tags": ["utility", "service", "data-model"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/imaging.py:extract_exif",
+      "type": "function",
+      "name": "extract_exif",
+      "filePath": "backend/app/imaging.py",
+      "lineRange": [53, 107],
+      "summary": "Reads a Pillow Image object's EXIF IFD tags and returns a structured dict with camera make/model, lens, ISO, aperture, shutter speed, focal length, GPS coordinates, and copyright.",
+      "tags": ["utility", "serialization"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/imaging.py:process_upload",
+      "type": "function",
+      "name": "process_upload",
+      "filePath": "backend/app/imaging.py",
+      "lineRange": [110, 139],
+      "summary": "Saves an uploaded photo to its original path, applies EXIF rotation correction, generates a constrained thumbnail with Pillow, and returns the extracted EXIF dict along with image dimensions.",
+      "tags": ["utility", "service"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/app/main.py",
+      "type": "file",
+      "name": "main.py",
+      "filePath": "backend/app/main.py",
+      "summary": "FastAPI application entry point that configures CORS, mounts the auth/galleries/photos routers, seeds the admin user on startup via a lifespan handler, and exposes a /health endpoint.",
+      "tags": ["entry-point", "api-handler", "middleware"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/main.py:seed_admin",
+      "type": "function",
+      "name": "seed_admin",
+      "filePath": "backend/app/main.py",
+      "lineRange": [15, 27],
+      "summary": "Creates the initial AdminUser record in the database if none exists, hashing the configured admin password before insertion.",
+      "tags": ["utility", "security"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/main.py:lifespan",
+      "type": "function",
+      "name": "lifespan",
+      "filePath": "backend/app/main.py",
+      "lineRange": [31, 39],
+      "summary": "FastAPI lifespan context manager that creates the photo and thumbnail storage directories and seeds the admin user before the application accepts requests.",
+      "tags": ["entry-point", "service"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/models.py",
+      "type": "file",
+      "name": "models.py",
+      "filePath": "backend/app/models.py",
+      "summary": "SQLAlchemy ORM models for the four core database entities: Photo, Gallery, GalleryPhoto (many-to-many link), and AdminUser.",
+      "tags": ["data-model", "database", "schema-definition"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:backend/app/models.py:Photo",
+      "type": "class",
+      "name": "Photo",
+      "filePath": "backend/app/models.py",
+      "lineRange": [19, 44],
+      "summary": "ORM model representing an uploaded photo with storage paths, display metadata (title, caption, visibility), image dimensions, EXIF JSON, and a relationship to GalleryPhoto links.",
+      "tags": ["data-model", "database"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:backend/app/models.py:Gallery",
+      "type": "class",
+      "name": "Gallery",
+      "filePath": "backend/app/models.py",
+      "lineRange": [47, 73],
+      "summary": "ORM model for a photo gallery with slug, display settings (layout, theme, accent color), ordering, and a relationship to GalleryPhoto links.",
+      "tags": ["data-model", "database"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:backend/app/models.py:GalleryPhoto",
+      "type": "class",
+      "name": "GalleryPhoto",
+      "filePath": "backend/app/models.py",
+      "lineRange": [76, 92],
+      "summary": "Association table ORM model linking Gallery and Photo with a display_order field for per-gallery photo ordering.",
+      "tags": ["data-model", "database"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/models.py:AdminUser",
+      "type": "class",
+      "name": "AdminUser",
+      "filePath": "backend/app/models.py",
+      "lineRange": [95, 102],
+      "summary": "ORM model for the single admin account, storing the username and bcrypt password hash used for JWT authentication.",
+      "tags": ["data-model", "security", "database"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/routers/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "backend/app/routers/__init__.py",
+      "summary": "Empty package initializer that marks the backend/app/routers directory as a Python package.",
+      "tags": ["barrel", "entry-point"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/routers/auth.py",
+      "type": "file",
+      "name": "auth.py",
+      "filePath": "backend/app/routers/auth.py",
+      "summary": "FastAPI router exposing admin authentication endpoints: login (returns JWT), me (current user), and change_password.",
+      "tags": ["api-handler", "security", "middleware"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/routers/auth.py:login",
+      "type": "function",
+      "name": "login",
+      "filePath": "backend/app/routers/auth.py",
+      "lineRange": [14, 21],
+      "summary": "POST /auth/login — validates admin credentials against the database, returns a signed JWT access token on success.",
+      "tags": ["api-handler", "security"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/routers/auth.py:change_password",
+      "type": "function",
+      "name": "change_password",
+      "filePath": "backend/app/routers/auth.py",
+      "lineRange": [30, 42],
+      "summary": "POST /auth/change-password — verifies the current password, hashes the new one, and updates the AdminUser record.",
+      "tags": ["api-handler", "security"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/routers/galleries.py",
+      "type": "file",
+      "name": "galleries.py",
+      "filePath": "backend/app/routers/galleries.py",
+      "summary": "FastAPI router for gallery CRUD operations and ordering: public listing/detail (by slug), and admin-only create, update, delete, reorder-galleries, and reorder-photos endpoints.",
+      "tags": ["api-handler", "service", "data-model"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/routers/galleries.py:list_galleries",
+      "type": "function",
+      "name": "list_galleries",
+      "filePath": "backend/app/routers/galleries.py",
+      "lineRange": [38, 44],
+      "summary": "GET /galleries — returns all galleries with their photo counts and cover thumbnails, ordered by display_order then created_at.",
+      "tags": ["api-handler"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/routers/galleries.py:get_gallery",
+      "type": "function",
+      "name": "get_gallery",
+      "filePath": "backend/app/routers/galleries.py",
+      "lineRange": [49, 63],
+      "summary": "GET /galleries/{slug} — returns detailed gallery data including eagerly loaded photos, sorted by display order.",
+      "tags": ["api-handler"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/routers/galleries.py:create_gallery",
+      "type": "function",
+      "name": "create_gallery",
+      "filePath": "backend/app/routers/galleries.py",
+      "lineRange": [68, 81],
+      "summary": "POST /admin/galleries — creates a new gallery, auto-assigning the next display_order; requires admin auth.",
+      "tags": ["api-handler", "security"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/routers/galleries.py:update_gallery",
+      "type": "function",
+      "name": "update_gallery",
+      "filePath": "backend/app/routers/galleries.py",
+      "lineRange": [86, 105],
+      "summary": "PATCH /admin/galleries/{id} — updates gallery fields, enforcing slug uniqueness and returning the updated gallery; requires admin auth.",
+      "tags": ["api-handler", "security"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/routers/galleries.py:reorder_gallery_photos",
+      "type": "function",
+      "name": "reorder_gallery_photos",
+      "filePath": "backend/app/routers/galleries.py",
+      "lineRange": [138, 148],
+      "summary": "PUT /admin/galleries/{id}/reorder-photos — updates GalleryPhoto.display_order for a list of photo IDs within a gallery; requires admin auth.",
+      "tags": ["api-handler", "security"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/routers/photos.py",
+      "type": "file",
+      "name": "photos.py",
+      "filePath": "backend/app/routers/photos.py",
+      "summary": "FastAPI router for photo lifecycle: paginated public/admin listing, multi-file upload with EXIF extraction and thumbnail generation, bulk operations (visibility, delete, add-to-gallery), single-photo update/delete, EXIF retrieval, and file serving (thumbnail and original).",
+      "tags": ["api-handler", "service", "utility"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/routers/photos.py:upload_photos",
+      "type": "function",
+      "name": "upload_photos",
+      "filePath": "backend/app/routers/photos.py",
+      "lineRange": [80, 132],
+      "summary": "POST /admin/photos/upload — accepts multiple image files, validates extensions, saves originals, triggers EXIF extraction and thumbnail creation, and persists Photo records to the database.",
+      "tags": ["api-handler", "service", "utility"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/routers/photos.py:update_photo",
+      "type": "function",
+      "name": "update_photo",
+      "filePath": "backend/app/routers/photos.py",
+      "lineRange": [194, 227],
+      "summary": "PATCH /admin/photos/{id} — updates photo metadata and replaces the photo's gallery memberships atomically.",
+      "tags": ["api-handler", "security"],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/routers/photos.py:serve_original",
+      "type": "function",
+      "name": "serve_original",
+      "filePath": "backend/app/routers/photos.py",
+      "lineRange": [269, 282],
+      "summary": "GET /photos/{id}/original — serves the full-resolution image file, optionally as an attachment download.",
+      "tags": ["api-handler", "service"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/schemas.py",
+      "type": "file",
+      "name": "schemas.py",
+      "filePath": "backend/app/schemas.py",
+      "summary": "Pydantic schema definitions for all API request/response shapes: auth (login, token, password change), photo (out, update, page, bulk ops), and gallery (base, create, update, out, detail, reorder).",
+      "tags": ["type-definition", "api-handler", "data-model"],
+      "complexity": "moderate",
+      "languageNotes": "All classes inherit from Pydantic BaseModel; GalleryUpdate uses Optional fields with None defaults for partial-update semantics."
+    },
+    {
+      "id": "class:backend/app/schemas.py:PhotoOut",
+      "type": "class",
+      "name": "PhotoOut",
+      "filePath": "backend/app/schemas.py",
+      "lineRange": [24, 39],
+      "summary": "Pydantic response schema for a photo, including computed thumbnail_url and original_url fields alongside metadata and gallery membership IDs.",
+      "tags": ["type-definition", "data-model"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/schemas.py:GalleryOut",
+      "type": "class",
+      "name": "GalleryOut",
+      "filePath": "backend/app/schemas.py",
+      "lineRange": [95, 102],
+      "summary": "Pydantic response schema for a gallery listing entry, adding photo_count and cover_thumbnail_url to the base gallery fields.",
+      "tags": ["type-definition", "data-model"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/schemas.py:GalleryDetailOut",
+      "type": "class",
+      "name": "GalleryDetailOut",
+      "filePath": "backend/app/schemas.py",
+      "lineRange": [105, 106],
+      "summary": "Pydantic response schema extending GalleryOut with a list of PhotoOut items for the gallery detail view.",
+      "tags": ["type-definition", "data-model"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/security.py",
+      "type": "file",
+      "name": "security.py",
+      "filePath": "backend/app/security.py",
+      "summary": "Security utilities for password hashing with bcrypt (via passlib) and JWT creation/decoding using python-jose, driven by settings from config.",
+      "tags": ["security", "utility", "service"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/security.py:create_access_token",
+      "type": "function",
+      "name": "create_access_token",
+      "filePath": "backend/app/security.py",
+      "lineRange": [19, 22],
+      "summary": "Creates a signed JWT with a subject claim and an expiry derived from JWT_EXPIRE_MINUTES setting.",
+      "tags": ["security", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/security.py:decode_access_token",
+      "type": "function",
+      "name": "decode_access_token",
+      "filePath": "backend/app/security.py",
+      "lineRange": [25, 33],
+      "summary": "Decodes and validates a JWT, returning the subject string or None on any JWTError.",
+      "tags": ["security", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/serializers.py",
+      "type": "file",
+      "name": "serializers.py",
+      "filePath": "backend/app/serializers.py",
+      "summary": "Serialization helpers that convert ORM Photo and Gallery model instances into their corresponding Pydantic output schemas, constructing thumbnail/original URLs via route path helpers.",
+      "tags": ["serialization", "utility", "api-handler"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/serializers.py:photo_out",
+      "type": "function",
+      "name": "photo_out",
+      "filePath": "backend/app/serializers.py",
+      "lineRange": [16, 34],
+      "summary": "Converts a Photo ORM instance into a PhotoOut schema, populating URL fields and optionally including gallery membership IDs.",
+      "tags": ["serialization", "utility"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/serializers.py:gallery_out",
+      "type": "function",
+      "name": "gallery_out",
+      "filePath": "backend/app/serializers.py",
+      "lineRange": [37, 51],
+      "summary": "Converts a Gallery ORM instance into a GalleryOut schema, computing photo_count and the cover thumbnail URL from an optional cover Photo.",
+      "tags": ["serialization", "utility"],
+      "complexity": "moderate"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:backend/alembic/env.py",
+      "target": "file:backend/app/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/alembic/env.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/alembic/env.py",
+      "target": "file:backend/app/database.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/alembic/env.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/database.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "file:backend/app/database.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "file:backend/app/security.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/imaging.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/database.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/routers/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/routers/auth.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/routers/galleries.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/routers/photos.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/security.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "file:backend/app/database.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "file:backend/app/deps.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "file:backend/app/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "file:backend/app/security.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "file:backend/app/deps.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "file:backend/app/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "file:backend/app/serializers.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "file:backend/app/deps.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "file:backend/app/imaging.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "file:backend/app/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "file:backend/app/serializers.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/security.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/serializers.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/serializers.py",
+      "target": "file:backend/app/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/alembic/env.py",
+      "target": "function:backend/alembic/env.py:run_migrations_offline",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/alembic/env.py",
+      "target": "function:backend/alembic/env.py:run_migrations_online",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/config.py",
+      "target": "class:backend/app/config.py:Settings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/config.py",
+      "target": "class:backend/app/config.py:Settings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "function:backend/app/deps.py:get_db",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "function:backend/app/deps.py:get_current_admin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "function:backend/app/deps.py:get_db",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "function:backend/app/deps.py:get_current_admin",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/imaging.py",
+      "target": "function:backend/app/imaging.py:extract_exif",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/imaging.py",
+      "target": "function:backend/app/imaging.py:process_upload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/imaging.py",
+      "target": "function:backend/app/imaging.py:extract_exif",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/imaging.py",
+      "target": "function:backend/app/imaging.py:process_upload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "function:backend/app/main.py:seed_admin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "function:backend/app/main.py:lifespan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:Photo",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:Gallery",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:GalleryPhoto",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:AdminUser",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:Photo",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:Gallery",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:GalleryPhoto",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:AdminUser",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "function:backend/app/routers/auth.py:login",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "function:backend/app/routers/auth.py:change_password",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "function:backend/app/routers/galleries.py:list_galleries",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "function:backend/app/routers/galleries.py:get_gallery",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "function:backend/app/routers/galleries.py:create_gallery",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "function:backend/app/routers/galleries.py:update_gallery",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "function:backend/app/routers/galleries.py:reorder_gallery_photos",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "function:backend/app/routers/photos.py:upload_photos",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "function:backend/app/routers/photos.py:update_photo",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "function:backend/app/routers/photos.py:serve_original",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/schemas.py",
+      "target": "class:backend/app/schemas.py:PhotoOut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/schemas.py",
+      "target": "class:backend/app/schemas.py:GalleryOut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/schemas.py",
+      "target": "class:backend/app/schemas.py:GalleryDetailOut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/schemas.py",
+      "target": "class:backend/app/schemas.py:PhotoOut",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/schemas.py",
+      "target": "class:backend/app/schemas.py:GalleryOut",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/schemas.py",
+      "target": "class:backend/app/schemas.py:GalleryDetailOut",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/security.py",
+      "target": "function:backend/app/security.py:create_access_token",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/security.py",
+      "target": "function:backend/app/security.py:decode_access_token",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/security.py",
+      "target": "function:backend/app/security.py:create_access_token",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/security.py",
+      "target": "function:backend/app/security.py:decode_access_token",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/serializers.py",
+      "target": "function:backend/app/serializers.py:photo_out",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/serializers.py",
+      "target": "function:backend/app/serializers.py:gallery_out",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:backend/app/serializers.py",
+      "target": "function:backend/app/serializers.py:photo_out",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/serializers.py",
+      "target": "function:backend/app/serializers.py:gallery_out",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "function:backend/app/imaging.py:process_upload",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "function:backend/app/security.py:decode_access_token",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "function:backend/app/security.py:create_access_token",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

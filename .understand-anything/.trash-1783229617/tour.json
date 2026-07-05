@@ -1,0 +1,160 @@
+[
+  {
+    "order": 1,
+    "title": "Architecture Overview",
+    "description": "The README is the best first stop: it maps the entire project — three Docker containers (PostgreSQL, FastAPI, nginx/Angular), the image pipeline from upload to thumbnail, JWT-only admin auth, and the nine gallery layout modes. Reading it gives you the mental model that all subsequent code steps will flesh out.",
+    "nodeIds": [
+      "document:README.md"
+    ]
+  },
+  {
+    "order": 2,
+    "title": "Backend Entry Point",
+    "description": "The FastAPI app factory in main.py is where the backend comes to life. It registers CORS middleware, mounts the three API routers (auth, photos, galleries), seeds the admin user on first boot, and exposes a /health endpoint for Docker health checks. With fan-out of 3 it is the widest node in the backend graph — understanding it means understanding how all backend pieces connect.",
+    "nodeIds": [
+      "file:backend/app/main.py"
+    ],
+    "languageLesson": "FastAPI uses an app factory pattern: you create a FastAPI() instance, attach middleware with app.add_middleware(), and include routers with app.include_router(). This keeps each domain (auth, photos, galleries) in its own file while the factory wires them together at startup."
+  },
+  {
+    "order": 3,
+    "title": "Data Model & Database",
+    "description": "The ORM layer defines four SQLAlchemy models — Photo, Gallery, GalleryPhoto (the join table), and AdminUser — which are the highest fan-in nodes in the backend graph, imported by both the routers and the serializers. The database.py file sits alongside it, providing the engine, session factory, and declarative Base that all models inherit from. Together these two files are the schema of record for the entire application.",
+    "nodeIds": [
+      "file:backend/app/models.py",
+      "file:backend/app/database.py"
+    ],
+    "languageLesson": "SQLAlchemy's declarative Base lets you define tables as Python classes. The session factory (sessionmaker) produces per-request database sessions, and FastAPI's dependency injection system (shown in the next step) closes them automatically after each request."
+  },
+  {
+    "order": 4,
+    "title": "Pydantic Schemas & Config",
+    "description": "schemas.py defines the Pydantic request/response shapes for every endpoint, acting as the public contract between HTTP clients and the backend. config.py uses Pydantic BaseSettings to read all environment variables — DB URL, JWT secret, admin credentials, CORS origins — from the container environment, making the app fully 12-factor configurable. These two files together specify what data the API accepts and what configuration it needs to run.",
+    "nodeIds": [
+      "file:backend/app/schemas.py",
+      "file:backend/app/config.py"
+    ],
+    "languageLesson": "Pydantic BaseSettings reads from environment variables automatically, with optional .env file support. It validates types at import time, so a missing or malformed DATABASE_URL causes a hard startup failure rather than a runtime error buried in a request handler."
+  },
+  {
+    "order": 5,
+    "title": "Security & Dependency Injection",
+    "description": "security.py implements the two cryptographic primitives the app relies on: bcrypt password hashing for the AdminUser and JWT create/decode for session tokens. deps.py wraps these into FastAPI DI callables — get_db() yields a database session and get_current_admin() decodes the Bearer token and raises 401 if invalid. Every protected endpoint declares these as function parameters and FastAPI resolves them automatically.",
+    "nodeIds": [
+      "file:backend/app/security.py",
+      "file:backend/app/deps.py"
+    ],
+    "languageLesson": "FastAPI's Depends() system uses Python generator functions as dependencies. A function that yields (like get_db) can run cleanup code after yield, making it a clean pattern for managing database session lifetimes without try/finally boilerplate in every route handler."
+  },
+  {
+    "order": 6,
+    "title": "Photo & Gallery API Routers",
+    "description": "The three routers are the heart of the API surface. photos.py (fan-out 3) handles the full photo lifecycle — multipart upload, bulk visibility toggle, bulk delete, gallery assignment, EXIF retrieval, and raw file serving. galleries.py handles gallery CRUD and ordering. auth.py exposes login (returns a JWT), /me, and change-password. Each router uses the Depends() callables from deps.py so every mutating endpoint is automatically admin-gated.",
+    "nodeIds": [
+      "file:backend/app/routers/photos.py",
+      "file:backend/app/routers/galleries.py",
+      "file:backend/app/routers/auth.py"
+    ]
+  },
+  {
+    "order": 7,
+    "title": "Image Processing Pipeline",
+    "description": "imaging.py is called by the photos router on every upload and encapsulates two responsibilities: extracting EXIF metadata (camera model, focal length, aperture, GPS) via Pillow/piexif, and generating a thumbnail copy stored alongside the original. This is the pipeline that keeps the public gallery fast — browsers always load thumbnails first and only fetch the full-resolution original when the lightbox opens.",
+    "nodeIds": [
+      "file:backend/app/imaging.py",
+      "file:backend/app/serializers.py"
+    ],
+    "languageLesson": "Pillow's Image.thumbnail() resizes in-place with aspect-ratio preservation. Serializers (serializers.py) sit between SQLAlchemy model instances and Pydantic schemas, converting ORM objects to dicts before Pydantic validation — a common pattern when ORM relationships would cause N+1 queries if left to Pydantic's orm_mode alone."
+  },
+  {
+    "order": 8,
+    "title": "Database Migrations",
+    "description": "The Alembic migration in 0001_initial.py is the authoritative definition of all four database tables as they exist in production. env.py wires the SQLAlchemy metadata and DB URL into Alembic's migration runner. start.sh (the container entrypoint) runs alembic upgrade head before launching uvicorn, so the schema is always in sync with the code on every container restart.",
+    "nodeIds": [
+      "file:backend/alembic/versions/0001_initial.py",
+      "file:backend/alembic/env.py",
+      "file:backend/start.sh"
+    ],
+    "languageLesson": "Alembic migrations are sequential and versioned by hash. Each file has upgrade() and downgrade() functions, making schema changes reversible. Running migrations at container startup (rather than at build time) ensures the database is ready before the first request arrives."
+  },
+  {
+    "order": 9,
+    "title": "Angular Bootstrap & Routing",
+    "description": "main.ts is the Angular entry point — it fetches a runtime config.json to discover the backend URL (injected by the nginx container at startup), then calls bootstrapApplication() with the app config. app.config.ts registers the router and the auth HTTP interceptor globally. app.routes.ts defines the full route table: lazy-loaded public pages and admin components behind an authGuard, so the admin bundle is never downloaded by public visitors.",
+    "nodeIds": [
+      "file:frontend/src/main.ts",
+      "file:frontend/src/app/app.config.ts",
+      "file:frontend/src/app/app.routes.ts",
+      "file:frontend/src/app/config.ts"
+    ],
+    "languageLesson": "Angular 16's standalone bootstrapApplication() replaces NgModule. Routes use loadComponent: () => import('./...').then(m => m.Foo) for lazy loading — each admin chunk is a separate JS bundle fetched only on demand. The runtime config pattern (fetching a JSON file before bootstrap) avoids baking the API URL into the build artifact, which is essential for Docker deployments across environments."
+  },
+  {
+    "order": 10,
+    "title": "Frontend Auth Flow",
+    "description": "auth.service.ts holds the JWT in localStorage and exposes an isAuthed Angular signal that the rest of the app reacts to. auth.interceptor.ts silently attaches the Bearer token to every outgoing HTTP request and auto-logouts on a 401 response. auth.guard.ts protects the /admin routes by checking isAuthed — unauthenticated users are redirected to the login page. These three files form a self-contained auth subsystem that the rest of the frontend depends on but never has to think about.",
+    "nodeIds": [
+      "file:frontend/src/app/services/auth.service.ts",
+      "file:frontend/src/app/services/auth.interceptor.ts",
+      "file:frontend/src/app/services/auth.guard.ts"
+    ],
+    "languageLesson": "Angular signals (introduced in v16) are reactive primitives. isAuthed is a computed signal derived from the stored token — any component that reads it automatically re-renders when it changes. The HttpInterceptor pattern intercepts every HttpClient request through the injection system, keeping auth concerns out of individual service methods."
+  },
+  {
+    "order": 11,
+    "title": "API Service & Shared Models",
+    "description": "api.service.ts is the single Angular service that talks to the FastAPI backend — every public and admin HTTP call goes through it, along with image URL construction helpers that know the difference between thumbnail and original paths. models.ts defines the shared TypeScript interfaces (Photo, Gallery, ExifData) and the GalleryLayout union type that enumerates all nine layout modes. api.service.ts imports models.ts, making this pair the data contract between frontend and backend.",
+    "nodeIds": [
+      "file:frontend/src/app/services/api.service.ts",
+      "file:frontend/src/app/models.ts"
+    ],
+    "languageLesson": "TypeScript discriminated union types (type GalleryLayout = 'masonry' | 'grid' | 'editorial' | ...) give compile-time exhaustiveness checking. A switch statement over GalleryLayout will produce a TypeScript error if a new layout mode is added to the union but not handled in the switch — preventing silent runtime fallbacks."
+  },
+  {
+    "order": 12,
+    "title": "Public Gallery Pages",
+    "description": "landing.component.ts renders the entry page as an infinite-scroll masonry grid of all visible photos, opening the lightbox on click. galleries.component.ts lists all public galleries. gallery-detail.component.ts is the most feature-rich public page: it reads the gallery's layout setting and switches between nine rendering modes (masonry, grid, editorial, slideshow, moodboard, collage, polaroid, filmstrip, marquee) while applying per-gallery theme overrides via theme.service.ts and embedding the lightbox component.",
+    "nodeIds": [
+      "file:frontend/src/app/pages/landing.component.ts",
+      "file:frontend/src/app/pages/galleries.component.ts",
+      "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "file:frontend/src/app/services/theme.service.ts"
+    ]
+  },
+  {
+    "order": 13,
+    "title": "Lightbox & Scroll Reveal",
+    "description": "lightbox.component.ts is a shared UI primitive used by both the landing page and the gallery detail page — it handles full-screen display of the selected photo, keyboard arrow-key navigation, an EXIF metadata side panel (using the data extracted by imaging.py at upload time), lazy loading of the full-resolution image only when opened, and a download button. reveal.directive.ts is a structural Angular directive that uses IntersectionObserver to add a CSS class as each photo card scrolls into view, creating the fade-in animation seen across the site.",
+    "nodeIds": [
+      "file:frontend/src/app/components/lightbox.component.ts",
+      "file:frontend/src/app/components/reveal.directive.ts",
+      "file:frontend/src/styles.scss"
+    ],
+    "languageLesson": "Angular attribute directives (class decorated with @Directive) attach behaviour to host elements without adding DOM nodes. IntersectionObserver is more performant than scroll event listeners because it fires callbacks off the main thread and only when the element actually enters the viewport — ideal for large photo grids with dozens of images."
+  },
+  {
+    "order": 14,
+    "title": "Admin Panel",
+    "description": "The admin panel is a separate lazy-loaded Angular zone behind the authGuard. admin.component.ts provides the shell (navigation tabs, logout). admin-photos.component.ts is the primary workhorse: drag-and-drop upload, bulk visibility toggle, bulk delete, and gallery assignment — all calling the API endpoints from Step 6. admin-galleries.component.ts handles gallery creation, editing (name, description, layout mode, theme, accent color), and ordering. admin-settings.component.ts is a simple password-change form completing the admin-only auth flow from Step 10.",
+    "nodeIds": [
+      "file:frontend/src/app/admin/admin.component.ts",
+      "file:frontend/src/app/admin/admin-photos.component.ts",
+      "file:frontend/src/app/admin/admin-galleries.component.ts",
+      "file:frontend/src/app/admin/admin-settings.component.ts",
+      "file:frontend/src/app/admin/login.component.ts"
+    ]
+  },
+  {
+    "order": 15,
+    "title": "Docker & Deployment",
+    "description": "docker-compose.yml orchestrates the three-container production stack: a PostgreSQL service, the FastAPI backend built from backend/Dockerfile (python:3.11-slim with Pillow native libraries), and the Angular frontend built from frontend/Dockerfile using a two-stage build — Node 18 compiles the Angular app in the builder stage, then nginx:alpine serves the static output and injects the runtime API URL into config.json at container start. nginx.conf configures cache headers: immutable for content-hashed JS/CSS bundles, no-store for index.html and config.json so config changes are picked up immediately.",
+    "nodeIds": [
+      "service:docker-compose.yml",
+      "service:backend/Dockerfile",
+      "service:frontend/Dockerfile",
+      "file:frontend/nginx.conf",
+      "config:backend/.env.example"
+    ],
+    "languageLesson": "The frontend Dockerfile's two-stage build separates concerns: stage 1 has Node, npm, and Angular CLI (several hundred MB) to compile TypeScript; stage 2 copies only the /dist output into a minimal nginx image. The final image is typically under 30MB. The runtime config injection pattern (overwriting a JSON file via an entrypoint script) is the standard Docker-friendly solution to the problem of needing different API URLs per environment without rebuilding the image."
+  }
+]

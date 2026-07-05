@@ -4,9 +4,14 @@ import { Observable } from 'rxjs';
 
 import { APP_CONFIG, AppConfig } from '../config';
 import {
+  Collage,
+  CollageFormat,
+  CollageLayer,
+  CollageLayerInput,
   Gallery,
   GalleryDetail,
   GalleryInput,
+  OneOffUpload,
   Photo,
   PhotoPage,
 } from '../models';
@@ -116,5 +121,76 @@ export class ApiService {
     return this.http.post(`${this.base}/galleries/${galleryId}/photos/reorder`, {
       ids,
     });
+  }
+
+  // ── Collage maker (admin) ──
+  getCollages(): Observable<Collage[]> {
+    return this.http.get<Collage[]>(`${this.base}/collages`);
+  }
+  getCollage(id: string): Observable<Collage> {
+    return this.http.get<Collage>(`${this.base}/collages/${id}`);
+  }
+  createCollage(format: CollageFormat, background_color = '#000000'): Observable<Collage> {
+    return this.http.post<Collage>(`${this.base}/collages`, {
+      format,
+      background_color,
+    });
+  }
+  updateCollage(
+    id: string,
+    body: { background_color?: string; status?: 'draft' | 'exported' },
+  ): Observable<Collage> {
+    return this.http.patch<Collage>(`${this.base}/collages/${id}`, body);
+  }
+  deleteCollage(id: string) {
+    return this.http.delete(`${this.base}/collages/${id}`);
+  }
+  addCollageLayer(
+    collageId: string,
+    body: CollageLayerInput,
+  ): Observable<CollageLayer> {
+    return this.http.post<CollageLayer>(
+      `${this.base}/collages/${collageId}/layers`,
+      body,
+    );
+  }
+  updateCollageLayer(
+    collageId: string,
+    layerId: string,
+    body: CollageLayerInput,
+  ): Observable<CollageLayer> {
+    return this.http.patch<CollageLayer>(
+      `${this.base}/collages/${collageId}/layers/${layerId}`,
+      body,
+    );
+  }
+  deleteCollageLayer(collageId: string, layerId: string) {
+    return this.http.delete(
+      `${this.base}/collages/${collageId}/layers/${layerId}`,
+    );
+  }
+  uploadOneOff(collageId: string, file: File): Observable<OneOffUpload> {
+    const form = new FormData();
+    form.append('file', file);
+    return this.http.post<OneOffUpload>(
+      `${this.base}/collages/${collageId}/upload-one-off`,
+      form,
+    );
+  }
+  generateAutoCollages(
+    format: CollageFormat,
+    photo_ids: string[],
+  ): Observable<Collage[]> {
+    return this.http.post<Collage[]>(`${this.base}/collages/generate-auto`, {
+      format,
+      photo_ids,
+    });
+  }
+  exportCollage(id: string, format: 'jpg' | 'png' = 'jpg'): Observable<Blob> {
+    return this.http.post(
+      `${this.base}/collages/${id}/export?format=${format}`,
+      null,
+      { responseType: 'blob' },
+    );
   }
 }

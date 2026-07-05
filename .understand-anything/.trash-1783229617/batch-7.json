@@ -1,0 +1,89 @@
+{
+  "nodes": [
+    {
+      "id": "config:frontend/angular.json",
+      "type": "config",
+      "name": "angular.json",
+      "filePath": "frontend/angular.json",
+      "summary": "Angular CLI workspace configuration for the `captionato-photos-web` project, defining build targets, SCSS as the default style language, standalone component schematics, production budget limits (1.5 MB error threshold), and dev-server settings.",
+      "tags": ["configuration", "build-system", "angular", "frontend"],
+      "complexity": "moderate",
+      "languageNotes": "Uses `@angular-devkit/build-angular:browser` builder with separate production and development configurations; production build enables output hashing for cache-busting."
+    },
+    {
+      "id": "file:frontend/docker-entrypoint.sh",
+      "type": "file",
+      "name": "docker-entrypoint.sh",
+      "filePath": "frontend/docker-entrypoint.sh",
+      "summary": "Docker entrypoint shell script that renders a runtime `config.json` file inside the Nginx HTML directory from the `API_BASE_URL` environment variable, enabling the Angular SPA to target different backend URLs without a rebuild.",
+      "tags": ["infrastructure", "deployment", "containerization", "configuration"],
+      "complexity": "simple",
+      "languageNotes": "Uses POSIX sh with a default variable substitution (`${API_BASE_URL:=...}`) so the fallback API URL is applied when no override is provided by the container orchestrator (Coolify)."
+    },
+    {
+      "id": "config:frontend/package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "frontend/package.json",
+      "summary": "Node.js package manifest for the Angular 16 frontend, declaring all Angular platform dependencies (animations, router, forms, RxJS, zone.js) alongside dev dependencies for the CLI and TypeScript compiler.",
+      "tags": ["configuration", "build-system", "dependencies", "frontend"],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:frontend/tsconfig.app.json",
+      "type": "config",
+      "name": "tsconfig.app.json",
+      "filePath": "frontend/tsconfig.app.json",
+      "summary": "Application-scoped TypeScript configuration that extends the base `tsconfig.json`, specifying `src/main.ts` as the compilation entry point and restricting type roots to none for stricter application builds.",
+      "tags": ["configuration", "typescript", "build-system"],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:frontend/tsconfig.json",
+      "type": "config",
+      "name": "tsconfig.json",
+      "filePath": "frontend/tsconfig.json",
+      "summary": "Base TypeScript compiler configuration for the Angular 16 frontend, enabling strict mode, ES2022 target/module, experimental decorators for Angular DI, and strict Angular template/injection checking via `angularCompilerOptions`.",
+      "tags": ["configuration", "typescript", "build-system", "angular"],
+      "complexity": "simple",
+      "languageNotes": "Sets `useDefineForClassFields: false` which is required for correct Angular decorator semantics; `strictTemplates: true` enables full type-checking in Angular HTML templates."
+    }
+  ],
+  "edges": [
+    {
+      "source": "config:frontend/tsconfig.app.json",
+      "target": "config:frontend/tsconfig.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:frontend/angular.json",
+      "target": "config:frontend/tsconfig.app.json",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:frontend/angular.json",
+      "target": "config:frontend/tsconfig.json",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:frontend/package.json",
+      "target": "config:frontend/angular.json",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:frontend/docker-entrypoint.sh",
+      "target": "config:frontend/angular.json",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ]
+}

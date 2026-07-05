@@ -1,0 +1,35 @@
+{
+  "issues": [],
+  "warnings": [
+    "Node 'document:backend/requirements.txt' has no edges (orphan)",
+    "Node 'file:.understand-anything/.understandignore' has no edges (orphan)",
+    "Node 'file:backend/alembic/script.py.mako' has no edges (orphan)",
+    "Node 'file:frontend/src/styles.scss' has no edges (orphan)"
+  ],
+  "stats": {
+    "totalNodes": 108,
+    "totalEdges": 189,
+    "totalLayers": 8,
+    "tourSteps": 15,
+    "nodeTypes": {
+      "file": 44,
+      "function": 26,
+      "class": 22,
+      "service": 7,
+      "config": 7,
+      "document": 2
+    },
+    "edgeTypes": {
+      "imports": 68,
+      "contains": 50,
+      "exports": 34,
+      "calls": 14,
+      "depends_on": 10,
+      "related": 2,
+      "configures": 5,
+      "deploys": 1,
+      "serves": 2,
+      "documents": 3
+    }
+  }
+}

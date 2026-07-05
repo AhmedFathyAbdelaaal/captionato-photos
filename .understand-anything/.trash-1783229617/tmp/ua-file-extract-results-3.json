@@ -1,0 +1,471 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 10,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "frontend/src/app/admin/admin.component.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 141,
+      "nonEmptyLines": 138,
+      "classes": [
+        {
+          "name": "AdminComponent",
+          "startLine": 134,
+          "endLine": 141,
+          "methods": [
+            "constructor",
+            "logout"
+          ],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "AdminComponent",
+          "line": 12,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "logout",
+          "callee": "this.auth.logout",
+          "lineNumber": 138
+        },
+        {
+          "caller": "logout",
+          "callee": "this.router.navigate",
+          "lineNumber": 139
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "frontend/src/app/admin/login.component.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 128,
+      "nonEmptyLines": 121,
+      "classes": [
+        {
+          "name": "LoginComponent",
+          "startLine": 106,
+          "endLine": 128,
+          "methods": [
+            "constructor",
+            "submit"
+          ],
+          "properties": [
+            "username",
+            "password",
+            "busy",
+            "error"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "LoginComponent",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "submit",
+          "callee": "this.busy.set",
+          "lineNumber": 116
+        },
+        {
+          "caller": "submit",
+          "callee": "this.error.set",
+          "lineNumber": 117
+        },
+        {
+          "caller": "submit",
+          "callee": "this.auth.login(this.username, this.password).subscribe",
+          "lineNumber": 118
+        },
+        {
+          "caller": "submit",
+          "callee": "this.auth.login",
+          "lineNumber": 118
+        },
+        {
+          "caller": "submit",
+          "callee": "this.router.navigate",
+          "lineNumber": 119
+        },
+        {
+          "caller": "submit",
+          "callee": "this.error.set",
+          "lineNumber": 121
+        },
+        {
+          "caller": "submit",
+          "callee": "this.busy.set",
+          "lineNumber": 124
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "frontend/src/app/app.component.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 95,
+      "nonEmptyLines": 91,
+      "classes": [
+        {
+          "name": "AppComponent",
+          "startLine": 85,
+          "endLine": 95,
+          "methods": [
+            "constructor"
+          ],
+          "properties": [
+            "url",
+            "showChrome"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "AppComponent",
+          "line": 14,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "constructor",
+          "callee": "this.router.events\n      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))\n      .subscribe",
+          "lineNumber": 91
+        },
+        {
+          "caller": "constructor",
+          "callee": "this.router.events\n      .pipe",
+          "lineNumber": 91
+        },
+        {
+          "caller": "constructor",
+          "callee": "filter",
+          "lineNumber": 92
+        },
+        {
+          "caller": "constructor",
+          "callee": "this.url.set",
+          "lineNumber": 93
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "frontend/src/app/app.config.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 16,
+      "nonEmptyLines": 14,
+      "exports": [
+        {
+          "name": "appConfig",
+          "line": 8,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "frontend/src/app/app.routes.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 59,
+      "nonEmptyLines": 57,
+      "exports": [
+        {
+          "name": "routes",
+          "line": 5,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "frontend/src/app/config.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 9,
+      "nonEmptyLines": 7,
+      "exports": [
+        {
+          "name": "APP_CONFIG",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "frontend/src/app/services/auth.guard.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 10,
+      "functions": [
+        {
+          "name": "authGuard",
+          "startLine": 6,
+          "endLine": 12,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "authGuard",
+          "line": 6,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "authGuard",
+          "callee": "inject",
+          "lineNumber": 7
+        },
+        {
+          "caller": "authGuard",
+          "callee": "inject",
+          "lineNumber": 8
+        },
+        {
+          "caller": "authGuard",
+          "callee": "auth.isAuthed",
+          "lineNumber": 9
+        },
+        {
+          "caller": "authGuard",
+          "callee": "router.navigate",
+          "lineNumber": 10
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "frontend/src/app/services/auth.interceptor.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 27,
+      "nonEmptyLines": 23,
+      "functions": [
+        {
+          "name": "authInterceptor",
+          "startLine": 9,
+          "endLine": 27,
+          "params": [
+            "req",
+            "next"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "authInterceptor",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "authInterceptor",
+          "callee": "inject",
+          "lineNumber": 10
+        },
+        {
+          "caller": "authInterceptor",
+          "callee": "inject",
+          "lineNumber": 11
+        },
+        {
+          "caller": "authInterceptor",
+          "callee": "auth.token",
+          "lineNumber": 13
+        },
+        {
+          "caller": "authInterceptor",
+          "callee": "req.clone",
+          "lineNumber": 15
+        },
+        {
+          "caller": "authInterceptor",
+          "callee": "next(authReq).pipe",
+          "lineNumber": 18
+        },
+        {
+          "caller": "authInterceptor",
+          "callee": "next",
+          "lineNumber": 18
+        },
+        {
+          "caller": "authInterceptor",
+          "callee": "catchError",
+          "lineNumber": 19
+        },
+        {
+          "caller": "authInterceptor",
+          "callee": "auth.logout",
+          "lineNumber": 21
+        },
+        {
+          "caller": "authInterceptor",
+          "callee": "router.navigate",
+          "lineNumber": 22
+        },
+        {
+          "caller": "authInterceptor",
+          "callee": "throwError",
+          "lineNumber": 24
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 1,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "frontend/src/app/services/auth.service.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 32,
+      "nonEmptyLines": 26,
+      "classes": [
+        {
+          "name": "AuthService",
+          "startLine": 10,
+          "endLine": 32,
+          "methods": [
+            "constructor",
+            "login",
+            "logout"
+          ],
+          "properties": [
+            "_token",
+            "token",
+            "isAuthed"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "AuthService",
+          "line": 9,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "login",
+          "callee": "this.api.login(username, password).pipe",
+          "lineNumber": 18
+        },
+        {
+          "caller": "login",
+          "callee": "this.api.login",
+          "lineNumber": 18
+        },
+        {
+          "caller": "login",
+          "callee": "tap",
+          "lineNumber": 19
+        },
+        {
+          "caller": "login",
+          "callee": "localStorage.setItem",
+          "lineNumber": 20
+        },
+        {
+          "caller": "login",
+          "callee": "this._token.set",
+          "lineNumber": 21
+        },
+        {
+          "caller": "login",
+          "callee": "this.isAuthed.set",
+          "lineNumber": 22
+        },
+        {
+          "caller": "logout",
+          "callee": "localStorage.removeItem",
+          "lineNumber": 28
+        },
+        {
+          "caller": "logout",
+          "callee": "this._token.set",
+          "lineNumber": 29
+        },
+        {
+          "caller": "logout",
+          "callee": "this.isAuthed.set",
+          "lineNumber": 30
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "frontend/src/main.ts",
+      "language": "typescript",
+      "fileCategory": "code",
+      "totalLines": 19,
+      "nonEmptyLines": 17,
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    }
+  ]
+}

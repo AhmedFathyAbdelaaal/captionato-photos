@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -109,3 +110,88 @@ class GalleryDetailOut(GalleryOut):
 class ReorderRequest(BaseModel):
     """Ordered list of gallery (or photo) ids; index becomes display_order."""
     ids: list[uuid.UUID]
+
+
+# ── Collage maker ──
+# Layer geometry is normalized: pos/size as fractions of canvas width/height,
+# crop bounds as fractions of the source image. Rotation in degrees, clockwise.
+class CollageLayerGeometry(BaseModel):
+    pos_x: float
+    pos_y: float
+    width: float = Field(gt=0)
+    height: float = Field(gt=0)
+    rotation: float = 0
+    crop_x: float = Field(0, ge=0, le=1)
+    crop_y: float = Field(0, ge=0, le=1)
+    crop_width: float = Field(1, gt=0, le=1)
+    crop_height: float = Field(1, gt=0, le=1)
+    border_enabled: bool = False
+    z_index: int = 0
+
+
+class CollageLayerCreate(CollageLayerGeometry):
+    # Exactly one of the two source references must be set.
+    photo_id: uuid.UUID | None = None
+    one_off_path: str | None = None
+
+
+class CollageLayerUpdate(BaseModel):
+    pos_x: float | None = None
+    pos_y: float | None = None
+    width: float | None = Field(None, gt=0)
+    height: float | None = Field(None, gt=0)
+    rotation: float | None = None
+    crop_x: float | None = Field(None, ge=0, le=1)
+    crop_y: float | None = Field(None, ge=0, le=1)
+    crop_width: float | None = Field(None, gt=0, le=1)
+    crop_height: float | None = Field(None, gt=0, le=1)
+    border_enabled: bool | None = None
+    z_index: int | None = None
+
+
+class CollageLayerOut(CollageLayerGeometry):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    photo_id: uuid.UUID | None = None
+    one_off_path: str | None = None
+    thumb_url: str  # editor working image (thumbnail resolution)
+
+
+class CollageCreate(BaseModel):
+    format: Literal["story", "post"]
+    background_color: str = "#000000"
+
+
+class CollageUpdate(BaseModel):
+    background_color: str | None = None
+    status: Literal["draft", "exported"] | None = None
+
+
+class CollageOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    format: str
+    background_color: str
+    status: str
+    created_at: datetime
+    updated_at: datetime
+    exported_at: datetime | None = None
+    layer_count: int = 0
+
+
+class CollageDetailOut(CollageOut):
+    layers: list[CollageLayerOut] = []
+
+
+class OneOffUploadOut(BaseModel):
+    one_off_path: str
+    thumb_url: str
+    width: int | None = None
+    height: int | None = None
+
+
+class GenerateAutoRequest(BaseModel):
+    format: Literal["story", "post"]
+    photo_ids: list[uuid.UUID] = Field(min_length=2)

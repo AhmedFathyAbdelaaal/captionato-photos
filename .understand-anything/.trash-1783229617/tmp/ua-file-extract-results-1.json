@@ -1,0 +1,2844 @@
+{
+  "scriptCompleted": true,
+  "filesAnalyzed": 15,
+  "filesSkipped": [],
+  "results": [
+    {
+      "path": "backend/alembic/env.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 47,
+      "nonEmptyLines": 35,
+      "functions": [
+        {
+          "name": "run_migrations_offline",
+          "startLine": 21,
+          "endLine": 29,
+          "params": []
+        },
+        {
+          "name": "run_migrations_online",
+          "startLine": 32,
+          "endLine": 41,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "run_migrations_offline",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "run_migrations_online",
+          "line": 32,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "run_migrations_offline",
+          "callee": "context.configure",
+          "lineNumber": 22
+        },
+        {
+          "caller": "run_migrations_offline",
+          "callee": "context.begin_transaction",
+          "lineNumber": 28
+        },
+        {
+          "caller": "run_migrations_offline",
+          "callee": "context.run_migrations",
+          "lineNumber": 29
+        },
+        {
+          "caller": "run_migrations_online",
+          "callee": "engine_from_config",
+          "lineNumber": 33
+        },
+        {
+          "caller": "run_migrations_online",
+          "callee": "config.get_section",
+          "lineNumber": 34
+        },
+        {
+          "caller": "run_migrations_online",
+          "callee": "connectable.connect",
+          "lineNumber": 38
+        },
+        {
+          "caller": "run_migrations_online",
+          "callee": "context.configure",
+          "lineNumber": 39
+        },
+        {
+          "caller": "run_migrations_online",
+          "callee": "context.begin_transaction",
+          "lineNumber": 40
+        },
+        {
+          "caller": "run_migrations_online",
+          "callee": "context.run_migrations",
+          "lineNumber": 41
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "backend/app/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 0,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "backend/app/config.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 44,
+      "nonEmptyLines": 30,
+      "functions": [
+        {
+          "name": "get_settings",
+          "startLine": 40,
+          "endLine": 41,
+          "params": []
+        }
+      ],
+      "classes": [
+        {
+          "name": "Settings",
+          "startLine": 6,
+          "endLine": 36,
+          "methods": [
+            "allowed_origins_list"
+          ],
+          "properties": [
+            "DATABASE_URL",
+            "SECRET_KEY",
+            "JWT_ALGORITHM",
+            "JWT_EXPIRE_MINUTES",
+            "ADMIN_USERNAME",
+            "ADMIN_PASSWORD",
+            "PHOTOS_ORIGINAL_PATH",
+            "PHOTOS_THUMB_PATH",
+            "THUMB_MAX_EDGE",
+            "ALLOWED_ORIGINS"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "Settings",
+          "line": 6,
+          "isDefault": false
+        },
+        {
+          "name": "get_settings",
+          "line": 39,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "allowed_origins_list",
+          "callee": "o.strip",
+          "lineNumber": 36
+        },
+        {
+          "caller": "allowed_origins_list",
+          "callee": "self.ALLOWED_ORIGINS.split",
+          "lineNumber": 36
+        },
+        {
+          "caller": "allowed_origins_list",
+          "callee": "o.strip",
+          "lineNumber": 36
+        },
+        {
+          "caller": "get_settings",
+          "callee": "Settings",
+          "lineNumber": 41
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 2,
+        "functionCount": 1,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "backend/app/database.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 12,
+      "nonEmptyLines": 8,
+      "classes": [
+        {
+          "name": "Base",
+          "startLine": 10,
+          "endLine": 12,
+          "methods": [],
+          "properties": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "Base",
+          "line": 10,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 1,
+        "functionCount": 0,
+        "classCount": 1
+      }
+    },
+    {
+      "path": "backend/app/deps.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 40,
+      "nonEmptyLines": 33,
+      "functions": [
+        {
+          "name": "get_db",
+          "startLine": 15,
+          "endLine": 20,
+          "params": []
+        },
+        {
+          "name": "get_current_admin",
+          "startLine": 23,
+          "endLine": 40,
+          "params": [
+            "creds",
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "get_db",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "get_current_admin",
+          "line": 23,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "get_db",
+          "callee": "SessionLocal",
+          "lineNumber": 16
+        },
+        {
+          "caller": "get_db",
+          "callee": "db.close",
+          "lineNumber": 20
+        },
+        {
+          "caller": "get_current_admin",
+          "callee": "Depends",
+          "lineNumber": 24
+        },
+        {
+          "caller": "get_current_admin",
+          "callee": "Depends",
+          "lineNumber": 25
+        },
+        {
+          "caller": "get_current_admin",
+          "callee": "HTTPException",
+          "lineNumber": 27
+        },
+        {
+          "caller": "get_current_admin",
+          "callee": "decode_access_token",
+          "lineNumber": 34
+        },
+        {
+          "caller": "get_current_admin",
+          "callee": "db.scalar",
+          "lineNumber": 37
+        },
+        {
+          "caller": "get_current_admin",
+          "callee": "select(AdminUser).where",
+          "lineNumber": 37
+        },
+        {
+          "caller": "get_current_admin",
+          "callee": "select",
+          "lineNumber": 37
+        }
+      ],
+      "metrics": {
+        "importCount": 3,
+        "exportCount": 2,
+        "functionCount": 2,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "backend/app/imaging.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 139,
+      "nonEmptyLines": 107,
+      "functions": [
+        {
+          "name": "_rational_to_float",
+          "startLine": 24,
+          "endLine": 30,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "_format_shutter",
+          "startLine": 33,
+          "endLine": 40,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "_clean",
+          "startLine": 43,
+          "endLine": 50,
+          "params": [
+            "value"
+          ]
+        },
+        {
+          "name": "extract_exif",
+          "startLine": 53,
+          "endLine": 107,
+          "params": [
+            "img"
+          ]
+        },
+        {
+          "name": "process_upload",
+          "startLine": 110,
+          "endLine": 139,
+          "params": [
+            "original_abs",
+            "thumb_abs"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_rational_to_float",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "_format_shutter",
+          "line": 33,
+          "isDefault": false
+        },
+        {
+          "name": "_clean",
+          "line": 43,
+          "isDefault": false
+        },
+        {
+          "name": "extract_exif",
+          "line": 53,
+          "isDefault": false
+        },
+        {
+          "name": "process_upload",
+          "line": 110,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_rational_to_float",
+          "callee": "isinstance",
+          "lineNumber": 26
+        },
+        {
+          "caller": "_rational_to_float",
+          "callee": "float",
+          "lineNumber": 28
+        },
+        {
+          "caller": "_format_shutter",
+          "callee": "_rational_to_float",
+          "lineNumber": 34
+        },
+        {
+          "caller": "_format_shutter",
+          "callee": "Fraction(secs).limit_denominator",
+          "lineNumber": 39
+        },
+        {
+          "caller": "_format_shutter",
+          "callee": "Fraction",
+          "lineNumber": 39
+        },
+        {
+          "caller": "_clean",
+          "callee": "str(value).replace",
+          "lineNumber": 48
+        },
+        {
+          "caller": "_clean",
+          "callee": "str",
+          "lineNumber": 48
+        },
+        {
+          "caller": "_clean",
+          "callee": "\"\".join",
+          "lineNumber": 49
+        },
+        {
+          "caller": "_clean",
+          "callee": "text.strip",
+          "lineNumber": 50
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "img.getexif",
+          "lineNumber": 56
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "_clean",
+          "lineNumber": 62
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "raw.get",
+          "lineNumber": 62
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "_TAG_IDS.get",
+          "lineNumber": 62
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "_clean",
+          "lineNumber": 63
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "raw.get",
+          "lineNumber": 63
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "_TAG_IDS.get",
+          "lineNumber": 63
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "\" \".join",
+          "lineNumber": 64
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "raw.get_ifd",
+          "lineNumber": 70
+        },
+        {
+          "caller": "sub_get",
+          "callee": "sub.get",
+          "lineNumber": 75
+        },
+        {
+          "caller": "sub_get",
+          "callee": "_TAG_IDS.get",
+          "lineNumber": 75
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "_clean",
+          "lineNumber": 77
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "sub_get",
+          "lineNumber": 77
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "_rational_to_float",
+          "lineNumber": 81
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "sub_get",
+          "lineNumber": 81
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "_rational_to_float",
+          "lineNumber": 85
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "sub_get",
+          "lineNumber": 85
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "_format_shutter",
+          "lineNumber": 89
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "sub_get",
+          "lineNumber": 89
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "sub_get",
+          "lineNumber": 93
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "sub_get",
+          "lineNumber": 93
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "_clean",
+          "lineNumber": 97
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "sub_get",
+          "lineNumber": 97
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "raw.get",
+          "lineNumber": 97
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "_TAG_IDS.get",
+          "lineNumber": 97
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "_clean",
+          "lineNumber": 104
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "isinstance",
+          "lineNumber": 104
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "exif.items",
+          "lineNumber": 105
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "isinstance",
+          "lineNumber": 106
+        },
+        {
+          "caller": "extract_exif",
+          "callee": "_clean",
+          "lineNumber": 106
+        },
+        {
+          "caller": "process_upload",
+          "callee": "thumb_abs.parent.mkdir",
+          "lineNumber": 118
+        },
+        {
+          "caller": "process_upload",
+          "callee": "Image.open",
+          "lineNumber": 121
+        },
+        {
+          "caller": "process_upload",
+          "callee": "extract_exif",
+          "lineNumber": 123
+        },
+        {
+          "caller": "process_upload",
+          "callee": "img.draft",
+          "lineNumber": 127
+        },
+        {
+          "caller": "process_upload",
+          "callee": "ImageOps.exif_transpose",
+          "lineNumber": 129
+        },
+        {
+          "caller": "process_upload",
+          "callee": "thumb.thumbnail",
+          "lineNumber": 130
+        },
+        {
+          "caller": "process_upload",
+          "callee": "thumb.convert",
+          "lineNumber": 136
+        },
+        {
+          "caller": "process_upload",
+          "callee": "thumb.save",
+          "lineNumber": 137
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 5,
+        "functionCount": 5,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "backend/app/main.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 59,
+      "nonEmptyLines": 47,
+      "functions": [
+        {
+          "name": "seed_admin",
+          "startLine": 15,
+          "endLine": 27,
+          "params": []
+        },
+        {
+          "name": "lifespan",
+          "startLine": 31,
+          "endLine": 39,
+          "params": [
+            "app"
+          ]
+        },
+        {
+          "name": "health",
+          "startLine": 58,
+          "endLine": 59,
+          "params": []
+        }
+      ],
+      "exports": [
+        {
+          "name": "seed_admin",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "lifespan",
+          "line": 30,
+          "isDefault": false
+        },
+        {
+          "name": "health",
+          "line": 57,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "seed_admin",
+          "callee": "SessionLocal",
+          "lineNumber": 17
+        },
+        {
+          "caller": "seed_admin",
+          "callee": "db.scalar",
+          "lineNumber": 18
+        },
+        {
+          "caller": "seed_admin",
+          "callee": "select(AdminUser).limit",
+          "lineNumber": 18
+        },
+        {
+          "caller": "seed_admin",
+          "callee": "select",
+          "lineNumber": 18
+        },
+        {
+          "caller": "seed_admin",
+          "callee": "db.add",
+          "lineNumber": 20
+        },
+        {
+          "caller": "seed_admin",
+          "callee": "AdminUser",
+          "lineNumber": 21
+        },
+        {
+          "caller": "seed_admin",
+          "callee": "hash_password",
+          "lineNumber": 23
+        },
+        {
+          "caller": "seed_admin",
+          "callee": "db.commit",
+          "lineNumber": 26
+        },
+        {
+          "caller": "seed_admin",
+          "callee": "print",
+          "lineNumber": 27
+        },
+        {
+          "caller": "lifespan",
+          "callee": "Path(settings.PHOTOS_ORIGINAL_PATH).mkdir",
+          "lineNumber": 33
+        },
+        {
+          "caller": "lifespan",
+          "callee": "Path",
+          "lineNumber": 33
+        },
+        {
+          "caller": "lifespan",
+          "callee": "Path(settings.PHOTOS_THUMB_PATH).mkdir",
+          "lineNumber": 34
+        },
+        {
+          "caller": "lifespan",
+          "callee": "Path",
+          "lineNumber": 34
+        },
+        {
+          "caller": "lifespan",
+          "callee": "seed_admin",
+          "lineNumber": 36
+        },
+        {
+          "caller": "lifespan",
+          "callee": "print",
+          "lineNumber": 38
+        }
+      ],
+      "metrics": {
+        "importCount": 8,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "backend/app/models.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 102,
+      "nonEmptyLines": 83,
+      "classes": [
+        {
+          "name": "Photo",
+          "startLine": 19,
+          "endLine": 44,
+          "methods": [],
+          "properties": [
+            "id",
+            "filename",
+            "original_path",
+            "thumb_path",
+            "title",
+            "caption",
+            "visible",
+            "width",
+            "height",
+            "exif",
+            "uploaded_at",
+            "gallery_links"
+          ]
+        },
+        {
+          "name": "Gallery",
+          "startLine": 47,
+          "endLine": 73,
+          "methods": [],
+          "properties": [
+            "id",
+            "name",
+            "slug",
+            "description",
+            "cover_photo_id",
+            "layout",
+            "force_theme",
+            "accent_color",
+            "display_order",
+            "created_at",
+            "photo_links"
+          ]
+        },
+        {
+          "name": "GalleryPhoto",
+          "startLine": 76,
+          "endLine": 92,
+          "methods": [],
+          "properties": [
+            "gallery_id",
+            "photo_id",
+            "display_order",
+            "gallery",
+            "photo"
+          ]
+        },
+        {
+          "name": "AdminUser",
+          "startLine": 95,
+          "endLine": 102,
+          "methods": [],
+          "properties": [
+            "id",
+            "username",
+            "password_hash"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "Photo",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "Gallery",
+          "line": 47,
+          "isDefault": false
+        },
+        {
+          "name": "GalleryPhoto",
+          "line": 76,
+          "isDefault": false
+        },
+        {
+          "name": "AdminUser",
+          "line": 95,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 4,
+        "functionCount": 0,
+        "classCount": 4
+      }
+    },
+    {
+      "path": "backend/app/routers/__init__.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 1,
+      "nonEmptyLines": 0,
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 0,
+        "functionCount": 0,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "backend/app/routers/auth.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 42,
+      "nonEmptyLines": 34,
+      "functions": [
+        {
+          "name": "login",
+          "startLine": 14,
+          "endLine": 21,
+          "params": [
+            "body",
+            "db"
+          ]
+        },
+        {
+          "name": "me",
+          "startLine": 25,
+          "endLine": 26,
+          "params": [
+            "current"
+          ]
+        },
+        {
+          "name": "change_password",
+          "startLine": 30,
+          "endLine": 42,
+          "params": [
+            "body",
+            "current",
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "login",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "me",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "change_password",
+          "line": 29,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "login",
+          "callee": "Depends",
+          "lineNumber": 14
+        },
+        {
+          "caller": "login",
+          "callee": "db.scalar",
+          "lineNumber": 15
+        },
+        {
+          "caller": "login",
+          "callee": "select(AdminUser).where",
+          "lineNumber": 15
+        },
+        {
+          "caller": "login",
+          "callee": "select",
+          "lineNumber": 15
+        },
+        {
+          "caller": "login",
+          "callee": "verify_password",
+          "lineNumber": 16
+        },
+        {
+          "caller": "login",
+          "callee": "HTTPException",
+          "lineNumber": 17
+        },
+        {
+          "caller": "login",
+          "callee": "TokenResponse",
+          "lineNumber": 21
+        },
+        {
+          "caller": "login",
+          "callee": "create_access_token",
+          "lineNumber": 21
+        },
+        {
+          "caller": "me",
+          "callee": "Depends",
+          "lineNumber": 25
+        },
+        {
+          "caller": "change_password",
+          "callee": "Depends",
+          "lineNumber": 32
+        },
+        {
+          "caller": "change_password",
+          "callee": "Depends",
+          "lineNumber": 33
+        },
+        {
+          "caller": "change_password",
+          "callee": "verify_password",
+          "lineNumber": 35
+        },
+        {
+          "caller": "change_password",
+          "callee": "HTTPException",
+          "lineNumber": 36
+        },
+        {
+          "caller": "change_password",
+          "callee": "hash_password",
+          "lineNumber": 40
+        },
+        {
+          "caller": "change_password",
+          "callee": "db.commit",
+          "lineNumber": 41
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 3,
+        "functionCount": 3,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "backend/app/routers/galleries.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 148,
+      "nonEmptyLines": 126,
+      "functions": [
+        {
+          "name": "_cover_for",
+          "startLine": 21,
+          "endLine": 33,
+          "params": [
+            "db",
+            "gallery"
+          ]
+        },
+        {
+          "name": "list_galleries",
+          "startLine": 38,
+          "endLine": 44,
+          "params": [
+            "db"
+          ]
+        },
+        {
+          "name": "get_gallery",
+          "startLine": 49,
+          "endLine": 63,
+          "params": [
+            "slug",
+            "db"
+          ]
+        },
+        {
+          "name": "create_gallery",
+          "startLine": 68,
+          "endLine": 81,
+          "params": [
+            "body",
+            "_admin",
+            "db"
+          ]
+        },
+        {
+          "name": "update_gallery",
+          "startLine": 86,
+          "endLine": 105,
+          "params": [
+            "gallery_id",
+            "body",
+            "_admin",
+            "db"
+          ]
+        },
+        {
+          "name": "delete_gallery",
+          "startLine": 110,
+          "endLine": 119,
+          "params": [
+            "gallery_id",
+            "_admin",
+            "db"
+          ]
+        },
+        {
+          "name": "reorder_galleries",
+          "startLine": 124,
+          "endLine": 133,
+          "params": [
+            "body",
+            "_admin",
+            "db"
+          ]
+        },
+        {
+          "name": "reorder_gallery_photos",
+          "startLine": 138,
+          "endLine": 148,
+          "params": [
+            "gallery_id",
+            "body",
+            "_admin",
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_cover_for",
+          "line": 21,
+          "isDefault": false
+        },
+        {
+          "name": "list_galleries",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "get_gallery",
+          "line": 48,
+          "isDefault": false
+        },
+        {
+          "name": "create_gallery",
+          "line": 67,
+          "isDefault": false
+        },
+        {
+          "name": "update_gallery",
+          "line": 85,
+          "isDefault": false
+        },
+        {
+          "name": "delete_gallery",
+          "line": 109,
+          "isDefault": false
+        },
+        {
+          "name": "reorder_galleries",
+          "line": 123,
+          "isDefault": false
+        },
+        {
+          "name": "reorder_gallery_photos",
+          "line": 137,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_cover_for",
+          "callee": "db.get",
+          "lineNumber": 23
+        },
+        {
+          "caller": "_cover_for",
+          "callee": "db.scalar",
+          "lineNumber": 27
+        },
+        {
+          "caller": "_cover_for",
+          "callee": "select(GalleryPhoto)\n        .where(GalleryPhoto.gallery_id == gallery.id)\n        .order_by(GalleryPhoto.display_order)\n        .limit",
+          "lineNumber": 28
+        },
+        {
+          "caller": "_cover_for",
+          "callee": "select(GalleryPhoto)\n        .where(GalleryPhoto.gallery_id == gallery.id)\n        .order_by",
+          "lineNumber": 28
+        },
+        {
+          "caller": "_cover_for",
+          "callee": "select(GalleryPhoto)\n        .where",
+          "lineNumber": 28
+        },
+        {
+          "caller": "_cover_for",
+          "callee": "select",
+          "lineNumber": 28
+        },
+        {
+          "caller": "list_galleries",
+          "callee": "Depends",
+          "lineNumber": 38
+        },
+        {
+          "caller": "list_galleries",
+          "callee": "db.scalars(\n        select(Gallery)\n        .options(selectinload(Gallery.photo_links))\n        .order_by(Gallery.display_order, Gallery.created_at)\n    ).all",
+          "lineNumber": 39
+        },
+        {
+          "caller": "list_galleries",
+          "callee": "db.scalars",
+          "lineNumber": 39
+        },
+        {
+          "caller": "list_galleries",
+          "callee": "select(Gallery)\n        .options(selectinload(Gallery.photo_links))\n        .order_by",
+          "lineNumber": 40
+        },
+        {
+          "caller": "list_galleries",
+          "callee": "select(Gallery)\n        .options",
+          "lineNumber": 40
+        },
+        {
+          "caller": "list_galleries",
+          "callee": "select",
+          "lineNumber": 40
+        },
+        {
+          "caller": "list_galleries",
+          "callee": "selectinload",
+          "lineNumber": 41
+        },
+        {
+          "caller": "list_galleries",
+          "callee": "gallery_out",
+          "lineNumber": 44
+        },
+        {
+          "caller": "list_galleries",
+          "callee": "_cover_for",
+          "lineNumber": 44
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "Depends",
+          "lineNumber": 49
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "db.scalar",
+          "lineNumber": 50
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "select(Gallery)\n        .where(Gallery.slug == slug)\n        .options",
+          "lineNumber": 51
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "select(Gallery)\n        .where",
+          "lineNumber": 51
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "select",
+          "lineNumber": 51
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "selectinload(Gallery.photo_links).selectinload",
+          "lineNumber": 53
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "selectinload",
+          "lineNumber": 53
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "HTTPException",
+          "lineNumber": 56
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "sorted",
+          "lineNumber": 58
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "gallery_out",
+          "lineNumber": 59
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "_cover_for",
+          "lineNumber": 59
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "GalleryDetailOut",
+          "lineNumber": 60
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "base.model_dump",
+          "lineNumber": 61
+        },
+        {
+          "caller": "get_gallery",
+          "callee": "photo_out",
+          "lineNumber": 62
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "Depends",
+          "lineNumber": 70
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "Depends",
+          "lineNumber": 71
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "db.scalar",
+          "lineNumber": 73
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "select(Gallery).where",
+          "lineNumber": 73
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "select",
+          "lineNumber": 73
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "HTTPException",
+          "lineNumber": 74
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "db.scalar",
+          "lineNumber": 76
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "select(Gallery.display_order).order_by(Gallery.display_order.desc()).limit",
+          "lineNumber": 76
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "select(Gallery.display_order).order_by",
+          "lineNumber": 76
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "select",
+          "lineNumber": 76
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "Gallery.display_order.desc",
+          "lineNumber": 76
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "Gallery",
+          "lineNumber": 77
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "body.model_dump",
+          "lineNumber": 77
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "db.add",
+          "lineNumber": 78
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "db.commit",
+          "lineNumber": 79
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "db.refresh",
+          "lineNumber": 80
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "gallery_out",
+          "lineNumber": 81
+        },
+        {
+          "caller": "create_gallery",
+          "callee": "_cover_for",
+          "lineNumber": 81
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "Depends",
+          "lineNumber": 89
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "Depends",
+          "lineNumber": 90
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "db.get",
+          "lineNumber": 92
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "HTTPException",
+          "lineNumber": 94
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "body.model_dump",
+          "lineNumber": 96
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "db.scalar",
+          "lineNumber": 98
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "select(Gallery).where",
+          "lineNumber": 98
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "select",
+          "lineNumber": 98
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "HTTPException",
+          "lineNumber": 99
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "data.items",
+          "lineNumber": 100
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "setattr",
+          "lineNumber": 101
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "db.commit",
+          "lineNumber": 103
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "db.refresh",
+          "lineNumber": 104
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "gallery_out",
+          "lineNumber": 105
+        },
+        {
+          "caller": "update_gallery",
+          "callee": "_cover_for",
+          "lineNumber": 105
+        },
+        {
+          "caller": "delete_gallery",
+          "callee": "Depends",
+          "lineNumber": 112
+        },
+        {
+          "caller": "delete_gallery",
+          "callee": "Depends",
+          "lineNumber": 113
+        },
+        {
+          "caller": "delete_gallery",
+          "callee": "db.get",
+          "lineNumber": 115
+        },
+        {
+          "caller": "delete_gallery",
+          "callee": "HTTPException",
+          "lineNumber": 117
+        },
+        {
+          "caller": "delete_gallery",
+          "callee": "db.delete",
+          "lineNumber": 118
+        },
+        {
+          "caller": "delete_gallery",
+          "callee": "db.commit",
+          "lineNumber": 119
+        },
+        {
+          "caller": "reorder_galleries",
+          "callee": "Depends",
+          "lineNumber": 126
+        },
+        {
+          "caller": "reorder_galleries",
+          "callee": "Depends",
+          "lineNumber": 127
+        },
+        {
+          "caller": "reorder_galleries",
+          "callee": "enumerate",
+          "lineNumber": 129
+        },
+        {
+          "caller": "reorder_galleries",
+          "callee": "db.get",
+          "lineNumber": 130
+        },
+        {
+          "caller": "reorder_galleries",
+          "callee": "db.commit",
+          "lineNumber": 133
+        },
+        {
+          "caller": "reorder_gallery_photos",
+          "callee": "Depends",
+          "lineNumber": 141
+        },
+        {
+          "caller": "reorder_gallery_photos",
+          "callee": "Depends",
+          "lineNumber": 142
+        },
+        {
+          "caller": "reorder_gallery_photos",
+          "callee": "enumerate",
+          "lineNumber": 144
+        },
+        {
+          "caller": "reorder_gallery_photos",
+          "callee": "db.get",
+          "lineNumber": 145
+        },
+        {
+          "caller": "reorder_gallery_photos",
+          "callee": "db.commit",
+          "lineNumber": 148
+        }
+      ],
+      "metrics": {
+        "importCount": 4,
+        "exportCount": 8,
+        "functionCount": 8,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "backend/app/routers/photos.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 282,
+      "nonEmptyLines": 245,
+      "functions": [
+        {
+          "name": "_paginate",
+          "startLine": 37,
+          "endLine": 53,
+          "params": [
+            "db",
+            "stmt",
+            "page",
+            "page_size",
+            "include_galleries"
+          ]
+        },
+        {
+          "name": "list_public_photos",
+          "startLine": 58,
+          "endLine": 64,
+          "params": [
+            "page",
+            "page_size",
+            "db"
+          ]
+        },
+        {
+          "name": "list_admin_photos",
+          "startLine": 69,
+          "endLine": 75,
+          "params": [
+            "page",
+            "page_size",
+            "_admin",
+            "db"
+          ]
+        },
+        {
+          "name": "upload_photos",
+          "startLine": 80,
+          "endLine": 132,
+          "params": [
+            "files",
+            "_admin",
+            "db"
+          ]
+        },
+        {
+          "name": "bulk_set_visibility",
+          "startLine": 137,
+          "endLine": 148,
+          "params": [
+            "body",
+            "_admin",
+            "db"
+          ]
+        },
+        {
+          "name": "bulk_delete",
+          "startLine": 152,
+          "endLine": 162,
+          "params": [
+            "body",
+            "_admin",
+            "db"
+          ]
+        },
+        {
+          "name": "bulk_add_to_galleries",
+          "startLine": 166,
+          "endLine": 189,
+          "params": [
+            "body",
+            "_admin",
+            "db"
+          ]
+        },
+        {
+          "name": "update_photo",
+          "startLine": 194,
+          "endLine": 227,
+          "params": [
+            "photo_id",
+            "body",
+            "_admin",
+            "db"
+          ]
+        },
+        {
+          "name": "delete_photo",
+          "startLine": 231,
+          "endLine": 243,
+          "params": [
+            "photo_id",
+            "_admin",
+            "db"
+          ]
+        },
+        {
+          "name": "get_exif",
+          "startLine": 248,
+          "endLine": 252,
+          "params": [
+            "photo_id",
+            "db"
+          ]
+        },
+        {
+          "name": "serve_thumb",
+          "startLine": 257,
+          "endLine": 265,
+          "params": [
+            "photo_id",
+            "db"
+          ]
+        },
+        {
+          "name": "serve_original",
+          "startLine": 269,
+          "endLine": 282,
+          "params": [
+            "photo_id",
+            "download",
+            "db"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "_paginate",
+          "line": 37,
+          "isDefault": false
+        },
+        {
+          "name": "list_public_photos",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "list_admin_photos",
+          "line": 68,
+          "isDefault": false
+        },
+        {
+          "name": "upload_photos",
+          "line": 79,
+          "isDefault": false
+        },
+        {
+          "name": "bulk_set_visibility",
+          "line": 136,
+          "isDefault": false
+        },
+        {
+          "name": "bulk_delete",
+          "line": 151,
+          "isDefault": false
+        },
+        {
+          "name": "bulk_add_to_galleries",
+          "line": 165,
+          "isDefault": false
+        },
+        {
+          "name": "update_photo",
+          "line": 193,
+          "isDefault": false
+        },
+        {
+          "name": "delete_photo",
+          "line": 230,
+          "isDefault": false
+        },
+        {
+          "name": "get_exif",
+          "line": 247,
+          "isDefault": false
+        },
+        {
+          "name": "serve_thumb",
+          "line": 256,
+          "isDefault": false
+        },
+        {
+          "name": "serve_original",
+          "line": 268,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "_paginate",
+          "callee": "db.scalar",
+          "lineNumber": 40
+        },
+        {
+          "caller": "_paginate",
+          "callee": "select(func.count()).select_from",
+          "lineNumber": 40
+        },
+        {
+          "caller": "_paginate",
+          "callee": "select",
+          "lineNumber": 40
+        },
+        {
+          "caller": "_paginate",
+          "callee": "func.count",
+          "lineNumber": 40
+        },
+        {
+          "caller": "_paginate",
+          "callee": "stmt.subquery",
+          "lineNumber": 40
+        },
+        {
+          "caller": "_paginate",
+          "callee": "stmt.options",
+          "lineNumber": 42
+        },
+        {
+          "caller": "_paginate",
+          "callee": "selectinload",
+          "lineNumber": 42
+        },
+        {
+          "caller": "_paginate",
+          "callee": "db.scalars(\n        stmt.order_by(Photo.uploaded_at.desc())\n        .offset((page - 1) * page_size)\n        .limit(page_size)\n    ).all",
+          "lineNumber": 43
+        },
+        {
+          "caller": "_paginate",
+          "callee": "db.scalars",
+          "lineNumber": 43
+        },
+        {
+          "caller": "_paginate",
+          "callee": "stmt.order_by(Photo.uploaded_at.desc())\n        .offset((page - 1) * page_size)\n        .limit",
+          "lineNumber": 44
+        },
+        {
+          "caller": "_paginate",
+          "callee": "stmt.order_by(Photo.uploaded_at.desc())\n        .offset",
+          "lineNumber": 44
+        },
+        {
+          "caller": "_paginate",
+          "callee": "stmt.order_by",
+          "lineNumber": 44
+        },
+        {
+          "caller": "_paginate",
+          "callee": "Photo.uploaded_at.desc",
+          "lineNumber": 44
+        },
+        {
+          "caller": "_paginate",
+          "callee": "PhotoPage",
+          "lineNumber": 48
+        },
+        {
+          "caller": "_paginate",
+          "callee": "photo_out",
+          "lineNumber": 49
+        },
+        {
+          "caller": "list_public_photos",
+          "callee": "Query",
+          "lineNumber": 59
+        },
+        {
+          "caller": "list_public_photos",
+          "callee": "Query",
+          "lineNumber": 60
+        },
+        {
+          "caller": "list_public_photos",
+          "callee": "Depends",
+          "lineNumber": 61
+        },
+        {
+          "caller": "list_public_photos",
+          "callee": "select(Photo).where",
+          "lineNumber": 63
+        },
+        {
+          "caller": "list_public_photos",
+          "callee": "select",
+          "lineNumber": 63
+        },
+        {
+          "caller": "list_public_photos",
+          "callee": "Photo.visible.is_",
+          "lineNumber": 63
+        },
+        {
+          "caller": "list_public_photos",
+          "callee": "_paginate",
+          "lineNumber": 64
+        },
+        {
+          "caller": "list_admin_photos",
+          "callee": "Query",
+          "lineNumber": 70
+        },
+        {
+          "caller": "list_admin_photos",
+          "callee": "Query",
+          "lineNumber": 71
+        },
+        {
+          "caller": "list_admin_photos",
+          "callee": "Depends",
+          "lineNumber": 72
+        },
+        {
+          "caller": "list_admin_photos",
+          "callee": "Depends",
+          "lineNumber": 73
+        },
+        {
+          "caller": "list_admin_photos",
+          "callee": "_paginate",
+          "lineNumber": 75
+        },
+        {
+          "caller": "list_admin_photos",
+          "callee": "select",
+          "lineNumber": 75
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "File",
+          "lineNumber": 81
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "Depends",
+          "lineNumber": 82
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "Depends",
+          "lineNumber": 83
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "Path",
+          "lineNumber": 85
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "Path",
+          "lineNumber": 86
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "originals_dir.mkdir",
+          "lineNumber": 87
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "thumbs_dir.mkdir",
+          "lineNumber": 88
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "Path(upload.filename or \"\").suffix.lower",
+          "lineNumber": 92
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "Path",
+          "lineNumber": 92
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "HTTPException",
+          "lineNumber": 94
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "uuid.uuid4",
+          "lineNumber": 99
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "original_abs.open",
+          "lineNumber": 104
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "shutil.copyfileobj",
+          "lineNumber": 105
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "process_upload",
+          "lineNumber": 108
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "original_abs.unlink",
+          "lineNumber": 110
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "HTTPException",
+          "lineNumber": 111
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "Photo",
+          "lineNumber": 116
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "str",
+          "lineNumber": 119
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "str",
+          "lineNumber": 120
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "db.add",
+          "lineNumber": 126
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "created.append",
+          "lineNumber": 127
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "db.commit",
+          "lineNumber": 129
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "db.refresh",
+          "lineNumber": 131
+        },
+        {
+          "caller": "upload_photos",
+          "callee": "photo_out",
+          "lineNumber": 132
+        },
+        {
+          "caller": "bulk_set_visibility",
+          "callee": "Depends",
+          "lineNumber": 139
+        },
+        {
+          "caller": "bulk_set_visibility",
+          "callee": "Depends",
+          "lineNumber": 140
+        },
+        {
+          "caller": "bulk_set_visibility",
+          "callee": "db.execute",
+          "lineNumber": 143
+        },
+        {
+          "caller": "bulk_set_visibility",
+          "callee": "update(Photo)\n            .where(Photo.id.in_(body.photo_ids))\n            .values",
+          "lineNumber": 144
+        },
+        {
+          "caller": "bulk_set_visibility",
+          "callee": "update(Photo)\n            .where",
+          "lineNumber": 144
+        },
+        {
+          "caller": "bulk_set_visibility",
+          "callee": "update",
+          "lineNumber": 144
+        },
+        {
+          "caller": "bulk_set_visibility",
+          "callee": "Photo.id.in_",
+          "lineNumber": 145
+        },
+        {
+          "caller": "bulk_set_visibility",
+          "callee": "db.commit",
+          "lineNumber": 148
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "Depends",
+          "lineNumber": 154
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "Depends",
+          "lineNumber": 155
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "db.scalars(select(Photo).where(Photo.id.in_(body.photo_ids))).all",
+          "lineNumber": 157
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "db.scalars",
+          "lineNumber": 157
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "select(Photo).where",
+          "lineNumber": 157
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "select",
+          "lineNumber": 157
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "Photo.id.in_",
+          "lineNumber": 157
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "Path(photo.original_path).unlink",
+          "lineNumber": 159
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "Path",
+          "lineNumber": 159
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "Path(photo.thumb_path).unlink",
+          "lineNumber": 160
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "Path",
+          "lineNumber": 160
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "db.delete",
+          "lineNumber": 161
+        },
+        {
+          "caller": "bulk_delete",
+          "callee": "db.commit",
+          "lineNumber": 162
+        },
+        {
+          "caller": "bulk_add_to_galleries",
+          "callee": "Depends",
+          "lineNumber": 168
+        },
+        {
+          "caller": "bulk_add_to_galleries",
+          "callee": "Depends",
+          "lineNumber": 169
+        },
+        {
+          "caller": "bulk_add_to_galleries",
+          "callee": "db.get",
+          "lineNumber": 174
+        },
+        {
+          "caller": "bulk_add_to_galleries",
+          "callee": "db.scalar",
+          "lineNumber": 177
+        },
+        {
+          "caller": "bulk_add_to_galleries",
+          "callee": "select(func.coalesce(func.max(GalleryPhoto.display_order), -1))\n                .where",
+          "lineNumber": 178
+        },
+        {
+          "caller": "bulk_add_to_galleries",
+          "callee": "select",
+          "lineNumber": 178
+        },
+        {
+          "caller": "bulk_add_to_galleries",
+          "callee": "func.coalesce",
+          "lineNumber": 178
+        },
+        {
+          "caller": "bulk_add_to_galleries",
+          "callee": "func.max",
+          "lineNumber": 178
+        },
+        {
+          "caller": "bulk_add_to_galleries",
+          "callee": "db.get",
+          "lineNumber": 184
+        },
+        {
+          "caller": "bulk_add_to_galleries",
+          "callee": "db.add",
+          "lineNumber": 185
+        },
+        {
+          "caller": "bulk_add_to_galleries",
+          "callee": "GalleryPhoto",
+          "lineNumber": 186
+        },
+        {
+          "caller": "bulk_add_to_galleries",
+          "callee": "db.commit",
+          "lineNumber": 189
+        },
+        {
+          "caller": "update_photo",
+          "callee": "Depends",
+          "lineNumber": 197
+        },
+        {
+          "caller": "update_photo",
+          "callee": "Depends",
+          "lineNumber": 198
+        },
+        {
+          "caller": "update_photo",
+          "callee": "db.get",
+          "lineNumber": 200
+        },
+        {
+          "caller": "update_photo",
+          "callee": "HTTPException",
+          "lineNumber": 202
+        },
+        {
+          "caller": "update_photo",
+          "callee": "db.execute",
+          "lineNumber": 213
+        },
+        {
+          "caller": "update_photo",
+          "callee": "delete(GalleryPhoto).where",
+          "lineNumber": 213
+        },
+        {
+          "caller": "update_photo",
+          "callee": "delete",
+          "lineNumber": 213
+        },
+        {
+          "caller": "update_photo",
+          "callee": "db.scalar",
+          "lineNumber": 215
+        },
+        {
+          "caller": "update_photo",
+          "callee": "select(func.coalesce(func.max(GalleryPhoto.display_order), -1) + 1)\n                .where",
+          "lineNumber": 216
+        },
+        {
+          "caller": "update_photo",
+          "callee": "select",
+          "lineNumber": 216
+        },
+        {
+          "caller": "update_photo",
+          "callee": "func.coalesce",
+          "lineNumber": 216
+        },
+        {
+          "caller": "update_photo",
+          "callee": "func.max",
+          "lineNumber": 216
+        },
+        {
+          "caller": "update_photo",
+          "callee": "db.add",
+          "lineNumber": 219
+        },
+        {
+          "caller": "update_photo",
+          "callee": "GalleryPhoto",
+          "lineNumber": 220
+        },
+        {
+          "caller": "update_photo",
+          "callee": "db.commit",
+          "lineNumber": 225
+        },
+        {
+          "caller": "update_photo",
+          "callee": "db.refresh",
+          "lineNumber": 226
+        },
+        {
+          "caller": "update_photo",
+          "callee": "photo_out",
+          "lineNumber": 227
+        },
+        {
+          "caller": "delete_photo",
+          "callee": "Depends",
+          "lineNumber": 233
+        },
+        {
+          "caller": "delete_photo",
+          "callee": "Depends",
+          "lineNumber": 234
+        },
+        {
+          "caller": "delete_photo",
+          "callee": "db.get",
+          "lineNumber": 236
+        },
+        {
+          "caller": "delete_photo",
+          "callee": "HTTPException",
+          "lineNumber": 238
+        },
+        {
+          "caller": "delete_photo",
+          "callee": "Path(photo.original_path).unlink",
+          "lineNumber": 240
+        },
+        {
+          "caller": "delete_photo",
+          "callee": "Path",
+          "lineNumber": 240
+        },
+        {
+          "caller": "delete_photo",
+          "callee": "Path(photo.thumb_path).unlink",
+          "lineNumber": 241
+        },
+        {
+          "caller": "delete_photo",
+          "callee": "Path",
+          "lineNumber": 241
+        },
+        {
+          "caller": "delete_photo",
+          "callee": "db.delete",
+          "lineNumber": 242
+        },
+        {
+          "caller": "delete_photo",
+          "callee": "db.commit",
+          "lineNumber": 243
+        },
+        {
+          "caller": "get_exif",
+          "callee": "Depends",
+          "lineNumber": 248
+        },
+        {
+          "caller": "get_exif",
+          "callee": "db.get",
+          "lineNumber": 249
+        },
+        {
+          "caller": "get_exif",
+          "callee": "HTTPException",
+          "lineNumber": 251
+        },
+        {
+          "caller": "serve_thumb",
+          "callee": "Depends",
+          "lineNumber": 257
+        },
+        {
+          "caller": "serve_thumb",
+          "callee": "db.get",
+          "lineNumber": 258
+        },
+        {
+          "caller": "serve_thumb",
+          "callee": "Path(photo.thumb_path).exists",
+          "lineNumber": 259
+        },
+        {
+          "caller": "serve_thumb",
+          "callee": "Path",
+          "lineNumber": 259
+        },
+        {
+          "caller": "serve_thumb",
+          "callee": "HTTPException",
+          "lineNumber": 260
+        },
+        {
+          "caller": "serve_thumb",
+          "callee": "FileResponse",
+          "lineNumber": 261
+        },
+        {
+          "caller": "serve_original",
+          "callee": "Query",
+          "lineNumber": 271
+        },
+        {
+          "caller": "serve_original",
+          "callee": "Depends",
+          "lineNumber": 272
+        },
+        {
+          "caller": "serve_original",
+          "callee": "db.get",
+          "lineNumber": 274
+        },
+        {
+          "caller": "serve_original",
+          "callee": "Path(photo.original_path).exists",
+          "lineNumber": 275
+        },
+        {
+          "caller": "serve_original",
+          "callee": "Path",
+          "lineNumber": 275
+        },
+        {
+          "caller": "serve_original",
+          "callee": "HTTPException",
+          "lineNumber": 276
+        },
+        {
+          "caller": "serve_original",
+          "callee": "FileResponse",
+          "lineNumber": 280
+        },
+        {
+          "caller": "serve_original",
+          "callee": "FileResponse",
+          "lineNumber": 282
+        }
+      ],
+      "metrics": {
+        "importCount": 6,
+        "exportCount": 12,
+        "functionCount": 12,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "backend/app/schemas.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 111,
+      "nonEmptyLines": 78,
+      "classes": [
+        {
+          "name": "LoginRequest",
+          "startLine": 8,
+          "endLine": 10,
+          "methods": [],
+          "properties": [
+            "username",
+            "password"
+          ]
+        },
+        {
+          "name": "TokenResponse",
+          "startLine": 13,
+          "endLine": 15,
+          "methods": [],
+          "properties": [
+            "access_token",
+            "token_type"
+          ]
+        },
+        {
+          "name": "PasswordChange",
+          "startLine": 18,
+          "endLine": 20,
+          "methods": [],
+          "properties": [
+            "current_password",
+            "new_password"
+          ]
+        },
+        {
+          "name": "PhotoOut",
+          "startLine": 24,
+          "endLine": 39,
+          "methods": [],
+          "properties": [
+            "id",
+            "filename",
+            "title",
+            "caption",
+            "visible",
+            "width",
+            "height",
+            "exif",
+            "uploaded_at",
+            "thumbnail_url",
+            "original_url",
+            "gallery_ids"
+          ]
+        },
+        {
+          "name": "PhotoUpdate",
+          "startLine": 42,
+          "endLine": 46,
+          "methods": [],
+          "properties": [
+            "title",
+            "caption",
+            "visible",
+            "gallery_ids"
+          ]
+        },
+        {
+          "name": "PhotoPage",
+          "startLine": 49,
+          "endLine": 53,
+          "methods": [],
+          "properties": [
+            "items",
+            "total",
+            "page",
+            "page_size"
+          ]
+        },
+        {
+          "name": "BulkIds",
+          "startLine": 57,
+          "endLine": 58,
+          "methods": [],
+          "properties": [
+            "photo_ids"
+          ]
+        },
+        {
+          "name": "BulkVisibility",
+          "startLine": 61,
+          "endLine": 62,
+          "methods": [],
+          "properties": [
+            "visible"
+          ]
+        },
+        {
+          "name": "BulkAddGalleries",
+          "startLine": 65,
+          "endLine": 66,
+          "methods": [],
+          "properties": [
+            "gallery_ids"
+          ]
+        },
+        {
+          "name": "GalleryBase",
+          "startLine": 70,
+          "endLine": 77,
+          "methods": [],
+          "properties": [
+            "name",
+            "slug",
+            "description",
+            "cover_photo_id",
+            "layout",
+            "force_theme",
+            "accent_color"
+          ]
+        },
+        {
+          "name": "GalleryCreate",
+          "startLine": 80,
+          "endLine": 81,
+          "methods": [],
+          "properties": []
+        },
+        {
+          "name": "GalleryUpdate",
+          "startLine": 84,
+          "endLine": 92,
+          "methods": [],
+          "properties": [
+            "name",
+            "slug",
+            "description",
+            "cover_photo_id",
+            "layout",
+            "force_theme",
+            "accent_color",
+            "display_order"
+          ]
+        },
+        {
+          "name": "GalleryOut",
+          "startLine": 95,
+          "endLine": 102,
+          "methods": [],
+          "properties": [
+            "id",
+            "display_order",
+            "created_at",
+            "photo_count",
+            "cover_thumbnail_url"
+          ]
+        },
+        {
+          "name": "GalleryDetailOut",
+          "startLine": 105,
+          "endLine": 106,
+          "methods": [],
+          "properties": [
+            "photos"
+          ]
+        },
+        {
+          "name": "ReorderRequest",
+          "startLine": 109,
+          "endLine": 111,
+          "methods": [],
+          "properties": [
+            "ids"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "LoginRequest",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "TokenResponse",
+          "line": 13,
+          "isDefault": false
+        },
+        {
+          "name": "PasswordChange",
+          "line": 18,
+          "isDefault": false
+        },
+        {
+          "name": "PhotoOut",
+          "line": 24,
+          "isDefault": false
+        },
+        {
+          "name": "PhotoUpdate",
+          "line": 42,
+          "isDefault": false
+        },
+        {
+          "name": "PhotoPage",
+          "line": 49,
+          "isDefault": false
+        },
+        {
+          "name": "BulkIds",
+          "line": 57,
+          "isDefault": false
+        },
+        {
+          "name": "BulkVisibility",
+          "line": 61,
+          "isDefault": false
+        },
+        {
+          "name": "BulkAddGalleries",
+          "line": 65,
+          "isDefault": false
+        },
+        {
+          "name": "GalleryBase",
+          "line": 70,
+          "isDefault": false
+        },
+        {
+          "name": "GalleryCreate",
+          "line": 80,
+          "isDefault": false
+        },
+        {
+          "name": "GalleryUpdate",
+          "line": 84,
+          "isDefault": false
+        },
+        {
+          "name": "GalleryOut",
+          "line": 95,
+          "isDefault": false
+        },
+        {
+          "name": "GalleryDetailOut",
+          "line": 105,
+          "isDefault": false
+        },
+        {
+          "name": "ReorderRequest",
+          "line": 109,
+          "isDefault": false
+        }
+      ],
+      "metrics": {
+        "importCount": 0,
+        "exportCount": 15,
+        "functionCount": 0,
+        "classCount": 15
+      }
+    },
+    {
+      "path": "backend/app/security.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 33,
+      "nonEmptyLines": 22,
+      "functions": [
+        {
+          "name": "hash_password",
+          "startLine": 11,
+          "endLine": 12,
+          "params": [
+            "password"
+          ]
+        },
+        {
+          "name": "verify_password",
+          "startLine": 15,
+          "endLine": 16,
+          "params": [
+            "plain",
+            "hashed"
+          ]
+        },
+        {
+          "name": "create_access_token",
+          "startLine": 19,
+          "endLine": 22,
+          "params": [
+            "subject"
+          ]
+        },
+        {
+          "name": "decode_access_token",
+          "startLine": 25,
+          "endLine": 33,
+          "params": [
+            "token"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "hash_password",
+          "line": 11,
+          "isDefault": false
+        },
+        {
+          "name": "verify_password",
+          "line": 15,
+          "isDefault": false
+        },
+        {
+          "name": "create_access_token",
+          "line": 19,
+          "isDefault": false
+        },
+        {
+          "name": "decode_access_token",
+          "line": 25,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "hash_password",
+          "callee": "pwd_context.hash",
+          "lineNumber": 12
+        },
+        {
+          "caller": "verify_password",
+          "callee": "pwd_context.verify",
+          "lineNumber": 16
+        },
+        {
+          "caller": "create_access_token",
+          "callee": "datetime.now",
+          "lineNumber": 20
+        },
+        {
+          "caller": "create_access_token",
+          "callee": "timedelta",
+          "lineNumber": 20
+        },
+        {
+          "caller": "create_access_token",
+          "callee": "jwt.encode",
+          "lineNumber": 22
+        },
+        {
+          "caller": "decode_access_token",
+          "callee": "jwt.decode",
+          "lineNumber": 28
+        },
+        {
+          "caller": "decode_access_token",
+          "callee": "payload.get",
+          "lineNumber": 31
+        }
+      ],
+      "metrics": {
+        "importCount": 1,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    },
+    {
+      "path": "backend/app/serializers.py",
+      "language": "python",
+      "fileCategory": "code",
+      "totalLines": 51,
+      "nonEmptyLines": 43,
+      "functions": [
+        {
+          "name": "thumb_url",
+          "startLine": 8,
+          "endLine": 9,
+          "params": [
+            "photo"
+          ]
+        },
+        {
+          "name": "original_url",
+          "startLine": 12,
+          "endLine": 13,
+          "params": [
+            "photo"
+          ]
+        },
+        {
+          "name": "photo_out",
+          "startLine": 16,
+          "endLine": 34,
+          "params": [
+            "photo",
+            "include_galleries"
+          ]
+        },
+        {
+          "name": "gallery_out",
+          "startLine": 37,
+          "endLine": 51,
+          "params": [
+            "gallery",
+            "cover"
+          ]
+        }
+      ],
+      "exports": [
+        {
+          "name": "thumb_url",
+          "line": 8,
+          "isDefault": false
+        },
+        {
+          "name": "original_url",
+          "line": 12,
+          "isDefault": false
+        },
+        {
+          "name": "photo_out",
+          "line": 16,
+          "isDefault": false
+        },
+        {
+          "name": "gallery_out",
+          "line": 37,
+          "isDefault": false
+        }
+      ],
+      "callGraph": [
+        {
+          "caller": "photo_out",
+          "callee": "PhotoOut",
+          "lineNumber": 17
+        },
+        {
+          "caller": "photo_out",
+          "callee": "thumb_url",
+          "lineNumber": 27
+        },
+        {
+          "caller": "photo_out",
+          "callee": "original_url",
+          "lineNumber": 28
+        },
+        {
+          "caller": "gallery_out",
+          "callee": "GalleryOut",
+          "lineNumber": 38
+        },
+        {
+          "caller": "gallery_out",
+          "callee": "len",
+          "lineNumber": 49
+        },
+        {
+          "caller": "gallery_out",
+          "callee": "thumb_url",
+          "lineNumber": 50
+        }
+      ],
+      "metrics": {
+        "importCount": 2,
+        "exportCount": 4,
+        "functionCount": 4,
+        "classCount": 0
+      }
+    }
+  ]
+}

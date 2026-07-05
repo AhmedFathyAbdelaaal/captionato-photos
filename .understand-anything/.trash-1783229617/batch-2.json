@@ -1,0 +1,559 @@
+{
+  "nodes": [
+    {
+      "id": "file:frontend/src/app/admin/admin-galleries.component.ts",
+      "type": "file",
+      "name": "admin-galleries.component.ts",
+      "filePath": "frontend/src/app/admin/admin-galleries.component.ts",
+      "summary": "Admin panel component for managing photo galleries: create, edit, delete, and reorder galleries with support for layout presets, themes, and accent colors.",
+      "tags": ["component", "admin", "api-handler", "crud"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:frontend/src/app/admin/admin-galleries.component.ts:AdminGalleriesComponent",
+      "type": "class",
+      "name": "AdminGalleriesComponent",
+      "filePath": "frontend/src/app/admin/admin-galleries.component.ts",
+      "lineRange": [325, 416],
+      "summary": "Angular component providing the admin UI for gallery CRUD operations, including creation with auto-slug generation, inline editing, deletion with confirmation, and drag-based reordering.",
+      "tags": ["component", "admin", "gallery-management", "crud"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:frontend/src/app/admin/admin-photos.component.ts",
+      "type": "file",
+      "name": "admin-photos.component.ts",
+      "filePath": "frontend/src/app/admin/admin-photos.component.ts",
+      "summary": "Admin panel component for managing photos: upload via file picker or drag-and-drop, bulk visibility toggle, bulk delete, bulk gallery assignment, and per-photo edit/delete.",
+      "tags": ["component", "admin", "api-handler", "crud"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:frontend/src/app/admin/admin-photos.component.ts:AdminPhotosComponent",
+      "type": "class",
+      "name": "AdminPhotosComponent",
+      "filePath": "frontend/src/app/admin/admin-photos.component.ts",
+      "lineRange": [357, 543],
+      "summary": "Angular component handling all photo administration: file upload (with drag-and-drop), multi-select with bulk operations (visibility, delete, gallery assignment), and per-photo inline editing.",
+      "tags": ["component", "admin", "upload", "bulk-operations"],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:frontend/src/app/admin/admin-settings.component.ts",
+      "type": "file",
+      "name": "admin-settings.component.ts",
+      "filePath": "frontend/src/app/admin/admin-settings.component.ts",
+      "summary": "Admin settings component providing a password-change form with client-side validation and API submission feedback.",
+      "tags": ["component", "admin", "settings", "validation"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:frontend/src/app/admin/admin-settings.component.ts:AdminSettingsComponent",
+      "type": "class",
+      "name": "AdminSettingsComponent",
+      "filePath": "frontend/src/app/admin/admin-settings.component.ts",
+      "lineRange": [69, 106],
+      "summary": "Angular component for the admin password-change form, validating current/new password match before calling the API and showing success or error feedback.",
+      "tags": ["component", "admin", "validation", "settings"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/app/components/lightbox.component.ts",
+      "type": "file",
+      "name": "lightbox.component.ts",
+      "filePath": "frontend/src/app/components/lightbox.component.ts",
+      "summary": "Reusable full-screen lightbox component for photo viewing with keyboard navigation, EXIF data display, lazy full-resolution loading with retry logic, and download support.",
+      "tags": ["component", "ui", "lightbox", "media-viewer"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:frontend/src/app/components/lightbox.component.ts:LightboxComponent",
+      "type": "class",
+      "name": "LightboxComponent",
+      "filePath": "frontend/src/app/components/lightbox.component.ts",
+      "lineRange": [318, 405],
+      "summary": "Angular component rendering a full-screen photo lightbox with prev/next navigation, keyboard event handling (arrow keys, Escape), EXIF metadata panel, full-resolution image loading with retry on error, and a download button.",
+      "tags": ["component", "lightbox", "keyboard-navigation", "exif"],
+      "complexity": "complex",
+      "languageNotes": "Uses Angular signals for reactive state and @HostListener for global keyboard events."
+    },
+    {
+      "id": "file:frontend/src/app/components/reveal.directive.ts",
+      "type": "file",
+      "name": "reveal.directive.ts",
+      "filePath": "frontend/src/app/components/reveal.directive.ts",
+      "summary": "Angular attribute directive that uses IntersectionObserver to animate elements into view as they scroll into the viewport.",
+      "tags": ["directive", "animation", "scroll", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:frontend/src/app/components/reveal.directive.ts:RevealDirective",
+      "type": "class",
+      "name": "RevealDirective",
+      "filePath": "frontend/src/app/components/reveal.directive.ts",
+      "lineRange": [19, 46],
+      "summary": "Angular structural directive that observes host element visibility via IntersectionObserver and adds a CSS class to trigger reveal animations on scroll-into-view.",
+      "tags": ["directive", "intersection-observer", "animation", "utility"],
+      "complexity": "simple",
+      "languageNotes": "Uses IntersectionObserver API directly for performant scroll-driven animations without scroll event listeners."
+    },
+    {
+      "id": "file:frontend/src/app/models.ts",
+      "type": "file",
+      "name": "models.ts",
+      "filePath": "frontend/src/app/models.ts",
+      "summary": "Shared TypeScript interfaces and type definitions for the application domain: Photo, Gallery, ExifData, and related types used across all components and services.",
+      "tags": ["type-definition", "data-model", "shared"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/app/pages/galleries.component.ts",
+      "type": "file",
+      "name": "galleries.component.ts",
+      "filePath": "frontend/src/app/pages/galleries.component.ts",
+      "summary": "Public-facing page component that fetches and displays the list of all galleries as a navigable grid for site visitors.",
+      "tags": ["component", "page", "gallery", "public"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:frontend/src/app/pages/galleries.component.ts:GalleriesComponent",
+      "type": "class",
+      "name": "GalleriesComponent",
+      "filePath": "frontend/src/app/pages/galleries.component.ts",
+      "lineRange": [134, 149],
+      "summary": "Angular page component that loads all galleries on init and renders them in a grid layout for public browsing.",
+      "tags": ["component", "page", "public", "gallery-list"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "type": "file",
+      "name": "gallery-detail.component.ts",
+      "filePath": "frontend/src/app/pages/gallery-detail.component.ts",
+      "summary": "Public-facing gallery detail page supporting multiple display layouts (masonry, collage, marquee, slideshow) with lightbox integration, theme override, and deterministic pseudo-random layout helpers.",
+      "tags": ["component", "page", "gallery", "layout-engine"],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:frontend/src/app/pages/gallery-detail.component.ts:GalleryDetailComponent",
+      "type": "class",
+      "name": "GalleryDetailComponent",
+      "filePath": "frontend/src/app/pages/gallery-detail.component.ts",
+      "lineRange": [460, 542],
+      "summary": "Angular page component that renders a single gallery in one of several visual layouts (masonry, collage, marquee, slideshow), applies a per-gallery theme override, and opens photos in the lightbox.",
+      "tags": ["component", "page", "multi-layout", "theme"],
+      "complexity": "complex",
+      "languageNotes": "Uses a simple string-hash function to produce deterministic pseudo-random layout values (rotation, width, z-index) so collage layouts appear organic but are stable across renders."
+    },
+    {
+      "id": "file:frontend/src/app/pages/landing.component.ts",
+      "type": "file",
+      "name": "landing.component.ts",
+      "filePath": "frontend/src/app/pages/landing.component.ts",
+      "summary": "Landing page component displaying a paginated masonry photo grid with infinite scroll, aspect-ratio helpers, and lightbox integration.",
+      "tags": ["component", "page", "landing", "infinite-scroll"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:frontend/src/app/pages/landing.component.ts:LandingComponent",
+      "type": "class",
+      "name": "LandingComponent",
+      "filePath": "frontend/src/app/pages/landing.component.ts",
+      "lineRange": [139, 184],
+      "summary": "Angular page component for the public landing page, loading photos in pages and appending on scroll (infinite scroll), with aspect-ratio computation for masonry layout and lightbox integration.",
+      "tags": ["component", "page", "masonry", "infinite-scroll"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/app/services/api.service.ts",
+      "type": "file",
+      "name": "api.service.ts",
+      "filePath": "frontend/src/app/services/api.service.ts",
+      "summary": "Singleton Angular HTTP service wrapping all backend REST endpoints for photos and galleries, including upload, CRUD, bulk operations, and image URL construction.",
+      "tags": ["service", "api-handler", "http-client", "singleton"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "class",
+      "name": "ApiService",
+      "filePath": "frontend/src/app/services/api.service.ts",
+      "lineRange": [17, 120],
+      "summary": "Angular injectable service providing typed methods for every backend API call: photo and gallery CRUD, bulk operations, multipart upload, and a helper to resolve image URLs with cache-busting retry support.",
+      "tags": ["service", "http-client", "api-handler", "singleton"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/app/services/theme.service.ts",
+      "type": "file",
+      "name": "theme.service.ts",
+      "filePath": "frontend/src/app/services/theme.service.ts",
+      "summary": "Singleton Angular service managing light/dark theme state, user preference persistence in localStorage, OS media-query listening, and per-gallery accent-color overrides.",
+      "tags": ["service", "theme", "singleton", "state-management"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:frontend/src/app/services/theme.service.ts:ThemeService",
+      "type": "class",
+      "name": "ThemeService",
+      "filePath": "frontend/src/app/services/theme.service.ts",
+      "lineRange": [18, 83],
+      "summary": "Angular injectable service that tracks dark/light mode preference (from localStorage or OS prefers-color-scheme), exposes a toggle, and applies gallery-specific accent color overrides as CSS custom properties.",
+      "tags": ["service", "theme", "dark-mode", "css-variables"],
+      "complexity": "moderate",
+      "languageNotes": "Applies theme via root element setAttribute and CSS custom property setProperty, allowing gallery-defined accent colors to override the global theme at runtime."
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:frontend/src/app/admin/admin-galleries.component.ts",
+      "target": "class:frontend/src/app/admin/admin-galleries.component.ts:AdminGalleriesComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-galleries.component.ts",
+      "target": "class:frontend/src/app/admin/admin-galleries.component.ts:AdminGalleriesComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-galleries.component.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-galleries.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-photos.component.ts",
+      "target": "class:frontend/src/app/admin/admin-photos.component.ts:AdminPhotosComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-photos.component.ts",
+      "target": "class:frontend/src/app/admin/admin-photos.component.ts:AdminPhotosComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-photos.component.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-photos.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-settings.component.ts",
+      "target": "class:frontend/src/app/admin/admin-settings.component.ts:AdminSettingsComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-settings.component.ts",
+      "target": "class:frontend/src/app/admin/admin-settings.component.ts:AdminSettingsComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-settings.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/components/lightbox.component.ts",
+      "target": "class:frontend/src/app/components/lightbox.component.ts:LightboxComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/components/lightbox.component.ts",
+      "target": "class:frontend/src/app/components/lightbox.component.ts:LightboxComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/components/lightbox.component.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/components/lightbox.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/components/reveal.directive.ts",
+      "target": "class:frontend/src/app/components/reveal.directive.ts:RevealDirective",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/components/reveal.directive.ts",
+      "target": "class:frontend/src/app/components/reveal.directive.ts:RevealDirective",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/pages/galleries.component.ts",
+      "target": "class:frontend/src/app/pages/galleries.component.ts:GalleriesComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/pages/galleries.component.ts",
+      "target": "class:frontend/src/app/pages/galleries.component.ts:GalleriesComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/pages/galleries.component.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/galleries.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "class:frontend/src/app/pages/gallery-detail.component.ts:GalleryDetailComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "class:frontend/src/app/pages/gallery-detail.component.ts:GalleryDetailComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "file:frontend/src/app/components/lightbox.component.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "file:frontend/src/app/components/reveal.directive.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "file:frontend/src/app/services/theme.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/landing.component.ts",
+      "target": "class:frontend/src/app/pages/landing.component.ts:LandingComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/pages/landing.component.ts",
+      "target": "class:frontend/src/app/pages/landing.component.ts:LandingComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/pages/landing.component.ts",
+      "target": "file:frontend/src/app/components/lightbox.component.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/landing.component.ts",
+      "target": "file:frontend/src/app/components/reveal.directive.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/landing.component.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/landing.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/services/api.service.ts",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/services/api.service.ts",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/api.service.ts",
+      "target": "file:frontend/src/app/config.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/services/api.service.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/services/theme.service.ts",
+      "target": "class:frontend/src/app/services/theme.service.ts:ThemeService",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/services/theme.service.ts",
+      "target": "class:frontend/src/app/services/theme.service.ts:ThemeService",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/theme.service.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "file:frontend/src/app/services/theme.service.ts",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "class:frontend/src/app/admin/admin-galleries.component.ts:AdminGalleriesComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/admin/admin-photos.component.ts:AdminPhotosComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/admin/admin-settings.component.ts:AdminSettingsComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/components/lightbox.component.ts:LightboxComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/pages/galleries.component.ts:GalleriesComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/pages/gallery-detail.component.ts:GalleryDetailComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/pages/gallery-detail.component.ts:GalleryDetailComponent",
+      "target": "class:frontend/src/app/services/theme.service.ts:ThemeService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/pages/landing.component.ts:LandingComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    }
+  ]
+}

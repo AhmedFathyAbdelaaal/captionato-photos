@@ -1,0 +1,118 @@
+[
+  {
+    "id": "layer:api",
+    "name": "API Layer",
+    "description": "FastAPI route handlers for auth, gallery CRUD, and photo lifecycle operations — the HTTP interface exposed to the Angular frontend.",
+    "nodeIds": [
+      "file:backend/app/routers/auth.py",
+      "file:backend/app/routers/galleries.py",
+      "file:backend/app/routers/photos.py",
+      "file:backend/app/routers/__init__.py"
+    ]
+  },
+  {
+    "id": "layer:service",
+    "name": "Service Layer",
+    "description": "Cross-cutting backend services (JWT security, Pillow imaging, ORM serialization, FastAPI DI) and Angular client services that mediate between UI components and the REST API.",
+    "nodeIds": [
+      "file:backend/app/deps.py",
+      "file:backend/app/imaging.py",
+      "file:backend/app/security.py",
+      "file:backend/app/serializers.py",
+      "file:frontend/src/app/services/api.service.ts",
+      "file:frontend/src/app/services/auth.service.ts",
+      "file:frontend/src/app/services/theme.service.ts",
+      "file:frontend/src/app/services/auth.guard.ts",
+      "file:frontend/src/app/services/auth.interceptor.ts"
+    ]
+  },
+  {
+    "id": "layer:data",
+    "name": "Data Layer",
+    "description": "SQLAlchemy ORM models, database session factory, Pydantic request/response schemas, and Alembic migration scripts that define and evolve the PostgreSQL schema.",
+    "nodeIds": [
+      "file:backend/app/models.py",
+      "file:backend/app/database.py",
+      "file:backend/app/schemas.py",
+      "file:backend/alembic/env.py",
+      "file:backend/alembic/versions/0001_initial.py",
+      "file:backend/alembic/script.py.mako"
+    ]
+  },
+  {
+    "id": "layer:ui",
+    "name": "UI & Presentation Layer",
+    "description": "Angular components, directives, and styles that render the public photography showcase (landing masonry, gallery pages, lightbox) and the admin panel for content management.",
+    "nodeIds": [
+      "file:frontend/src/app/pages/landing.component.ts",
+      "file:frontend/src/app/pages/galleries.component.ts",
+      "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "file:frontend/src/app/admin/admin.component.ts",
+      "file:frontend/src/app/admin/admin-galleries.component.ts",
+      "file:frontend/src/app/admin/admin-photos.component.ts",
+      "file:frontend/src/app/admin/admin-settings.component.ts",
+      "file:frontend/src/app/admin/login.component.ts",
+      "file:frontend/src/app/components/lightbox.component.ts",
+      "file:frontend/src/app/components/reveal.directive.ts",
+      "file:frontend/src/app/models.ts",
+      "file:frontend/src/styles.scss"
+    ]
+  },
+  {
+    "id": "layer:bootstrap",
+    "name": "Bootstrap & Configuration",
+    "description": "Application entry points and wiring files that assemble the FastAPI app and Angular SPA — including CORS setup, router mounting, route tables, DI providers, and runtime config injection.",
+    "nodeIds": [
+      "file:backend/app/main.py",
+      "file:backend/app/__init__.py",
+      "file:backend/app/config.py",
+      "file:frontend/src/main.ts",
+      "file:frontend/src/app/app.component.ts",
+      "file:frontend/src/app/app.config.ts",
+      "file:frontend/src/app/app.routes.ts",
+      "file:frontend/src/app/config.ts",
+      "file:frontend/src/index.html"
+    ]
+  },
+  {
+    "id": "layer:infrastructure",
+    "name": "Infrastructure",
+    "description": "Docker images for the FastAPI backend and Angular/nginx frontend, docker-compose orchestration of the 3-service stack, nginx SPA serving config, and container startup scripts.",
+    "nodeIds": [
+      "service:backend/Dockerfile",
+      "service:backend/.dockerignore",
+      "service:frontend/Dockerfile",
+      "service:frontend/Dockerfile:build",
+      "service:frontend/Dockerfile:nginx",
+      "service:frontend/.dockerignore",
+      "service:docker-compose.yml",
+      "file:frontend/nginx.conf",
+      "file:backend/start.sh",
+      "file:frontend/docker-entrypoint.sh"
+    ]
+  },
+  {
+    "id": "layer:build-config",
+    "name": "Build & Project Config",
+    "description": "Build toolchain configuration for both the Angular CLI workspace and Python backend — TypeScript compiler options, npm manifest, Angular schematics, Alembic INI, environment templates, and runtime asset config.",
+    "nodeIds": [
+      "config:frontend/angular.json",
+      "config:frontend/package.json",
+      "config:frontend/tsconfig.json",
+      "config:frontend/tsconfig.app.json",
+      "config:frontend/src/assets/config.json",
+      "config:backend/.env.example",
+      "config:backend/alembic.ini",
+      "document:backend/requirements.txt"
+    ]
+  },
+  {
+    "id": "layer:documentation",
+    "name": "Documentation",
+    "description": "Project-level documentation and tooling metadata, including the comprehensive README covering architecture and API reference, and the Understand-Anything scanner ignore rules.",
+    "nodeIds": [
+      "document:README.md",
+      "file:.understand-anything/.understandignore"
+    ]
+  }
+]

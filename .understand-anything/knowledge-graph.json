@@ -1,0 +1,3260 @@
+{
+  "version": "1.0.0",
+  "project": {
+    "name": "captionato-photos",
+    "languages": [
+      "python",
+      "typescript",
+      "dockerfile",
+      "yaml",
+      "shell",
+      "json",
+      "html",
+      "css",
+      "markdown"
+    ],
+    "frameworks": [
+      "Angular 16",
+      "FastAPI",
+      "SQLAlchemy",
+      "Alembic",
+      "Pydantic",
+      "Docker"
+    ],
+    "description": "A self-hosted photography showcase with public galleries, masonry landing page, full-resolution lightbox, and admin panel. FastAPI + Angular 16 + PostgreSQL + Docker.",
+    "analyzedAt": "2026-07-05T05:32:28.983Z",
+    "gitCommitHash": "64dddbb85d704b4719cadf8f035600df184c8ca4"
+  },
+  "nodes": [
+    {
+      "id": "file:backend/alembic/env.py",
+      "type": "file",
+      "name": "env.py",
+      "filePath": "backend/alembic/env.py",
+      "summary": "Alembic migration environment configuration that wires the project's SQLAlchemy metadata and database URL into Alembic's offline and online migration runners.",
+      "tags": [
+        "database",
+        "migration",
+        "configuration",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/alembic/env.py:run_migrations_offline",
+      "type": "function",
+      "name": "run_migrations_offline",
+      "filePath": "backend/alembic/env.py",
+      "lineRange": [
+        21,
+        29
+      ],
+      "summary": "Executes Alembic migrations in offline mode using a configured URL without an active database connection.",
+      "tags": [
+        "database",
+        "migration",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/alembic/env.py:run_migrations_online",
+      "type": "function",
+      "name": "run_migrations_online",
+      "filePath": "backend/alembic/env.py",
+      "lineRange": [
+        32,
+        41
+      ],
+      "summary": "Executes Alembic migrations in online mode by establishing a live engine connection and running migrations within a transaction.",
+      "tags": [
+        "database",
+        "migration",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "backend/app/__init__.py",
+      "summary": "Empty package initializer that marks the backend/app directory as a Python package.",
+      "tags": [
+        "entry-point",
+        "barrel"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/config.py",
+      "type": "file",
+      "name": "config.py",
+      "filePath": "backend/app/config.py",
+      "summary": "Defines the application settings via a Pydantic BaseSettings class, reading values from environment variables for database, JWT, admin credentials, file storage paths, and CORS origins.",
+      "tags": [
+        "configuration",
+        "singleton",
+        "utility"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Uses Pydantic BaseSettings for typed environment-variable binding and a @lru_cache-decorated get_settings factory to produce a shared singleton."
+    },
+    {
+      "id": "class:backend/app/config.py:Settings",
+      "type": "class",
+      "name": "Settings",
+      "filePath": "backend/app/config.py",
+      "lineRange": [
+        6,
+        36
+      ],
+      "summary": "Pydantic BaseSettings model holding all runtime configuration: database URL, JWT secret/algorithm/expiry, admin credentials, photo storage paths, thumbnail size, and allowed CORS origins.",
+      "tags": [
+        "configuration",
+        "data-model",
+        "singleton"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/app/database.py",
+      "type": "file",
+      "name": "database.py",
+      "filePath": "backend/app/database.py",
+      "summary": "Creates the SQLAlchemy engine and session factory from the app settings, and exposes the declarative Base class used by all ORM models.",
+      "tags": [
+        "database",
+        "configuration",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/deps.py",
+      "type": "file",
+      "name": "deps.py",
+      "filePath": "backend/app/deps.py",
+      "summary": "Provides FastAPI dependency injection callables for yielding a scoped database session and for authenticating the current admin user from a Bearer JWT.",
+      "tags": [
+        "middleware",
+        "api-handler",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/deps.py:get_db",
+      "type": "function",
+      "name": "get_db",
+      "filePath": "backend/app/deps.py",
+      "lineRange": [
+        15,
+        20
+      ],
+      "summary": "FastAPI dependency that opens a SQLAlchemy session, yields it to the route handler, and closes it afterwards.",
+      "tags": [
+        "middleware",
+        "database",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/deps.py:get_current_admin",
+      "type": "function",
+      "name": "get_current_admin",
+      "filePath": "backend/app/deps.py",
+      "lineRange": [
+        23,
+        40
+      ],
+      "summary": "FastAPI dependency that validates a Bearer JWT, decodes the admin username, and queries the database to confirm the user exists, raising 401 on any failure.",
+      "tags": [
+        "security",
+        "middleware",
+        "api-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/app/imaging.py",
+      "type": "file",
+      "name": "imaging.py",
+      "filePath": "backend/app/imaging.py",
+      "summary": "Handles image processing on upload: EXIF metadata extraction (camera, lens, exposure, GPS) and thumbnail generation with correct EXIF orientation using Pillow.",
+      "tags": [
+        "utility",
+        "service",
+        "data-model"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/imaging.py:extract_exif",
+      "type": "function",
+      "name": "extract_exif",
+      "filePath": "backend/app/imaging.py",
+      "lineRange": [
+        53,
+        107
+      ],
+      "summary": "Reads a Pillow Image object's EXIF IFD tags and returns a structured dict with camera make/model, lens, ISO, aperture, shutter speed, focal length, GPS coordinates, and copyright.",
+      "tags": [
+        "utility",
+        "serialization"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/imaging.py:process_upload",
+      "type": "function",
+      "name": "process_upload",
+      "filePath": "backend/app/imaging.py",
+      "lineRange": [
+        110,
+        139
+      ],
+      "summary": "Saves an uploaded photo to its original path, applies EXIF rotation correction, generates a constrained thumbnail with Pillow, and returns the extracted EXIF dict along with image dimensions.",
+      "tags": [
+        "utility",
+        "service"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:backend/app/main.py",
+      "type": "file",
+      "name": "main.py",
+      "filePath": "backend/app/main.py",
+      "summary": "FastAPI application entry point that configures CORS, mounts the auth/galleries/photos routers, seeds the admin user on startup via a lifespan handler, and exposes a /health endpoint.",
+      "tags": [
+        "entry-point",
+        "api-handler",
+        "middleware"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/main.py:seed_admin",
+      "type": "function",
+      "name": "seed_admin",
+      "filePath": "backend/app/main.py",
+      "lineRange": [
+        15,
+        27
+      ],
+      "summary": "Creates the initial AdminUser record in the database if none exists, hashing the configured admin password before insertion.",
+      "tags": [
+        "utility",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/main.py:lifespan",
+      "type": "function",
+      "name": "lifespan",
+      "filePath": "backend/app/main.py",
+      "lineRange": [
+        31,
+        39
+      ],
+      "summary": "FastAPI lifespan context manager that creates the photo and thumbnail storage directories and seeds the admin user before the application accepts requests.",
+      "tags": [
+        "entry-point",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/models.py",
+      "type": "file",
+      "name": "models.py",
+      "filePath": "backend/app/models.py",
+      "summary": "SQLAlchemy ORM models for the four core database entities: Photo, Gallery, GalleryPhoto (many-to-many link), and AdminUser.",
+      "tags": [
+        "data-model",
+        "database",
+        "schema-definition"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:backend/app/models.py:Photo",
+      "type": "class",
+      "name": "Photo",
+      "filePath": "backend/app/models.py",
+      "lineRange": [
+        19,
+        44
+      ],
+      "summary": "ORM model representing an uploaded photo with storage paths, display metadata (title, caption, visibility), image dimensions, EXIF JSON, and a relationship to GalleryPhoto links.",
+      "tags": [
+        "data-model",
+        "database"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:backend/app/models.py:Gallery",
+      "type": "class",
+      "name": "Gallery",
+      "filePath": "backend/app/models.py",
+      "lineRange": [
+        47,
+        73
+      ],
+      "summary": "ORM model for a photo gallery with slug, display settings (layout, theme, accent color), ordering, and a relationship to GalleryPhoto links.",
+      "tags": [
+        "data-model",
+        "database"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:backend/app/models.py:GalleryPhoto",
+      "type": "class",
+      "name": "GalleryPhoto",
+      "filePath": "backend/app/models.py",
+      "lineRange": [
+        76,
+        92
+      ],
+      "summary": "Association table ORM model linking Gallery and Photo with a display_order field for per-gallery photo ordering.",
+      "tags": [
+        "data-model",
+        "database"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/models.py:AdminUser",
+      "type": "class",
+      "name": "AdminUser",
+      "filePath": "backend/app/models.py",
+      "lineRange": [
+        95,
+        102
+      ],
+      "summary": "ORM model for the single admin account, storing the username and bcrypt password hash used for JWT authentication.",
+      "tags": [
+        "data-model",
+        "security",
+        "database"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/routers/__init__.py",
+      "type": "file",
+      "name": "__init__.py",
+      "filePath": "backend/app/routers/__init__.py",
+      "summary": "Empty package initializer that marks the backend/app/routers directory as a Python package.",
+      "tags": [
+        "barrel",
+        "entry-point"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/routers/auth.py",
+      "type": "file",
+      "name": "auth.py",
+      "filePath": "backend/app/routers/auth.py",
+      "summary": "FastAPI router exposing admin authentication endpoints: login (returns JWT), me (current user), and change_password.",
+      "tags": [
+        "api-handler",
+        "security",
+        "middleware"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/routers/auth.py:login",
+      "type": "function",
+      "name": "login",
+      "filePath": "backend/app/routers/auth.py",
+      "lineRange": [
+        14,
+        21
+      ],
+      "summary": "POST /auth/login — validates admin credentials against the database, returns a signed JWT access token on success.",
+      "tags": [
+        "api-handler",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/routers/auth.py:change_password",
+      "type": "function",
+      "name": "change_password",
+      "filePath": "backend/app/routers/auth.py",
+      "lineRange": [
+        30,
+        42
+      ],
+      "summary": "POST /auth/change-password — verifies the current password, hashes the new one, and updates the AdminUser record.",
+      "tags": [
+        "api-handler",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/routers/galleries.py",
+      "type": "file",
+      "name": "galleries.py",
+      "filePath": "backend/app/routers/galleries.py",
+      "summary": "FastAPI router for gallery CRUD operations and ordering: public listing/detail (by slug), and admin-only create, update, delete, reorder-galleries, and reorder-photos endpoints.",
+      "tags": [
+        "api-handler",
+        "service",
+        "data-model"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/routers/galleries.py:list_galleries",
+      "type": "function",
+      "name": "list_galleries",
+      "filePath": "backend/app/routers/galleries.py",
+      "lineRange": [
+        38,
+        44
+      ],
+      "summary": "GET /galleries — returns all galleries with their photo counts and cover thumbnails, ordered by display_order then created_at.",
+      "tags": [
+        "api-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/routers/galleries.py:get_gallery",
+      "type": "function",
+      "name": "get_gallery",
+      "filePath": "backend/app/routers/galleries.py",
+      "lineRange": [
+        49,
+        63
+      ],
+      "summary": "GET /galleries/{slug} — returns detailed gallery data including eagerly loaded photos, sorted by display order.",
+      "tags": [
+        "api-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/routers/galleries.py:create_gallery",
+      "type": "function",
+      "name": "create_gallery",
+      "filePath": "backend/app/routers/galleries.py",
+      "lineRange": [
+        68,
+        81
+      ],
+      "summary": "POST /admin/galleries — creates a new gallery, auto-assigning the next display_order; requires admin auth.",
+      "tags": [
+        "api-handler",
+        "security"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/routers/galleries.py:update_gallery",
+      "type": "function",
+      "name": "update_gallery",
+      "filePath": "backend/app/routers/galleries.py",
+      "lineRange": [
+        86,
+        105
+      ],
+      "summary": "PATCH /admin/galleries/{id} — updates gallery fields, enforcing slug uniqueness and returning the updated gallery; requires admin auth.",
+      "tags": [
+        "api-handler",
+        "security"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/routers/galleries.py:reorder_gallery_photos",
+      "type": "function",
+      "name": "reorder_gallery_photos",
+      "filePath": "backend/app/routers/galleries.py",
+      "lineRange": [
+        138,
+        148
+      ],
+      "summary": "PUT /admin/galleries/{id}/reorder-photos — updates GalleryPhoto.display_order for a list of photo IDs within a gallery; requires admin auth.",
+      "tags": [
+        "api-handler",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/routers/photos.py",
+      "type": "file",
+      "name": "photos.py",
+      "filePath": "backend/app/routers/photos.py",
+      "summary": "FastAPI router for photo lifecycle: paginated public/admin listing, multi-file upload with EXIF extraction and thumbnail generation, bulk operations (visibility, delete, add-to-gallery), single-photo update/delete, EXIF retrieval, and file serving (thumbnail and original).",
+      "tags": [
+        "api-handler",
+        "service",
+        "utility"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/routers/photos.py:upload_photos",
+      "type": "function",
+      "name": "upload_photos",
+      "filePath": "backend/app/routers/photos.py",
+      "lineRange": [
+        80,
+        132
+      ],
+      "summary": "POST /admin/photos/upload — accepts multiple image files, validates extensions, saves originals, triggers EXIF extraction and thumbnail creation, and persists Photo records to the database.",
+      "tags": [
+        "api-handler",
+        "service",
+        "utility"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/routers/photos.py:update_photo",
+      "type": "function",
+      "name": "update_photo",
+      "filePath": "backend/app/routers/photos.py",
+      "lineRange": [
+        194,
+        227
+      ],
+      "summary": "PATCH /admin/photos/{id} — updates photo metadata and replaces the photo's gallery memberships atomically.",
+      "tags": [
+        "api-handler",
+        "security"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/app/routers/photos.py:serve_original",
+      "type": "function",
+      "name": "serve_original",
+      "filePath": "backend/app/routers/photos.py",
+      "lineRange": [
+        269,
+        282
+      ],
+      "summary": "GET /photos/{id}/original — serves the full-resolution image file, optionally as an attachment download.",
+      "tags": [
+        "api-handler",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/schemas.py",
+      "type": "file",
+      "name": "schemas.py",
+      "filePath": "backend/app/schemas.py",
+      "summary": "Pydantic schema definitions for all API request/response shapes: auth (login, token, password change), photo (out, update, page, bulk ops), and gallery (base, create, update, out, detail, reorder).",
+      "tags": [
+        "type-definition",
+        "api-handler",
+        "data-model"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "All classes inherit from Pydantic BaseModel; GalleryUpdate uses Optional fields with None defaults for partial-update semantics."
+    },
+    {
+      "id": "class:backend/app/schemas.py:PhotoOut",
+      "type": "class",
+      "name": "PhotoOut",
+      "filePath": "backend/app/schemas.py",
+      "lineRange": [
+        24,
+        39
+      ],
+      "summary": "Pydantic response schema for a photo, including computed thumbnail_url and original_url fields alongside metadata and gallery membership IDs.",
+      "tags": [
+        "type-definition",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/schemas.py:GalleryOut",
+      "type": "class",
+      "name": "GalleryOut",
+      "filePath": "backend/app/schemas.py",
+      "lineRange": [
+        95,
+        102
+      ],
+      "summary": "Pydantic response schema for a gallery listing entry, adding photo_count and cover_thumbnail_url to the base gallery fields.",
+      "tags": [
+        "type-definition",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:backend/app/schemas.py:GalleryDetailOut",
+      "type": "class",
+      "name": "GalleryDetailOut",
+      "filePath": "backend/app/schemas.py",
+      "lineRange": [
+        105,
+        106
+      ],
+      "summary": "Pydantic response schema extending GalleryOut with a list of PhotoOut items for the gallery detail view.",
+      "tags": [
+        "type-definition",
+        "data-model"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/security.py",
+      "type": "file",
+      "name": "security.py",
+      "filePath": "backend/app/security.py",
+      "summary": "Security utilities for password hashing with bcrypt (via passlib) and JWT creation/decoding using python-jose, driven by settings from config.",
+      "tags": [
+        "security",
+        "utility",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/security.py:create_access_token",
+      "type": "function",
+      "name": "create_access_token",
+      "filePath": "backend/app/security.py",
+      "lineRange": [
+        19,
+        22
+      ],
+      "summary": "Creates a signed JWT with a subject claim and an expiry derived from JWT_EXPIRE_MINUTES setting.",
+      "tags": [
+        "security",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/security.py:decode_access_token",
+      "type": "function",
+      "name": "decode_access_token",
+      "filePath": "backend/app/security.py",
+      "lineRange": [
+        25,
+        33
+      ],
+      "summary": "Decodes and validates a JWT, returning the subject string or None on any JWTError.",
+      "tags": [
+        "security",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/app/serializers.py",
+      "type": "file",
+      "name": "serializers.py",
+      "filePath": "backend/app/serializers.py",
+      "summary": "Serialization helpers that convert ORM Photo and Gallery model instances into their corresponding Pydantic output schemas, constructing thumbnail/original URLs via route path helpers.",
+      "tags": [
+        "serialization",
+        "utility",
+        "api-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:backend/app/serializers.py:photo_out",
+      "type": "function",
+      "name": "photo_out",
+      "filePath": "backend/app/serializers.py",
+      "lineRange": [
+        16,
+        34
+      ],
+      "summary": "Converts a Photo ORM instance into a PhotoOut schema, populating URL fields and optionally including gallery membership IDs.",
+      "tags": [
+        "serialization",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/app/serializers.py:gallery_out",
+      "type": "function",
+      "name": "gallery_out",
+      "filePath": "backend/app/serializers.py",
+      "lineRange": [
+        37,
+        51
+      ],
+      "summary": "Converts a Gallery ORM instance into a GalleryOut schema, computing photo_count and the cover thumbnail URL from an optional cover Photo.",
+      "tags": [
+        "serialization",
+        "utility"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/app/admin/admin-galleries.component.ts",
+      "type": "file",
+      "name": "admin-galleries.component.ts",
+      "filePath": "frontend/src/app/admin/admin-galleries.component.ts",
+      "summary": "Admin panel component for managing photo galleries: create, edit, delete, and reorder galleries with support for layout presets, themes, and accent colors.",
+      "tags": [
+        "component",
+        "admin",
+        "api-handler",
+        "crud"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:frontend/src/app/admin/admin-galleries.component.ts:AdminGalleriesComponent",
+      "type": "class",
+      "name": "AdminGalleriesComponent",
+      "filePath": "frontend/src/app/admin/admin-galleries.component.ts",
+      "lineRange": [
+        325,
+        416
+      ],
+      "summary": "Angular component providing the admin UI for gallery CRUD operations, including creation with auto-slug generation, inline editing, deletion with confirmation, and drag-based reordering.",
+      "tags": [
+        "component",
+        "admin",
+        "gallery-management",
+        "crud"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:frontend/src/app/admin/admin-photos.component.ts",
+      "type": "file",
+      "name": "admin-photos.component.ts",
+      "filePath": "frontend/src/app/admin/admin-photos.component.ts",
+      "summary": "Admin panel component for managing photos: upload via file picker or drag-and-drop, bulk visibility toggle, bulk delete, bulk gallery assignment, and per-photo edit/delete.",
+      "tags": [
+        "component",
+        "admin",
+        "api-handler",
+        "crud"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:frontend/src/app/admin/admin-photos.component.ts:AdminPhotosComponent",
+      "type": "class",
+      "name": "AdminPhotosComponent",
+      "filePath": "frontend/src/app/admin/admin-photos.component.ts",
+      "lineRange": [
+        357,
+        543
+      ],
+      "summary": "Angular component handling all photo administration: file upload (with drag-and-drop), multi-select with bulk operations (visibility, delete, gallery assignment), and per-photo inline editing.",
+      "tags": [
+        "component",
+        "admin",
+        "upload",
+        "bulk-operations"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "file:frontend/src/app/admin/admin-settings.component.ts",
+      "type": "file",
+      "name": "admin-settings.component.ts",
+      "filePath": "frontend/src/app/admin/admin-settings.component.ts",
+      "summary": "Admin settings component providing a password-change form with client-side validation and API submission feedback.",
+      "tags": [
+        "component",
+        "admin",
+        "settings",
+        "validation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:frontend/src/app/admin/admin-settings.component.ts:AdminSettingsComponent",
+      "type": "class",
+      "name": "AdminSettingsComponent",
+      "filePath": "frontend/src/app/admin/admin-settings.component.ts",
+      "lineRange": [
+        69,
+        106
+      ],
+      "summary": "Angular component for the admin password-change form, validating current/new password match before calling the API and showing success or error feedback.",
+      "tags": [
+        "component",
+        "admin",
+        "validation",
+        "settings"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/app/components/lightbox.component.ts",
+      "type": "file",
+      "name": "lightbox.component.ts",
+      "filePath": "frontend/src/app/components/lightbox.component.ts",
+      "summary": "Reusable full-screen lightbox component for photo viewing with keyboard navigation, EXIF data display, lazy full-resolution loading with retry logic, and download support.",
+      "tags": [
+        "component",
+        "ui",
+        "lightbox",
+        "media-viewer"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:frontend/src/app/components/lightbox.component.ts:LightboxComponent",
+      "type": "class",
+      "name": "LightboxComponent",
+      "filePath": "frontend/src/app/components/lightbox.component.ts",
+      "lineRange": [
+        318,
+        405
+      ],
+      "summary": "Angular component rendering a full-screen photo lightbox with prev/next navigation, keyboard event handling (arrow keys, Escape), EXIF metadata panel, full-resolution image loading with retry on error, and a download button.",
+      "tags": [
+        "component",
+        "lightbox",
+        "keyboard-navigation",
+        "exif"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses Angular signals for reactive state and @HostListener for global keyboard events."
+    },
+    {
+      "id": "file:frontend/src/app/components/reveal.directive.ts",
+      "type": "file",
+      "name": "reveal.directive.ts",
+      "filePath": "frontend/src/app/components/reveal.directive.ts",
+      "summary": "Angular attribute directive that uses IntersectionObserver to animate elements into view as they scroll into the viewport.",
+      "tags": [
+        "directive",
+        "animation",
+        "scroll",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "class:frontend/src/app/components/reveal.directive.ts:RevealDirective",
+      "type": "class",
+      "name": "RevealDirective",
+      "filePath": "frontend/src/app/components/reveal.directive.ts",
+      "lineRange": [
+        19,
+        46
+      ],
+      "summary": "Angular structural directive that observes host element visibility via IntersectionObserver and adds a CSS class to trigger reveal animations on scroll-into-view.",
+      "tags": [
+        "directive",
+        "intersection-observer",
+        "animation",
+        "utility"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Uses IntersectionObserver API directly for performant scroll-driven animations without scroll event listeners."
+    },
+    {
+      "id": "file:frontend/src/app/models.ts",
+      "type": "file",
+      "name": "models.ts",
+      "filePath": "frontend/src/app/models.ts",
+      "summary": "Shared TypeScript interfaces and type definitions for the application domain: Photo, Gallery, ExifData, and related types used across all components and services.",
+      "tags": [
+        "type-definition",
+        "data-model",
+        "shared"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/app/pages/galleries.component.ts",
+      "type": "file",
+      "name": "galleries.component.ts",
+      "filePath": "frontend/src/app/pages/galleries.component.ts",
+      "summary": "Public-facing page component that fetches and displays the list of all galleries as a navigable grid for site visitors.",
+      "tags": [
+        "component",
+        "page",
+        "gallery",
+        "public"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:frontend/src/app/pages/galleries.component.ts:GalleriesComponent",
+      "type": "class",
+      "name": "GalleriesComponent",
+      "filePath": "frontend/src/app/pages/galleries.component.ts",
+      "lineRange": [
+        134,
+        149
+      ],
+      "summary": "Angular page component that loads all galleries on init and renders them in a grid layout for public browsing.",
+      "tags": [
+        "component",
+        "page",
+        "public",
+        "gallery-list"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "type": "file",
+      "name": "gallery-detail.component.ts",
+      "filePath": "frontend/src/app/pages/gallery-detail.component.ts",
+      "summary": "Public-facing gallery detail page supporting multiple display layouts (masonry, collage, marquee, slideshow) with lightbox integration, theme override, and deterministic pseudo-random layout helpers.",
+      "tags": [
+        "component",
+        "page",
+        "gallery",
+        "layout-engine"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "class:frontend/src/app/pages/gallery-detail.component.ts:GalleryDetailComponent",
+      "type": "class",
+      "name": "GalleryDetailComponent",
+      "filePath": "frontend/src/app/pages/gallery-detail.component.ts",
+      "lineRange": [
+        460,
+        542
+      ],
+      "summary": "Angular page component that renders a single gallery in one of several visual layouts (masonry, collage, marquee, slideshow), applies a per-gallery theme override, and opens photos in the lightbox.",
+      "tags": [
+        "component",
+        "page",
+        "multi-layout",
+        "theme"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses a simple string-hash function to produce deterministic pseudo-random layout values (rotation, width, z-index) so collage layouts appear organic but are stable across renders."
+    },
+    {
+      "id": "file:frontend/src/app/pages/landing.component.ts",
+      "type": "file",
+      "name": "landing.component.ts",
+      "filePath": "frontend/src/app/pages/landing.component.ts",
+      "summary": "Landing page component displaying a paginated masonry photo grid with infinite scroll, aspect-ratio helpers, and lightbox integration.",
+      "tags": [
+        "component",
+        "page",
+        "landing",
+        "infinite-scroll"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:frontend/src/app/pages/landing.component.ts:LandingComponent",
+      "type": "class",
+      "name": "LandingComponent",
+      "filePath": "frontend/src/app/pages/landing.component.ts",
+      "lineRange": [
+        139,
+        184
+      ],
+      "summary": "Angular page component for the public landing page, loading photos in pages and appending on scroll (infinite scroll), with aspect-ratio computation for masonry layout and lightbox integration.",
+      "tags": [
+        "component",
+        "page",
+        "masonry",
+        "infinite-scroll"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/app/services/api.service.ts",
+      "type": "file",
+      "name": "api.service.ts",
+      "filePath": "frontend/src/app/services/api.service.ts",
+      "summary": "Singleton Angular HTTP service wrapping all backend REST endpoints for photos and galleries, including upload, CRUD, bulk operations, and image URL construction.",
+      "tags": [
+        "service",
+        "api-handler",
+        "http-client",
+        "singleton"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "class",
+      "name": "ApiService",
+      "filePath": "frontend/src/app/services/api.service.ts",
+      "lineRange": [
+        17,
+        120
+      ],
+      "summary": "Angular injectable service providing typed methods for every backend API call: photo and gallery CRUD, bulk operations, multipart upload, and a helper to resolve image URLs with cache-busting retry support.",
+      "tags": [
+        "service",
+        "http-client",
+        "api-handler",
+        "singleton"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/app/services/theme.service.ts",
+      "type": "file",
+      "name": "theme.service.ts",
+      "filePath": "frontend/src/app/services/theme.service.ts",
+      "summary": "Singleton Angular service managing light/dark theme state, user preference persistence in localStorage, OS media-query listening, and per-gallery accent-color overrides.",
+      "tags": [
+        "service",
+        "theme",
+        "singleton",
+        "state-management"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "class:frontend/src/app/services/theme.service.ts:ThemeService",
+      "type": "class",
+      "name": "ThemeService",
+      "filePath": "frontend/src/app/services/theme.service.ts",
+      "lineRange": [
+        18,
+        83
+      ],
+      "summary": "Angular injectable service that tracks dark/light mode preference (from localStorage or OS prefers-color-scheme), exposes a toggle, and applies gallery-specific accent color overrides as CSS custom properties.",
+      "tags": [
+        "service",
+        "theme",
+        "dark-mode",
+        "css-variables"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Applies theme via root element setAttribute and CSS custom property setProperty, allowing gallery-defined accent colors to override the global theme at runtime."
+    },
+    {
+      "id": "file:frontend/src/app/admin/admin.component.ts",
+      "type": "file",
+      "name": "admin.component.ts",
+      "filePath": "frontend/src/app/admin/admin.component.ts",
+      "summary": "Standalone Angular admin dashboard component that renders the full admin UI inline (upload, gallery management, photo editing) and provides a logout action that clears authentication and redirects to home.",
+      "tags": [
+        "component",
+        "api-handler",
+        "admin"
+      ],
+      "complexity": "complex",
+      "languageNotes": "Uses Angular 16 standalone components with inline template containing the full admin interface."
+    },
+    {
+      "id": "class:frontend/src/app/admin/admin.component.ts:AdminComponent",
+      "type": "class",
+      "name": "AdminComponent",
+      "filePath": "frontend/src/app/admin/admin.component.ts",
+      "lineRange": [
+        134,
+        141
+      ],
+      "summary": "Angular component class for the admin panel; injects AuthService and Router, and exposes a logout method that clears auth state and navigates away.",
+      "tags": [
+        "component",
+        "admin",
+        "api-handler"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/app/admin/login.component.ts",
+      "type": "file",
+      "name": "login.component.ts",
+      "filePath": "frontend/src/app/admin/login.component.ts",
+      "summary": "Standalone Angular login component providing a username/password form that calls AuthService.login, handles busy state and error display, and redirects to the admin panel on success.",
+      "tags": [
+        "component",
+        "validation",
+        "middleware"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses Angular signals (signal()) for reactive busy and error state management."
+    },
+    {
+      "id": "class:frontend/src/app/admin/login.component.ts:LoginComponent",
+      "type": "class",
+      "name": "LoginComponent",
+      "filePath": "frontend/src/app/admin/login.component.ts",
+      "lineRange": [
+        106,
+        128
+      ],
+      "summary": "Login form component class with signal-based state for username, password, busy indicator, and error message; submit method delegates to AuthService and navigates to admin on success.",
+      "tags": [
+        "component",
+        "validation",
+        "event-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/app/app.component.ts",
+      "type": "file",
+      "name": "app.component.ts",
+      "filePath": "frontend/src/app/app.component.ts",
+      "summary": "Root Angular application component that tracks the current router URL via a signal and conditionally shows chrome (navbar/footer) based on route, delegating theme switching to ThemeService.",
+      "tags": [
+        "entry-point",
+        "component",
+        "event-handler"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Subscribes to Router NavigationEnd events and stores the URL as a signal to drive conditional template rendering."
+    },
+    {
+      "id": "class:frontend/src/app/app.component.ts:AppComponent",
+      "type": "class",
+      "name": "AppComponent",
+      "filePath": "frontend/src/app/app.component.ts",
+      "lineRange": [
+        85,
+        95
+      ],
+      "summary": "Root app shell class; listens to router events to update a url signal and exposes a showChrome computed property that hides navbar/footer on admin and login routes.",
+      "tags": [
+        "entry-point",
+        "component",
+        "event-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/app/app.config.ts",
+      "type": "file",
+      "name": "app.config.ts",
+      "filePath": "frontend/src/app/app.config.ts",
+      "summary": "Angular application bootstrap configuration that wires up the router with lazy-loaded routes and registers the HTTP client with the authInterceptor for all outgoing requests.",
+      "tags": [
+        "configuration",
+        "middleware",
+        "entry-point"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Uses provideHttpClient with withInterceptors for functional-style interceptor registration introduced in Angular 15+."
+    },
+    {
+      "id": "file:frontend/src/app/app.routes.ts",
+      "type": "file",
+      "name": "app.routes.ts",
+      "filePath": "frontend/src/app/app.routes.ts",
+      "summary": "Defines the Angular client-side route table with lazy-loaded components for the gallery, photo lightbox, admin panel, and login page, applying authGuard to the admin route.",
+      "tags": [
+        "configuration",
+        "middleware",
+        "entry-point"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "All components are lazily loaded with dynamic import() to reduce the initial bundle size."
+    },
+    {
+      "id": "file:frontend/src/app/config.ts",
+      "type": "file",
+      "name": "config.ts",
+      "filePath": "frontend/src/app/config.ts",
+      "summary": "Exports the APP_CONFIG injection token that carries the runtime API base URL, read from the global window object injected by the Angular server-side config script.",
+      "tags": [
+        "configuration",
+        "utility"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/app/services/auth.guard.ts",
+      "type": "file",
+      "name": "auth.guard.ts",
+      "filePath": "frontend/src/app/services/auth.guard.ts",
+      "summary": "Angular functional route guard that checks AuthService.isAuthed and redirects unauthenticated users to the login page, protecting admin routes.",
+      "tags": [
+        "middleware",
+        "validation",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:frontend/src/app/services/auth.guard.ts:authGuard",
+      "type": "function",
+      "name": "authGuard",
+      "filePath": "frontend/src/app/services/auth.guard.ts",
+      "lineRange": [
+        6,
+        12
+      ],
+      "summary": "Functional route guard that injects AuthService and Router at runtime, returns true when authenticated, or navigates to /admin/login and returns false when not.",
+      "tags": [
+        "middleware",
+        "validation",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/app/services/auth.interceptor.ts",
+      "type": "file",
+      "name": "auth.interceptor.ts",
+      "filePath": "frontend/src/app/services/auth.interceptor.ts",
+      "summary": "Angular functional HTTP interceptor that attaches the Bearer token from AuthService to every outgoing request and automatically logs out and redirects on 401 responses.",
+      "tags": [
+        "middleware",
+        "security",
+        "service"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:frontend/src/app/services/auth.interceptor.ts:authInterceptor",
+      "type": "function",
+      "name": "authInterceptor",
+      "filePath": "frontend/src/app/services/auth.interceptor.ts",
+      "lineRange": [
+        9,
+        27
+      ],
+      "summary": "Clones the outgoing HTTP request to add an Authorization: Bearer header when a token is present, and catches 401 errors to trigger logout and redirect to login.",
+      "tags": [
+        "middleware",
+        "security",
+        "event-handler"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/app/services/auth.service.ts",
+      "type": "file",
+      "name": "auth.service.ts",
+      "filePath": "frontend/src/app/services/auth.service.ts",
+      "summary": "Injectable Angular service managing authentication state via signals; persists the JWT token to localStorage, exposes login and logout methods, and provides reactive isAuthed and token signals.",
+      "tags": [
+        "service",
+        "singleton",
+        "security"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Uses Angular signals for reactive token and isAuthed state, initialized from localStorage to survive page refresh."
+    },
+    {
+      "id": "class:frontend/src/app/services/auth.service.ts:AuthService",
+      "type": "class",
+      "name": "AuthService",
+      "filePath": "frontend/src/app/services/auth.service.ts",
+      "lineRange": [
+        10,
+        32
+      ],
+      "summary": "Core authentication service that delegates login to ApiService, stores the returned JWT in a signal and localStorage, and provides logout to clear both.",
+      "tags": [
+        "service",
+        "singleton",
+        "security"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/main.ts",
+      "type": "file",
+      "name": "main.ts",
+      "filePath": "frontend/src/main.ts",
+      "summary": "Angular application bootstrap entry point that reads runtime config from the global window object and calls bootstrapApplication with AppComponent and appConfig.",
+      "tags": [
+        "entry-point",
+        "configuration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:backend/Dockerfile",
+      "type": "service",
+      "name": "Dockerfile",
+      "filePath": "backend/Dockerfile",
+      "summary": "Single-stage Docker build for the FastAPI backend using python:3.11-slim, installing Pillow system libraries (JPEG/PNG/WEBP/TIFF), Python dependencies from requirements.txt, and launching the application via a start.sh entrypoint on port 8000.",
+      "tags": [
+        "containerization",
+        "infrastructure",
+        "deployment",
+        "build-system"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Installs native image-processing libs (libjpeg62-turbo, libwebp7, libtiff6) at the OS level before pip-installing Pillow, which is the correct pattern for Pillow binary compatibility on slim Debian images."
+    },
+    {
+      "id": "service:backend/.dockerignore",
+      "type": "service",
+      "name": ".dockerignore",
+      "filePath": "backend/.dockerignore",
+      "summary": "Docker build context exclusion file that strips Python caches, virtual environments, SQLite databases, and test/type-check cache directories from the image to keep the build context lean and prevent secrets (.env) from leaking into the image.",
+      "tags": [
+        "infrastructure",
+        "containerization",
+        "security",
+        "configuration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:frontend/.dockerignore",
+      "type": "service",
+      "name": ".dockerignore",
+      "filePath": "frontend/.dockerignore",
+      "summary": "Docker build context exclusion file for the Angular frontend, preventing node_modules, dist artifacts, .angular cache, git history, and log files from being sent to the Docker daemon.",
+      "tags": [
+        "infrastructure",
+        "containerization",
+        "configuration",
+        "build-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:frontend/Dockerfile",
+      "type": "service",
+      "name": "Dockerfile",
+      "filePath": "frontend/Dockerfile",
+      "summary": "Multi-stage Docker build for the Angular 16 frontend: a Node 18 Alpine build stage compiles the app, then a minimal nginx:alpine serve stage hosts the static output on port 80 with a runtime entrypoint script that injects API_BASE_URL into /assets/config.json at container start.",
+      "tags": [
+        "containerization",
+        "infrastructure",
+        "deployment",
+        "build-system"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Multi-stage builds are used here for a significant size reduction — Node and its build dependencies are discarded; only the compiled Angular static files are copied into the nginx image. The docker-entrypoint.sh hook pattern allows runtime environment injection without rebuilding the image."
+    },
+    {
+      "id": "service:frontend/Dockerfile:build",
+      "type": "service",
+      "name": "build",
+      "filePath": "frontend/Dockerfile",
+      "summary": "Build stage using node:18-alpine that installs npm dependencies and compiles the Angular application via npm run build.",
+      "tags": [
+        "containerization",
+        "build-system",
+        "compilation"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:frontend/Dockerfile:nginx",
+      "type": "service",
+      "name": "nginx",
+      "filePath": "frontend/Dockerfile",
+      "summary": "Serve stage using nginx:alpine that hosts the compiled Angular static files on port 80 with a custom nginx config and a runtime entrypoint script for API base URL injection.",
+      "tags": [
+        "containerization",
+        "infrastructure",
+        "deployment"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:backend/.env.example",
+      "type": "config",
+      "name": ".env.example",
+      "filePath": "backend/.env.example",
+      "summary": "Template environment file declaring all required runtime variables for the backend: database connection URL, JWT secret key, initial admin credentials, image storage paths, and CORS allowed origins. Serves as the canonical reference for operators configuring a new deployment.",
+      "tags": [
+        "configuration",
+        "environment",
+        "security",
+        "deployment"
+      ],
+      "complexity": "simple",
+      "languageNotes": "DATABASE_URL uses the postgresql:// scheme consumed by SQLAlchemy; ALLOWED_ORIGINS is comma-separated and parsed by pydantic-settings in the app."
+    },
+    {
+      "id": "config:backend/alembic.ini",
+      "type": "config",
+      "name": "alembic.ini",
+      "filePath": "backend/alembic.ini",
+      "summary": "Alembic database migration tool configuration pointing to the alembic/ migrations directory; the SQLAlchemy connection URL is intentionally left blank and injected at runtime from application settings via env.py. Configures console logging for root, SQLAlchemy, and alembic loggers.",
+      "tags": [
+        "configuration",
+        "database",
+        "migration",
+        "build-system"
+      ],
+      "complexity": "simple",
+      "languageNotes": "sqlalchemy.url is left empty on purpose — Alembic's env.py overrides it programmatically so no credentials are stored in this file."
+    },
+    {
+      "id": "document:backend/requirements.txt",
+      "type": "document",
+      "name": "requirements.txt",
+      "filePath": "backend/requirements.txt",
+      "summary": "Pinned Python dependency manifest for the FastAPI backend, covering the web framework (fastapi, uvicorn), ORM and migrations (SQLAlchemy, alembic, psycopg2-binary), validation (pydantic, pydantic-settings), authentication (python-jose, passlib, bcrypt), multipart uploads, and image processing (Pillow).",
+      "tags": [
+        "documentation",
+        "configuration",
+        "dependency-management"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/start.sh",
+      "type": "file",
+      "name": "start.sh",
+      "filePath": "backend/start.sh",
+      "summary": "Container entrypoint shell script that runs pending Alembic database migrations to HEAD on every boot, then hands off to uvicorn to serve the FastAPI application on port 8000. The migration step is idempotent, making it safe to run on every container restart.",
+      "tags": [
+        "entry-point",
+        "deployment",
+        "infrastructure",
+        "script"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Uses exec to replace the shell process with uvicorn, ensuring signals (SIGTERM) propagate correctly to the API server inside the container."
+    },
+    {
+      "id": "config:frontend/angular.json",
+      "type": "config",
+      "name": "angular.json",
+      "filePath": "frontend/angular.json",
+      "summary": "Angular CLI workspace configuration for the `captionato-photos-web` project, defining build targets, SCSS as the default style language, standalone component schematics, production budget limits (1.5 MB error threshold), and dev-server settings.",
+      "tags": [
+        "configuration",
+        "build-system",
+        "angular",
+        "frontend"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses `@angular-devkit/build-angular:browser` builder with separate production and development configurations; production build enables output hashing for cache-busting."
+    },
+    {
+      "id": "file:frontend/docker-entrypoint.sh",
+      "type": "file",
+      "name": "docker-entrypoint.sh",
+      "filePath": "frontend/docker-entrypoint.sh",
+      "summary": "Docker entrypoint shell script that renders a runtime `config.json` file inside the Nginx HTML directory from the `API_BASE_URL` environment variable, enabling the Angular SPA to target different backend URLs without a rebuild.",
+      "tags": [
+        "infrastructure",
+        "deployment",
+        "containerization",
+        "configuration"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Uses POSIX sh with a default variable substitution (`${API_BASE_URL:=...}`) so the fallback API URL is applied when no override is provided by the container orchestrator (Coolify)."
+    },
+    {
+      "id": "config:frontend/package.json",
+      "type": "config",
+      "name": "package.json",
+      "filePath": "frontend/package.json",
+      "summary": "Node.js package manifest for the Angular 16 frontend, declaring all Angular platform dependencies (animations, router, forms, RxJS, zone.js) alongside dev dependencies for the CLI and TypeScript compiler.",
+      "tags": [
+        "configuration",
+        "build-system",
+        "dependencies",
+        "frontend"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:frontend/tsconfig.app.json",
+      "type": "config",
+      "name": "tsconfig.app.json",
+      "filePath": "frontend/tsconfig.app.json",
+      "summary": "Application-scoped TypeScript configuration that extends the base `tsconfig.json`, specifying `src/main.ts` as the compilation entry point and restricting type roots to none for stricter application builds.",
+      "tags": [
+        "configuration",
+        "typescript",
+        "build-system"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:frontend/tsconfig.json",
+      "type": "config",
+      "name": "tsconfig.json",
+      "filePath": "frontend/tsconfig.json",
+      "summary": "Base TypeScript compiler configuration for the Angular 16 frontend, enabling strict mode, ES2022 target/module, experimental decorators for Angular DI, and strict Angular template/injection checking via `angularCompilerOptions`.",
+      "tags": [
+        "configuration",
+        "typescript",
+        "build-system",
+        "angular"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Sets `useDefineForClassFields: false` which is required for correct Angular decorator semantics; `strictTemplates: true` enables full type-checking in Angular HTML templates."
+    },
+    {
+      "id": "file:.understand-anything/.understandignore",
+      "type": "file",
+      "name": ".understandignore",
+      "filePath": ".understand-anything/.understandignore",
+      "summary": "Gitignore-style pattern file that tells the Understand-Anything scanner which files and directories to exclude from knowledge graph analysis.",
+      "tags": [
+        "configuration",
+        "tooling",
+        "ignore-rules"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:backend/alembic/script.py.mako",
+      "type": "file",
+      "name": "script.py.mako",
+      "filePath": "backend/alembic/script.py.mako",
+      "summary": "Mako template used by Alembic to scaffold new migration script files, providing the standard boilerplate revision metadata and empty upgrade/downgrade function stubs.",
+      "tags": [
+        "database",
+        "migration",
+        "template",
+        "alembic"
+      ],
+      "complexity": "simple",
+      "languageNotes": "Mako template syntax is embedded in a Python skeleton; Alembic renders this file when `alembic revision` is run."
+    },
+    {
+      "id": "file:backend/alembic/versions/0001_initial.py",
+      "type": "file",
+      "name": "0001_initial.py",
+      "filePath": "backend/alembic/versions/0001_initial.py",
+      "summary": "Initial Alembic migration that creates all four core tables — photos, galleries, gallery_photos (join), and admin_users — along with their indexes and foreign-key constraints.",
+      "tags": [
+        "database",
+        "migration",
+        "schema-definition",
+        "alembic"
+      ],
+      "complexity": "moderate"
+    },
+    {
+      "id": "function:backend/alembic/versions/0001_initial.py:upgrade",
+      "type": "function",
+      "name": "upgrade",
+      "filePath": "backend/alembic/versions/0001_initial.py",
+      "lineRange": [
+        19,
+        91
+      ],
+      "summary": "Applies the initial schema by creating the photos, galleries, gallery_photos, and admin_users tables with all columns, indexes, and foreign keys.",
+      "tags": [
+        "database",
+        "migration",
+        "schema-definition"
+      ],
+      "complexity": "complex"
+    },
+    {
+      "id": "function:backend/alembic/versions/0001_initial.py:downgrade",
+      "type": "function",
+      "name": "downgrade",
+      "filePath": "backend/alembic/versions/0001_initial.py",
+      "lineRange": [
+        94,
+        102
+      ],
+      "summary": "Rolls back the initial migration by dropping all four tables and their associated indexes in dependency-safe order.",
+      "tags": [
+        "database",
+        "migration"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "service:docker-compose.yml",
+      "type": "service",
+      "name": "docker-compose.yml",
+      "filePath": "docker-compose.yml",
+      "summary": "Defines the three-service local stack — PostgreSQL (db), FastAPI backend, and Nginx-fronted Angular frontend — wiring them together with environment variables, named volumes, and port mappings.",
+      "tags": [
+        "orchestration",
+        "infrastructure",
+        "containerization",
+        "deployment"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses Docker Compose v3.8; the frontend receives API_BASE_URL at startup and rewrites config.json via an entrypoint script so the Angular SPA can discover the backend URL at runtime."
+    },
+    {
+      "id": "file:frontend/nginx.conf",
+      "type": "file",
+      "name": "nginx.conf",
+      "filePath": "frontend/nginx.conf",
+      "summary": "Nginx server block for the Angular SPA container: disables caching on config.json and index.html, sets immutable long-lived cache headers on hashed assets, and falls back every unknown path to index.html for client-side routing.",
+      "tags": [
+        "infrastructure",
+        "configuration",
+        "serving",
+        "spa-routing"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "config:frontend/src/assets/config.json",
+      "type": "config",
+      "name": "config.json",
+      "filePath": "frontend/src/assets/config.json",
+      "summary": "Runtime configuration file loaded by the Angular app on startup to supply the backend API base URL; overwritten at container start from the API_BASE_URL environment variable so no rebuild is needed.",
+      "tags": [
+        "configuration",
+        "runtime-config",
+        "api-endpoint"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/index.html",
+      "type": "file",
+      "name": "index.html",
+      "filePath": "frontend/src/index.html",
+      "summary": "Angular application shell HTML that sets the page title, viewport meta, loads four Google Fonts families (Space Grotesk, Inter, JetBrains Mono, Caveat), and mounts the root component.",
+      "tags": [
+        "markup",
+        "entry-point",
+        "angular"
+      ],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/styles.scss",
+      "type": "file",
+      "name": "styles.scss",
+      "filePath": "frontend/src/styles.scss",
+      "summary": "Global SCSS stylesheet defining CSS custom properties for the design system (colors, spacing, typography, radius tokens), base resets, shared utility classes, and dark/light theme variables used across all Angular components.",
+      "tags": [
+        "styles",
+        "design-system",
+        "theming",
+        "global-css"
+      ],
+      "complexity": "moderate",
+      "languageNotes": "Uses CSS custom properties (variables) as design tokens and a `prefers-color-scheme` media query for automatic dark/light switching."
+    },
+    {
+      "id": "document:README.md",
+      "type": "document",
+      "name": "README.md",
+      "filePath": "README.md",
+      "summary": "Comprehensive project documentation covering architecture overview, image pipeline, auth flow, data model, local development setup, environment variables, Coolify deployment, API reference, and roadmap across 21 sections.",
+      "tags": [
+        "documentation",
+        "entry-point",
+        "overview",
+        "architecture"
+      ],
+      "complexity": "complex"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:backend/alembic/env.py",
+      "target": "file:backend/app/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/alembic/env.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/alembic/env.py",
+      "target": "file:backend/app/database.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/alembic/env.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/database.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "file:backend/app/database.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "file:backend/app/security.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/imaging.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/database.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/routers/__init__.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/routers/auth.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/routers/galleries.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/routers/photos.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "file:backend/app/security.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "file:backend/app/database.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "file:backend/app/deps.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "file:backend/app/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "file:backend/app/security.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "file:backend/app/deps.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "file:backend/app/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "file:backend/app/serializers.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "file:backend/app/deps.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "file:backend/app/imaging.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "file:backend/app/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "file:backend/app/serializers.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/security.py",
+      "target": "file:backend/app/config.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/serializers.py",
+      "target": "file:backend/app/models.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/app/serializers.py",
+      "target": "file:backend/app/schemas.py",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:backend/alembic/env.py",
+      "target": "function:backend/alembic/env.py:run_migrations_offline",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/alembic/env.py",
+      "target": "function:backend/alembic/env.py:run_migrations_online",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/config.py",
+      "target": "class:backend/app/config.py:Settings",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/config.py",
+      "target": "class:backend/app/config.py:Settings",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "function:backend/app/deps.py:get_db",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "function:backend/app/deps.py:get_current_admin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "function:backend/app/deps.py:get_db",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "function:backend/app/deps.py:get_current_admin",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/imaging.py",
+      "target": "function:backend/app/imaging.py:extract_exif",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/imaging.py",
+      "target": "function:backend/app/imaging.py:process_upload",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/imaging.py",
+      "target": "function:backend/app/imaging.py:extract_exif",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/imaging.py",
+      "target": "function:backend/app/imaging.py:process_upload",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "function:backend/app/main.py:seed_admin",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/main.py",
+      "target": "function:backend/app/main.py:lifespan",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:Photo",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:Gallery",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:GalleryPhoto",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:AdminUser",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:Photo",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:Gallery",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:GalleryPhoto",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/models.py",
+      "target": "class:backend/app/models.py:AdminUser",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "function:backend/app/routers/auth.py:login",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "function:backend/app/routers/auth.py:change_password",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "function:backend/app/routers/galleries.py:list_galleries",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "function:backend/app/routers/galleries.py:get_gallery",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "function:backend/app/routers/galleries.py:create_gallery",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "function:backend/app/routers/galleries.py:update_gallery",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routers/galleries.py",
+      "target": "function:backend/app/routers/galleries.py:reorder_gallery_photos",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "function:backend/app/routers/photos.py:upload_photos",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "function:backend/app/routers/photos.py:update_photo",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "function:backend/app/routers/photos.py:serve_original",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/schemas.py",
+      "target": "class:backend/app/schemas.py:PhotoOut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/schemas.py",
+      "target": "class:backend/app/schemas.py:GalleryOut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/schemas.py",
+      "target": "class:backend/app/schemas.py:GalleryDetailOut",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/schemas.py",
+      "target": "class:backend/app/schemas.py:PhotoOut",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/schemas.py",
+      "target": "class:backend/app/schemas.py:GalleryOut",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/schemas.py",
+      "target": "class:backend/app/schemas.py:GalleryDetailOut",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/security.py",
+      "target": "function:backend/app/security.py:create_access_token",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/security.py",
+      "target": "function:backend/app/security.py:decode_access_token",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/security.py",
+      "target": "function:backend/app/security.py:create_access_token",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/security.py",
+      "target": "function:backend/app/security.py:decode_access_token",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/serializers.py",
+      "target": "function:backend/app/serializers.py:photo_out",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/serializers.py",
+      "target": "function:backend/app/serializers.py:gallery_out",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/app/serializers.py",
+      "target": "function:backend/app/serializers.py:photo_out",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/serializers.py",
+      "target": "function:backend/app/serializers.py:gallery_out",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/routers/photos.py",
+      "target": "function:backend/app/imaging.py:process_upload",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/deps.py",
+      "target": "function:backend/app/security.py:decode_access_token",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/app/routers/auth.py",
+      "target": "function:backend/app/security.py:create_access_token",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-galleries.component.ts",
+      "target": "class:frontend/src/app/admin/admin-galleries.component.ts:AdminGalleriesComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-galleries.component.ts",
+      "target": "class:frontend/src/app/admin/admin-galleries.component.ts:AdminGalleriesComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-galleries.component.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-galleries.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-photos.component.ts",
+      "target": "class:frontend/src/app/admin/admin-photos.component.ts:AdminPhotosComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-photos.component.ts",
+      "target": "class:frontend/src/app/admin/admin-photos.component.ts:AdminPhotosComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-photos.component.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-photos.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-settings.component.ts",
+      "target": "class:frontend/src/app/admin/admin-settings.component.ts:AdminSettingsComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-settings.component.ts",
+      "target": "class:frontend/src/app/admin/admin-settings.component.ts:AdminSettingsComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin-settings.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/components/lightbox.component.ts",
+      "target": "class:frontend/src/app/components/lightbox.component.ts:LightboxComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/components/lightbox.component.ts",
+      "target": "class:frontend/src/app/components/lightbox.component.ts:LightboxComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/components/lightbox.component.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/components/lightbox.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/components/reveal.directive.ts",
+      "target": "class:frontend/src/app/components/reveal.directive.ts:RevealDirective",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/components/reveal.directive.ts",
+      "target": "class:frontend/src/app/components/reveal.directive.ts:RevealDirective",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/pages/galleries.component.ts",
+      "target": "class:frontend/src/app/pages/galleries.component.ts:GalleriesComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/pages/galleries.component.ts",
+      "target": "class:frontend/src/app/pages/galleries.component.ts:GalleriesComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/pages/galleries.component.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/galleries.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "class:frontend/src/app/pages/gallery-detail.component.ts:GalleryDetailComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "class:frontend/src/app/pages/gallery-detail.component.ts:GalleryDetailComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "file:frontend/src/app/components/lightbox.component.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "file:frontend/src/app/components/reveal.directive.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "file:frontend/src/app/services/theme.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/landing.component.ts",
+      "target": "class:frontend/src/app/pages/landing.component.ts:LandingComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/pages/landing.component.ts",
+      "target": "class:frontend/src/app/pages/landing.component.ts:LandingComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/pages/landing.component.ts",
+      "target": "file:frontend/src/app/components/lightbox.component.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/landing.component.ts",
+      "target": "file:frontend/src/app/components/reveal.directive.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/landing.component.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/landing.component.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/services/api.service.ts",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/services/api.service.ts",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/api.service.ts",
+      "target": "file:frontend/src/app/config.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/services/api.service.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/services/theme.service.ts",
+      "target": "class:frontend/src/app/services/theme.service.ts:ThemeService",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/services/theme.service.ts",
+      "target": "class:frontend/src/app/services/theme.service.ts:ThemeService",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/theme.service.ts",
+      "target": "file:frontend/src/app/models.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/pages/gallery-detail.component.ts",
+      "target": "file:frontend/src/app/services/theme.service.ts",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "class:frontend/src/app/admin/admin-galleries.component.ts:AdminGalleriesComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/admin/admin-photos.component.ts:AdminPhotosComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/admin/admin-settings.component.ts:AdminSettingsComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/components/lightbox.component.ts:LightboxComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/pages/galleries.component.ts:GalleriesComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/pages/gallery-detail.component.ts:GalleryDetailComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/pages/gallery-detail.component.ts:GalleryDetailComponent",
+      "target": "class:frontend/src/app/services/theme.service.ts:ThemeService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "class:frontend/src/app/pages/landing.component.ts:LandingComponent",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin.component.ts",
+      "target": "class:frontend/src/app/admin/admin.component.ts:AdminComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin.component.ts",
+      "target": "class:frontend/src/app/admin/admin.component.ts:AdminComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin.component.ts",
+      "target": "file:frontend/src/app/services/auth.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/admin/login.component.ts",
+      "target": "class:frontend/src/app/admin/login.component.ts:LoginComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/admin/login.component.ts",
+      "target": "class:frontend/src/app/admin/login.component.ts:LoginComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/admin/login.component.ts",
+      "target": "file:frontend/src/app/services/auth.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/app.component.ts",
+      "target": "class:frontend/src/app/app.component.ts:AppComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/app.component.ts",
+      "target": "class:frontend/src/app/app.component.ts:AppComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/app.component.ts",
+      "target": "file:frontend/src/app/services/theme.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/app.component.ts",
+      "target": "class:frontend/src/app/services/theme.service.ts:ThemeService",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:frontend/src/app/app.config.ts",
+      "target": "file:frontend/src/app/app.routes.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/app.config.ts",
+      "target": "file:frontend/src/app/services/auth.interceptor.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/app.config.ts",
+      "target": "function:frontend/src/app/services/auth.interceptor.ts:authInterceptor",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:frontend/src/app/app.routes.ts",
+      "target": "file:frontend/src/app/services/auth.guard.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/app.routes.ts",
+      "target": "function:frontend/src/app/services/auth.guard.ts:authGuard",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.guard.ts",
+      "target": "function:frontend/src/app/services/auth.guard.ts:authGuard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.guard.ts",
+      "target": "function:frontend/src/app/services/auth.guard.ts:authGuard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.guard.ts",
+      "target": "file:frontend/src/app/services/auth.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:frontend/src/app/services/auth.guard.ts:authGuard",
+      "target": "class:frontend/src/app/services/auth.service.ts:AuthService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.interceptor.ts",
+      "target": "function:frontend/src/app/services/auth.interceptor.ts:authInterceptor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.interceptor.ts",
+      "target": "function:frontend/src/app/services/auth.interceptor.ts:authInterceptor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.interceptor.ts",
+      "target": "file:frontend/src/app/services/auth.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:frontend/src/app/services/auth.interceptor.ts:authInterceptor",
+      "target": "class:frontend/src/app/services/auth.service.ts:AuthService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.service.ts",
+      "target": "class:frontend/src/app/services/auth.service.ts:AuthService",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.service.ts",
+      "target": "class:frontend/src/app/services/auth.service.ts:AuthService",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.service.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "class:frontend/src/app/services/auth.service.ts:AuthService",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/main.ts",
+      "target": "file:frontend/src/app/app.component.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/main.ts",
+      "target": "file:frontend/src/app/app.config.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/main.ts",
+      "target": "file:frontend/src/app/config.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/main.ts",
+      "target": "class:frontend/src/app/app.component.ts:AppComponent",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "service:backend/Dockerfile",
+      "target": "service:backend/.dockerignore",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "service:frontend/Dockerfile",
+      "target": "service:frontend/Dockerfile:build",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "service:frontend/Dockerfile",
+      "target": "service:frontend/Dockerfile:nginx",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "service:frontend/Dockerfile",
+      "target": "service:frontend/.dockerignore",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:backend/.env.example",
+      "target": "config:backend/alembic.ini",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:backend/start.sh",
+      "target": "config:backend/alembic.ini",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:frontend/tsconfig.app.json",
+      "target": "config:frontend/tsconfig.json",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:frontend/angular.json",
+      "target": "config:frontend/tsconfig.app.json",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:frontend/angular.json",
+      "target": "config:frontend/tsconfig.json",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "config:frontend/package.json",
+      "target": "config:frontend/angular.json",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:frontend/docker-entrypoint.sh",
+      "target": "config:frontend/angular.json",
+      "type": "related",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "file:backend/alembic/versions/0001_initial.py",
+      "target": "function:backend/alembic/versions/0001_initial.py:upgrade",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/alembic/versions/0001_initial.py",
+      "target": "function:backend/alembic/versions/0001_initial.py:downgrade",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1
+    },
+    {
+      "source": "file:backend/alembic/versions/0001_initial.py",
+      "target": "function:backend/alembic/versions/0001_initial.py:upgrade",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:backend/alembic/versions/0001_initial.py",
+      "target": "function:backend/alembic/versions/0001_initial.py:downgrade",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "file:backend/alembic/versions/0001_initial.py",
+      "type": "deploys",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "file:frontend/nginx.conf",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "service:docker-compose.yml",
+      "target": "config:frontend/src/assets/config.json",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:frontend/nginx.conf",
+      "target": "file:frontend/src/index.html",
+      "type": "serves",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/nginx.conf",
+      "target": "config:frontend/src/assets/config.json",
+      "type": "serves",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "config:frontend/src/assets/config.json",
+      "target": "service:docker-compose.yml",
+      "type": "configures",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "document:README.md",
+      "target": "service:docker-compose.yml",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:backend/alembic/versions/0001_initial.py",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    },
+    {
+      "source": "document:README.md",
+      "target": "file:frontend/src/index.html",
+      "type": "documents",
+      "direction": "forward",
+      "weight": 0.5
+    }
+  ],
+  "layers": [
+    {
+      "id": "layer:api",
+      "name": "API Layer",
+      "description": "FastAPI route handlers for auth, gallery CRUD, and photo lifecycle operations — the HTTP interface exposed to the Angular frontend.",
+      "nodeIds": [
+        "file:backend/app/routers/auth.py",
+        "file:backend/app/routers/galleries.py",
+        "file:backend/app/routers/photos.py",
+        "file:backend/app/routers/__init__.py"
+      ]
+    },
+    {
+      "id": "layer:service",
+      "name": "Service Layer",
+      "description": "Cross-cutting backend services (JWT security, Pillow imaging, ORM serialization, FastAPI DI) and Angular client services that mediate between UI components and the REST API.",
+      "nodeIds": [
+        "file:backend/app/deps.py",
+        "file:backend/app/imaging.py",
+        "file:backend/app/security.py",
+        "file:backend/app/serializers.py",
+        "file:frontend/src/app/services/api.service.ts",
+        "file:frontend/src/app/services/auth.service.ts",
+        "file:frontend/src/app/services/theme.service.ts",
+        "file:frontend/src/app/services/auth.guard.ts",
+        "file:frontend/src/app/services/auth.interceptor.ts"
+      ]
+    },
+    {
+      "id": "layer:data",
+      "name": "Data Layer",
+      "description": "SQLAlchemy ORM models, database session factory, Pydantic request/response schemas, and Alembic migration scripts that define and evolve the PostgreSQL schema.",
+      "nodeIds": [
+        "file:backend/app/models.py",
+        "file:backend/app/database.py",
+        "file:backend/app/schemas.py",
+        "file:backend/alembic/env.py",
+        "file:backend/alembic/versions/0001_initial.py",
+        "file:backend/alembic/script.py.mako"
+      ]
+    },
+    {
+      "id": "layer:ui",
+      "name": "UI & Presentation Layer",
+      "description": "Angular components, directives, and styles that render the public photography showcase (landing masonry, gallery pages, lightbox) and the admin panel for content management.",
+      "nodeIds": [
+        "file:frontend/src/app/pages/landing.component.ts",
+        "file:frontend/src/app/pages/galleries.component.ts",
+        "file:frontend/src/app/pages/gallery-detail.component.ts",
+        "file:frontend/src/app/admin/admin.component.ts",
+        "file:frontend/src/app/admin/admin-galleries.component.ts",
+        "file:frontend/src/app/admin/admin-photos.component.ts",
+        "file:frontend/src/app/admin/admin-settings.component.ts",
+        "file:frontend/src/app/admin/login.component.ts",
+        "file:frontend/src/app/components/lightbox.component.ts",
+        "file:frontend/src/app/components/reveal.directive.ts",
+        "file:frontend/src/app/models.ts",
+        "file:frontend/src/styles.scss"
+      ]
+    },
+    {
+      "id": "layer:bootstrap",
+      "name": "Bootstrap & Configuration",
+      "description": "Application entry points and wiring files that assemble the FastAPI app and Angular SPA — including CORS setup, router mounting, route tables, DI providers, and runtime config injection.",
+      "nodeIds": [
+        "file:backend/app/main.py",
+        "file:backend/app/__init__.py",
+        "file:backend/app/config.py",
+        "file:frontend/src/main.ts",
+        "file:frontend/src/app/app.component.ts",
+        "file:frontend/src/app/app.config.ts",
+        "file:frontend/src/app/app.routes.ts",
+        "file:frontend/src/app/config.ts",
+        "file:frontend/src/index.html"
+      ]
+    },
+    {
+      "id": "layer:infrastructure",
+      "name": "Infrastructure",
+      "description": "Docker images for the FastAPI backend and Angular/nginx frontend, docker-compose orchestration of the 3-service stack, nginx SPA serving config, and container startup scripts.",
+      "nodeIds": [
+        "service:backend/Dockerfile",
+        "service:backend/.dockerignore",
+        "service:frontend/Dockerfile",
+        "service:frontend/Dockerfile:build",
+        "service:frontend/Dockerfile:nginx",
+        "service:frontend/.dockerignore",
+        "service:docker-compose.yml",
+        "file:frontend/nginx.conf",
+        "file:backend/start.sh",
+        "file:frontend/docker-entrypoint.sh"
+      ]
+    },
+    {
+      "id": "layer:build-config",
+      "name": "Build & Project Config",
+      "description": "Build toolchain configuration for both the Angular CLI workspace and Python backend — TypeScript compiler options, npm manifest, Angular schematics, Alembic INI, environment templates, and runtime asset config.",
+      "nodeIds": [
+        "config:frontend/angular.json",
+        "config:frontend/package.json",
+        "config:frontend/tsconfig.json",
+        "config:frontend/tsconfig.app.json",
+        "config:frontend/src/assets/config.json",
+        "config:backend/.env.example",
+        "config:backend/alembic.ini",
+        "document:backend/requirements.txt"
+      ]
+    },
+    {
+      "id": "layer:documentation",
+      "name": "Documentation",
+      "description": "Project-level documentation and tooling metadata, including the comprehensive README covering architecture and API reference, and the Understand-Anything scanner ignore rules.",
+      "nodeIds": [
+        "document:README.md",
+        "file:.understand-anything/.understandignore"
+      ]
+    }
+  ],
+  "tour": [
+    {
+      "order": 1,
+      "title": "Architecture Overview",
+      "description": "The README is the best first stop: it maps the entire project — three Docker containers (PostgreSQL, FastAPI, nginx/Angular), the image pipeline from upload to thumbnail, JWT-only admin auth, and the nine gallery layout modes. Reading it gives you the mental model that all subsequent code steps will flesh out.",
+      "nodeIds": [
+        "document:README.md"
+      ]
+    },
+    {
+      "order": 2,
+      "title": "Backend Entry Point",
+      "description": "The FastAPI app factory in main.py is where the backend comes to life. It registers CORS middleware, mounts the three API routers (auth, photos, galleries), seeds the admin user on first boot, and exposes a /health endpoint for Docker health checks. With fan-out of 3 it is the widest node in the backend graph — understanding it means understanding how all backend pieces connect.",
+      "nodeIds": [
+        "file:backend/app/main.py"
+      ],
+      "languageLesson": "FastAPI uses an app factory pattern: you create a FastAPI() instance, attach middleware with app.add_middleware(), and include routers with app.include_router(). This keeps each domain (auth, photos, galleries) in its own file while the factory wires them together at startup."
+    },
+    {
+      "order": 3,
+      "title": "Data Model & Database",
+      "description": "The ORM layer defines four SQLAlchemy models — Photo, Gallery, GalleryPhoto (the join table), and AdminUser — which are the highest fan-in nodes in the backend graph, imported by both the routers and the serializers. The database.py file sits alongside it, providing the engine, session factory, and declarative Base that all models inherit from. Together these two files are the schema of record for the entire application.",
+      "nodeIds": [
+        "file:backend/app/models.py",
+        "file:backend/app/database.py"
+      ],
+      "languageLesson": "SQLAlchemy's declarative Base lets you define tables as Python classes. The session factory (sessionmaker) produces per-request database sessions, and FastAPI's dependency injection system (shown in the next step) closes them automatically after each request."
+    },
+    {
+      "order": 4,
+      "title": "Pydantic Schemas & Config",
+      "description": "schemas.py defines the Pydantic request/response shapes for every endpoint, acting as the public contract between HTTP clients and the backend. config.py uses Pydantic BaseSettings to read all environment variables — DB URL, JWT secret, admin credentials, CORS origins — from the container environment, making the app fully 12-factor configurable. These two files together specify what data the API accepts and what configuration it needs to run.",
+      "nodeIds": [
+        "file:backend/app/schemas.py",
+        "file:backend/app/config.py"
+      ],
+      "languageLesson": "Pydantic BaseSettings reads from environment variables automatically, with optional .env file support. It validates types at import time, so a missing or malformed DATABASE_URL causes a hard startup failure rather than a runtime error buried in a request handler."
+    },
+    {
+      "order": 5,
+      "title": "Security & Dependency Injection",
+      "description": "security.py implements the two cryptographic primitives the app relies on: bcrypt password hashing for the AdminUser and JWT create/decode for session tokens. deps.py wraps these into FastAPI DI callables — get_db() yields a database session and get_current_admin() decodes the Bearer token and raises 401 if invalid. Every protected endpoint declares these as function parameters and FastAPI resolves them automatically.",
+      "nodeIds": [
+        "file:backend/app/security.py",
+        "file:backend/app/deps.py"
+      ],
+      "languageLesson": "FastAPI's Depends() system uses Python generator functions as dependencies. A function that yields (like get_db) can run cleanup code after yield, making it a clean pattern for managing database session lifetimes without try/finally boilerplate in every route handler."
+    },
+    {
+      "order": 6,
+      "title": "Photo & Gallery API Routers",
+      "description": "The three routers are the heart of the API surface. photos.py (fan-out 3) handles the full photo lifecycle — multipart upload, bulk visibility toggle, bulk delete, gallery assignment, EXIF retrieval, and raw file serving. galleries.py handles gallery CRUD and ordering. auth.py exposes login (returns a JWT), /me, and change-password. Each router uses the Depends() callables from deps.py so every mutating endpoint is automatically admin-gated.",
+      "nodeIds": [
+        "file:backend/app/routers/photos.py",
+        "file:backend/app/routers/galleries.py",
+        "file:backend/app/routers/auth.py"
+      ]
+    },
+    {
+      "order": 7,
+      "title": "Image Processing Pipeline",
+      "description": "imaging.py is called by the photos router on every upload and encapsulates two responsibilities: extracting EXIF metadata (camera model, focal length, aperture, GPS) via Pillow/piexif, and generating a thumbnail copy stored alongside the original. This is the pipeline that keeps the public gallery fast — browsers always load thumbnails first and only fetch the full-resolution original when the lightbox opens.",
+      "nodeIds": [
+        "file:backend/app/imaging.py",
+        "file:backend/app/serializers.py"
+      ],
+      "languageLesson": "Pillow's Image.thumbnail() resizes in-place with aspect-ratio preservation. Serializers (serializers.py) sit between SQLAlchemy model instances and Pydantic schemas, converting ORM objects to dicts before Pydantic validation — a common pattern when ORM relationships would cause N+1 queries if left to Pydantic's orm_mode alone."
+    },
+    {
+      "order": 8,
+      "title": "Database Migrations",
+      "description": "The Alembic migration in 0001_initial.py is the authoritative definition of all four database tables as they exist in production. env.py wires the SQLAlchemy metadata and DB URL into Alembic's migration runner. start.sh (the container entrypoint) runs alembic upgrade head before launching uvicorn, so the schema is always in sync with the code on every container restart.",
+      "nodeIds": [
+        "file:backend/alembic/versions/0001_initial.py",
+        "file:backend/alembic/env.py",
+        "file:backend/start.sh"
+      ],
+      "languageLesson": "Alembic migrations are sequential and versioned by hash. Each file has upgrade() and downgrade() functions, making schema changes reversible. Running migrations at container startup (rather than at build time) ensures the database is ready before the first request arrives."
+    },
+    {
+      "order": 9,
+      "title": "Angular Bootstrap & Routing",
+      "description": "main.ts is the Angular entry point — it fetches a runtime config.json to discover the backend URL (injected by the nginx container at startup), then calls bootstrapApplication() with the app config. app.config.ts registers the router and the auth HTTP interceptor globally. app.routes.ts defines the full route table: lazy-loaded public pages and admin components behind an authGuard, so the admin bundle is never downloaded by public visitors.",
+      "nodeIds": [
+        "file:frontend/src/main.ts",
+        "file:frontend/src/app/app.config.ts",
+        "file:frontend/src/app/app.routes.ts",
+        "file:frontend/src/app/config.ts"
+      ],
+      "languageLesson": "Angular 16's standalone bootstrapApplication() replaces NgModule. Routes use loadComponent: () => import('./...').then(m => m.Foo) for lazy loading — each admin chunk is a separate JS bundle fetched only on demand. The runtime config pattern (fetching a JSON file before bootstrap) avoids baking the API URL into the build artifact, which is essential for Docker deployments across environments."
+    },
+    {
+      "order": 10,
+      "title": "Frontend Auth Flow",
+      "description": "auth.service.ts holds the JWT in localStorage and exposes an isAuthed Angular signal that the rest of the app reacts to. auth.interceptor.ts silently attaches the Bearer token to every outgoing HTTP request and auto-logouts on a 401 response. auth.guard.ts protects the /admin routes by checking isAuthed — unauthenticated users are redirected to the login page. These three files form a self-contained auth subsystem that the rest of the frontend depends on but never has to think about.",
+      "nodeIds": [
+        "file:frontend/src/app/services/auth.service.ts",
+        "file:frontend/src/app/services/auth.interceptor.ts",
+        "file:frontend/src/app/services/auth.guard.ts"
+      ],
+      "languageLesson": "Angular signals (introduced in v16) are reactive primitives. isAuthed is a computed signal derived from the stored token — any component that reads it automatically re-renders when it changes. The HttpInterceptor pattern intercepts every HttpClient request through the injection system, keeping auth concerns out of individual service methods."
+    },
+    {
+      "order": 11,
+      "title": "API Service & Shared Models",
+      "description": "api.service.ts is the single Angular service that talks to the FastAPI backend — every public and admin HTTP call goes through it, along with image URL construction helpers that know the difference between thumbnail and original paths. models.ts defines the shared TypeScript interfaces (Photo, Gallery, ExifData) and the GalleryLayout union type that enumerates all nine layout modes. api.service.ts imports models.ts, making this pair the data contract between frontend and backend.",
+      "nodeIds": [
+        "file:frontend/src/app/services/api.service.ts",
+        "file:frontend/src/app/models.ts"
+      ],
+      "languageLesson": "TypeScript discriminated union types (type GalleryLayout = 'masonry' | 'grid' | 'editorial' | ...) give compile-time exhaustiveness checking. A switch statement over GalleryLayout will produce a TypeScript error if a new layout mode is added to the union but not handled in the switch — preventing silent runtime fallbacks."
+    },
+    {
+      "order": 12,
+      "title": "Public Gallery Pages",
+      "description": "landing.component.ts renders the entry page as an infinite-scroll masonry grid of all visible photos, opening the lightbox on click. galleries.component.ts lists all public galleries. gallery-detail.component.ts is the most feature-rich public page: it reads the gallery's layout setting and switches between nine rendering modes (masonry, grid, editorial, slideshow, moodboard, collage, polaroid, filmstrip, marquee) while applying per-gallery theme overrides via theme.service.ts and embedding the lightbox component.",
+      "nodeIds": [
+        "file:frontend/src/app/pages/landing.component.ts",
+        "file:frontend/src/app/pages/galleries.component.ts",
+        "file:frontend/src/app/pages/gallery-detail.component.ts",
+        "file:frontend/src/app/services/theme.service.ts"
+      ]
+    },
+    {
+      "order": 13,
+      "title": "Lightbox & Scroll Reveal",
+      "description": "lightbox.component.ts is a shared UI primitive used by both the landing page and the gallery detail page — it handles full-screen display of the selected photo, keyboard arrow-key navigation, an EXIF metadata side panel (using the data extracted by imaging.py at upload time), lazy loading of the full-resolution image only when opened, and a download button. reveal.directive.ts is a structural Angular directive that uses IntersectionObserver to add a CSS class as each photo card scrolls into view, creating the fade-in animation seen across the site.",
+      "nodeIds": [
+        "file:frontend/src/app/components/lightbox.component.ts",
+        "file:frontend/src/app/components/reveal.directive.ts",
+        "file:frontend/src/styles.scss"
+      ],
+      "languageLesson": "Angular attribute directives (class decorated with @Directive) attach behaviour to host elements without adding DOM nodes. IntersectionObserver is more performant than scroll event listeners because it fires callbacks off the main thread and only when the element actually enters the viewport — ideal for large photo grids with dozens of images."
+    },
+    {
+      "order": 14,
+      "title": "Admin Panel",
+      "description": "The admin panel is a separate lazy-loaded Angular zone behind the authGuard. admin.component.ts provides the shell (navigation tabs, logout). admin-photos.component.ts is the primary workhorse: drag-and-drop upload, bulk visibility toggle, bulk delete, and gallery assignment — all calling the API endpoints from Step 6. admin-galleries.component.ts handles gallery creation, editing (name, description, layout mode, theme, accent color), and ordering. admin-settings.component.ts is a simple password-change form completing the admin-only auth flow from Step 10.",
+      "nodeIds": [
+        "file:frontend/src/app/admin/admin.component.ts",
+        "file:frontend/src/app/admin/admin-photos.component.ts",
+        "file:frontend/src/app/admin/admin-galleries.component.ts",
+        "file:frontend/src/app/admin/admin-settings.component.ts",
+        "file:frontend/src/app/admin/login.component.ts"
+      ]
+    },
+    {
+      "order": 15,
+      "title": "Docker & Deployment",
+      "description": "docker-compose.yml orchestrates the three-container production stack: a PostgreSQL service, the FastAPI backend built from backend/Dockerfile (python:3.11-slim with Pillow native libraries), and the Angular frontend built from frontend/Dockerfile using a two-stage build — Node 18 compiles the Angular app in the builder stage, then nginx:alpine serves the static output and injects the runtime API URL into config.json at container start. nginx.conf configures cache headers: immutable for content-hashed JS/CSS bundles, no-store for index.html and config.json so config changes are picked up immediately.",
+      "nodeIds": [
+        "service:docker-compose.yml",
+        "service:backend/Dockerfile",
+        "service:frontend/Dockerfile",
+        "file:frontend/nginx.conf",
+        "config:backend/.env.example"
+      ],
+      "languageLesson": "The frontend Dockerfile's two-stage build separates concerns: stage 1 has Node, npm, and Angular CLI (several hundred MB) to compile TypeScript; stage 2 copies only the /dist output into a minimal nginx image. The final image is typically under 30MB. The runtime config injection pattern (overwriting a JSON file via an entrypoint script) is the standard Docker-friendly solution to the problem of needing different API URLs per environment without rebuilding the image."
+    }
+  ]
+}

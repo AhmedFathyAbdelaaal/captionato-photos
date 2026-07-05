@@ -4,6 +4,7 @@ from datetime import datetime
 from sqlalchemy import (
     Boolean,
     DateTime,
+    Float,
     ForeignKey,
     Integer,
     String,
@@ -90,6 +91,80 @@ class GalleryPhoto(Base):
 
     gallery: Mapped["Gallery"] = relationship(back_populates="photo_links")
     photo: Mapped["Photo"] = relationship(back_populates="gallery_links")
+
+
+class Collage(Base):
+    """A collage draft/project built in the admin Collage Maker.
+
+    Layer geometry is stored normalized: pos/size are fractions of the canvas
+    width/height (0..1), so the editor (working resolution) and the export
+    renderer (full 1080x1080 / 1080x1920) share the same coordinates.
+    """
+
+    __tablename__ = "collages"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    format: Mapped[str] = mapped_column(String(10), nullable=False)  # story|post
+    background_color: Mapped[str] = mapped_column(
+        String(9), default="#000000", nullable=False
+    )
+    status: Mapped[str] = mapped_column(
+        String(10), default="draft", nullable=False
+    )  # draft|exported
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+    exported_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    layers: Mapped[list["CollageLayer"]] = relationship(
+        back_populates="collage",
+        cascade="all, delete-orphan",
+        order_by="CollageLayer.z_index",
+    )
+
+
+class CollageLayer(Base):
+    __tablename__ = "collage_layers"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    collage_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("collages.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+    # Exactly one of photo_id / one_off_path is set per layer.
+    photo_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("photos.id", ondelete="CASCADE")
+    )
+    one_off_path: Mapped[str | None] = mapped_column(Text)
+
+    pos_x: Mapped[float] = mapped_column(Float, nullable=False)
+    pos_y: Mapped[float] = mapped_column(Float, nullable=False)
+    width: Mapped[float] = mapped_column(Float, nullable=False)
+    height: Mapped[float] = mapped_column(Float, nullable=False)
+    rotation: Mapped[float] = mapped_column(Float, default=0, nullable=False)
+    # Normalized 0-1 crop bounds on the source image.
+    crop_x: Mapped[float] = mapped_column(Float, default=0, nullable=False)
+    crop_y: Mapped[float] = mapped_column(Float, default=0, nullable=False)
+    crop_width: Mapped[float] = mapped_column(Float, default=1, nullable=False)
+    crop_height: Mapped[float] = mapped_column(Float, default=1, nullable=False)
+    border_enabled: Mapped[bool] = mapped_column(
+        Boolean, default=False, nullable=False
+    )
+    z_index: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+
+    collage: Mapped["Collage"] = relationship(back_populates="layers")
+    photo: Mapped["Photo | None"] = relationship()
 
 
 class AdminUser(Base):

@@ -1,0 +1,379 @@
+{
+  "nodes": [
+    {
+      "id": "file:frontend/src/app/admin/admin.component.ts",
+      "type": "file",
+      "name": "admin.component.ts",
+      "filePath": "frontend/src/app/admin/admin.component.ts",
+      "summary": "Standalone Angular admin dashboard component that renders the full admin UI inline (upload, gallery management, photo editing) and provides a logout action that clears authentication and redirects to home.",
+      "tags": ["component", "api-handler", "admin"],
+      "complexity": "complex",
+      "languageNotes": "Uses Angular 16 standalone components with inline template containing the full admin interface."
+    },
+    {
+      "id": "class:frontend/src/app/admin/admin.component.ts:AdminComponent",
+      "type": "class",
+      "name": "AdminComponent",
+      "filePath": "frontend/src/app/admin/admin.component.ts",
+      "lineRange": [134, 141],
+      "summary": "Angular component class for the admin panel; injects AuthService and Router, and exposes a logout method that clears auth state and navigates away.",
+      "tags": ["component", "admin", "api-handler"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/app/admin/login.component.ts",
+      "type": "file",
+      "name": "login.component.ts",
+      "filePath": "frontend/src/app/admin/login.component.ts",
+      "summary": "Standalone Angular login component providing a username/password form that calls AuthService.login, handles busy state and error display, and redirects to the admin panel on success.",
+      "tags": ["component", "validation", "middleware"],
+      "complexity": "moderate",
+      "languageNotes": "Uses Angular signals (signal()) for reactive busy and error state management."
+    },
+    {
+      "id": "class:frontend/src/app/admin/login.component.ts:LoginComponent",
+      "type": "class",
+      "name": "LoginComponent",
+      "filePath": "frontend/src/app/admin/login.component.ts",
+      "lineRange": [106, 128],
+      "summary": "Login form component class with signal-based state for username, password, busy indicator, and error message; submit method delegates to AuthService and navigates to admin on success.",
+      "tags": ["component", "validation", "event-handler"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/app/app.component.ts",
+      "type": "file",
+      "name": "app.component.ts",
+      "filePath": "frontend/src/app/app.component.ts",
+      "summary": "Root Angular application component that tracks the current router URL via a signal and conditionally shows chrome (navbar/footer) based on route, delegating theme switching to ThemeService.",
+      "tags": ["entry-point", "component", "event-handler"],
+      "complexity": "moderate",
+      "languageNotes": "Subscribes to Router NavigationEnd events and stores the URL as a signal to drive conditional template rendering."
+    },
+    {
+      "id": "class:frontend/src/app/app.component.ts:AppComponent",
+      "type": "class",
+      "name": "AppComponent",
+      "filePath": "frontend/src/app/app.component.ts",
+      "lineRange": [85, 95],
+      "summary": "Root app shell class; listens to router events to update a url signal and exposes a showChrome computed property that hides navbar/footer on admin and login routes.",
+      "tags": ["entry-point", "component", "event-handler"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/app/app.config.ts",
+      "type": "file",
+      "name": "app.config.ts",
+      "filePath": "frontend/src/app/app.config.ts",
+      "summary": "Angular application bootstrap configuration that wires up the router with lazy-loaded routes and registers the HTTP client with the authInterceptor for all outgoing requests.",
+      "tags": ["configuration", "middleware", "entry-point"],
+      "complexity": "simple",
+      "languageNotes": "Uses provideHttpClient with withInterceptors for functional-style interceptor registration introduced in Angular 15+."
+    },
+    {
+      "id": "file:frontend/src/app/app.routes.ts",
+      "type": "file",
+      "name": "app.routes.ts",
+      "filePath": "frontend/src/app/app.routes.ts",
+      "summary": "Defines the Angular client-side route table with lazy-loaded components for the gallery, photo lightbox, admin panel, and login page, applying authGuard to the admin route.",
+      "tags": ["configuration", "middleware", "entry-point"],
+      "complexity": "moderate",
+      "languageNotes": "All components are lazily loaded with dynamic import() to reduce the initial bundle size."
+    },
+    {
+      "id": "file:frontend/src/app/config.ts",
+      "type": "file",
+      "name": "config.ts",
+      "filePath": "frontend/src/app/config.ts",
+      "summary": "Exports the APP_CONFIG injection token that carries the runtime API base URL, read from the global window object injected by the Angular server-side config script.",
+      "tags": ["configuration", "utility"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/app/services/auth.guard.ts",
+      "type": "file",
+      "name": "auth.guard.ts",
+      "filePath": "frontend/src/app/services/auth.guard.ts",
+      "summary": "Angular functional route guard that checks AuthService.isAuthed and redirects unauthenticated users to the login page, protecting admin routes.",
+      "tags": ["middleware", "validation", "security"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:frontend/src/app/services/auth.guard.ts:authGuard",
+      "type": "function",
+      "name": "authGuard",
+      "filePath": "frontend/src/app/services/auth.guard.ts",
+      "lineRange": [6, 12],
+      "summary": "Functional route guard that injects AuthService and Router at runtime, returns true when authenticated, or navigates to /admin/login and returns false when not.",
+      "tags": ["middleware", "validation", "security"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/app/services/auth.interceptor.ts",
+      "type": "file",
+      "name": "auth.interceptor.ts",
+      "filePath": "frontend/src/app/services/auth.interceptor.ts",
+      "summary": "Angular functional HTTP interceptor that attaches the Bearer token from AuthService to every outgoing request and automatically logs out and redirects on 401 responses.",
+      "tags": ["middleware", "security", "service"],
+      "complexity": "simple"
+    },
+    {
+      "id": "function:frontend/src/app/services/auth.interceptor.ts:authInterceptor",
+      "type": "function",
+      "name": "authInterceptor",
+      "filePath": "frontend/src/app/services/auth.interceptor.ts",
+      "lineRange": [9, 27],
+      "summary": "Clones the outgoing HTTP request to add an Authorization: Bearer header when a token is present, and catches 401 errors to trigger logout and redirect to login.",
+      "tags": ["middleware", "security", "event-handler"],
+      "complexity": "moderate"
+    },
+    {
+      "id": "file:frontend/src/app/services/auth.service.ts",
+      "type": "file",
+      "name": "auth.service.ts",
+      "filePath": "frontend/src/app/services/auth.service.ts",
+      "summary": "Injectable Angular service managing authentication state via signals; persists the JWT token to localStorage, exposes login and logout methods, and provides reactive isAuthed and token signals.",
+      "tags": ["service", "singleton", "security"],
+      "complexity": "simple",
+      "languageNotes": "Uses Angular signals for reactive token and isAuthed state, initialized from localStorage to survive page refresh."
+    },
+    {
+      "id": "class:frontend/src/app/services/auth.service.ts:AuthService",
+      "type": "class",
+      "name": "AuthService",
+      "filePath": "frontend/src/app/services/auth.service.ts",
+      "lineRange": [10, 32],
+      "summary": "Core authentication service that delegates login to ApiService, stores the returned JWT in a signal and localStorage, and provides logout to clear both.",
+      "tags": ["service", "singleton", "security"],
+      "complexity": "simple"
+    },
+    {
+      "id": "file:frontend/src/main.ts",
+      "type": "file",
+      "name": "main.ts",
+      "filePath": "frontend/src/main.ts",
+      "summary": "Angular application bootstrap entry point that reads runtime config from the global window object and calls bootstrapApplication with AppComponent and appConfig.",
+      "tags": ["entry-point", "configuration"],
+      "complexity": "simple"
+    }
+  ],
+  "edges": [
+    {
+      "source": "file:frontend/src/app/admin/admin.component.ts",
+      "target": "class:frontend/src/app/admin/admin.component.ts:AdminComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin.component.ts",
+      "target": "class:frontend/src/app/admin/admin.component.ts:AdminComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/admin/admin.component.ts",
+      "target": "file:frontend/src/app/services/auth.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/admin/login.component.ts",
+      "target": "class:frontend/src/app/admin/login.component.ts:LoginComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/admin/login.component.ts",
+      "target": "class:frontend/src/app/admin/login.component.ts:LoginComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/admin/login.component.ts",
+      "target": "file:frontend/src/app/services/auth.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/app.component.ts",
+      "target": "class:frontend/src/app/app.component.ts:AppComponent",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/app.component.ts",
+      "target": "class:frontend/src/app/app.component.ts:AppComponent",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/app.component.ts",
+      "target": "file:frontend/src/app/services/theme.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/app.component.ts",
+      "target": "class:frontend/src/app/services/theme.service.ts:ThemeService",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:frontend/src/app/app.config.ts",
+      "target": "file:frontend/src/app/app.routes.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/app.config.ts",
+      "target": "file:frontend/src/app/services/auth.interceptor.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/app.config.ts",
+      "target": "function:frontend/src/app/services/auth.interceptor.ts:authInterceptor",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:frontend/src/app/app.routes.ts",
+      "target": "file:frontend/src/app/services/auth.guard.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/app/app.routes.ts",
+      "target": "function:frontend/src/app/services/auth.guard.ts:authGuard",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.guard.ts",
+      "target": "function:frontend/src/app/services/auth.guard.ts:authGuard",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.guard.ts",
+      "target": "function:frontend/src/app/services/auth.guard.ts:authGuard",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.guard.ts",
+      "target": "file:frontend/src/app/services/auth.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:frontend/src/app/services/auth.guard.ts:authGuard",
+      "target": "class:frontend/src/app/services/auth.service.ts:AuthService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.interceptor.ts",
+      "target": "function:frontend/src/app/services/auth.interceptor.ts:authInterceptor",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.interceptor.ts",
+      "target": "function:frontend/src/app/services/auth.interceptor.ts:authInterceptor",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.interceptor.ts",
+      "target": "file:frontend/src/app/services/auth.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "function:frontend/src/app/services/auth.interceptor.ts:authInterceptor",
+      "target": "class:frontend/src/app/services/auth.service.ts:AuthService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.service.ts",
+      "target": "class:frontend/src/app/services/auth.service.ts:AuthService",
+      "type": "contains",
+      "direction": "forward",
+      "weight": 1.0
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.service.ts",
+      "target": "class:frontend/src/app/services/auth.service.ts:AuthService",
+      "type": "exports",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/app/services/auth.service.ts",
+      "target": "file:frontend/src/app/services/api.service.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "class:frontend/src/app/services/auth.service.ts:AuthService",
+      "target": "class:frontend/src/app/services/api.service.ts:ApiService",
+      "type": "calls",
+      "direction": "forward",
+      "weight": 0.8
+    },
+    {
+      "source": "file:frontend/src/main.ts",
+      "target": "file:frontend/src/app/app.component.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/main.ts",
+      "target": "file:frontend/src/app/app.config.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/main.ts",
+      "target": "file:frontend/src/app/config.ts",
+      "type": "imports",
+      "direction": "forward",
+      "weight": 0.7
+    },
+    {
+      "source": "file:frontend/src/main.ts",
+      "target": "class:frontend/src/app/app.component.ts:AppComponent",
+      "type": "depends_on",
+      "direction": "forward",
+      "weight": 0.6
+    }
+  ]
+}
