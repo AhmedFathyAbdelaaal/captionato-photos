@@ -18,7 +18,7 @@ from .collage_render import FORMAT_DIMS
 from .models import Photo
 
 # Gutter between cells, as a fraction of the canvas width (~9px at 1080).
-GUTTER_FRAC = 0.0085
+GUTTER_FRAC = 0.015
 # A photo this wide (w/h) can be promoted to its own full-width band.
 LANDSCAPE_ASPECT = 1.7
 # Guard so a row of wide photos doesn't collapse to a sliver.
