@@ -36,7 +36,7 @@ from ..schemas import (
     GenerateAutoRequest,
     OneOffUploadOut,
 )
-from ..serializers import collage_detail_out, collage_layer_out, one_off_thumb_name
+from ..serializers import collage_detail_out, collage_layer_out
 
 router = APIRouter(prefix="/collages", tags=["collages"])
 
@@ -59,15 +59,6 @@ def _get_collage(db: Session, collage_id: uuid.UUID) -> Collage:
 
 def _one_off_dir(collage_id: uuid.UUID) -> Path:
     return Path(settings.COLLAGE_ONEOFF_PATH) / str(collage_id)
-
-
-def _delete_one_off_files(layer: CollageLayer) -> None:
-    if not layer.one_off_path:
-        return
-    one_off_abs_path(layer.collage_id, layer.one_off_path).unlink(missing_ok=True)
-    one_off_abs_path(
-        layer.collage_id, one_off_thumb_name(layer.one_off_path)
-    ).unlink(missing_ok=True)
 
 
 def _purge_one_offs(db: Session, collage: Collage) -> None:
@@ -265,7 +256,8 @@ def delete_layer(
     layer = db.get(CollageLayer, layer_id)
     if layer is None or layer.collage_id != collage_id:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Layer not found")
-    _delete_one_off_files(layer)
+    # One-off files are intentionally NOT removed here, so an undo can recreate
+    # this layer. They're cleaned up on export, collage delete, or the sweep.
     layer.collage.updated_at = func.now()
     db.delete(layer)
     db.commit()
