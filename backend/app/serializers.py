@@ -11,6 +11,10 @@ def thumb_url(photo: Photo) -> str:
     return f"/photos/{photo.id}/thumb"
 
 
+def display_url(photo: Photo) -> str:
+    return f"/photos/{photo.id}/display"
+
+
 def original_url(photo: Photo) -> str:
     return f"/photos/{photo.id}/original"
 
@@ -27,6 +31,7 @@ def photo_out(photo: Photo, include_galleries: bool = False) -> PhotoOut:
         exif=photo.exif,
         uploaded_at=photo.uploaded_at,
         thumbnail_url=thumb_url(photo),
+        display_url=display_url(photo),
         original_url=original_url(photo),
         gallery_ids=(
             [link.gallery_id for link in photo.gallery_links]

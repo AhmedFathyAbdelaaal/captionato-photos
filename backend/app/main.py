@@ -51,6 +51,7 @@ async def lifespan(app: FastAPI):
     # Ensure the storage volumes exist, then seed the admin user.
     Path(settings.PHOTOS_ORIGINAL_PATH).mkdir(parents=True, exist_ok=True)
     Path(settings.PHOTOS_THUMB_PATH).mkdir(parents=True, exist_ok=True)
+    Path(settings.PHOTOS_DISPLAY_PATH).mkdir(parents=True, exist_ok=True)
     Path(settings.COLLAGE_ONEOFF_PATH).mkdir(parents=True, exist_ok=True)
     try:
         seed_admin()

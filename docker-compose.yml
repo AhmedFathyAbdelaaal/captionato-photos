@@ -25,6 +25,7 @@ services:
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme}
       PHOTOS_ORIGINAL_PATH: /data/photos/originals
       PHOTOS_THUMB_PATH: /data/photos/thumbs
+      PHOTOS_DISPLAY_PATH: /data/photos/display
       COLLAGE_ONEOFF_PATH: /data/photos/collage-oneoffs
       ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:8080,http://localhost:4200}
     volumes:

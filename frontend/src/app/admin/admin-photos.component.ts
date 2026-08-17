@@ -1,7 +1,15 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, computed, signal } from '@angular/core';
+import {
+  AfterViewInit,
+  Component,
+  ElementRef,
+  HostListener,
+  OnInit,
+  ViewChild,
+  computed,
+  signal,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { forkJoin } from 'rxjs';
 
 import { Gallery, Photo } from '../models';
 import { ApiService } from '../services/api.service';
@@ -41,9 +49,24 @@ import { ApiService } from '../services/api.service';
     </label>
     <p class="err" *ngIf="error()">{{ error() }}</p>
 
+    <!-- Sticky date indicator — how far back you've scrolled -->
+    <div class="date-pill" *ngIf="currentLabel()">
+      <strong>{{ currentLabel() }}</strong>
+      <span>{{ currentBack() }}</span>
+    </div>
+
     <!-- Photo grid -->
-    <div class="grid" [class.has-bar]="selected().size > 0">
-      <article class="card" *ngFor="let p of photos()" [class.picked]="isSelected(p.id)">
+    <div class="grid" [class.has-bar]="selected().size > 0" #grid>
+      <ng-container *ngFor="let p of photos(); let i = index">
+        <div
+          class="month-sep"
+          *ngIf="monthChanged(i)"
+          [attr.data-label]="shortMonth(p)"
+          [attr.data-back]="monthBack(p)"
+        >
+          {{ monthLabel(p) }}
+        </div>
+        <article class="card" [class.picked]="isSelected(p.id)">
         <div class="thumb" [class.hidden]="!p.visible">
           <img
             [src]="api.imageUrl(p.thumbnail_url)"
@@ -85,8 +108,16 @@ import { ApiService } from '../services/api.service';
             <button class="btn-ghost danger" (click)="remove(p)">Delete</button>
           </div>
         </div>
-      </article>
+        </article>
+      </ng-container>
+
+      <!-- Skeleton shimmer cards while the next batch loads -->
+      <article class="card skel" *ngFor="let s of skeletons()"></article>
     </div>
+
+    <p class="end-hint muted" *ngIf="allLoaded() && photos().length > 0">
+      That's all {{ total() }} photos.
+    </p>
 
     <p class="muted" *ngIf="!loading() && photos().length === 0">
       No photos yet — add some above.
@@ -178,6 +209,89 @@ import { ApiService } from '../services/api.service';
       }
       .grid.has-bar {
         padding-bottom: 5rem; /* clear the fixed bulk bar */
+      }
+      /* Full-width month divider inside the grid flow. */
+      .month-sep {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: center;
+        gap: 0.8rem;
+        margin: 0.8rem 0 0.2rem;
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: 1.05rem;
+        color: var(--color-ink);
+      }
+      .month-sep::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: var(--color-border);
+      }
+      /* Sticky "how far back" indicator. */
+      .date-pill {
+        position: fixed;
+        top: 50%;
+        right: clamp(0.5rem, 2vw, 1.5rem);
+        transform: translateY(-50%);
+        z-index: 35;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 0.1rem;
+        padding: 0.5rem 0.8rem;
+        background: color-mix(in srgb, var(--color-surface) 90%, transparent);
+        backdrop-filter: blur(8px);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        pointer-events: none;
+        box-shadow: 0 6px 24px rgba(0, 0, 0, 0.12);
+      }
+      .date-pill strong {
+        font-family: var(--font-display);
+        font-size: 0.9rem;
+      }
+      .date-pill span {
+        font-size: 0.72rem;
+        color: var(--color-muted);
+      }
+      /* Skeleton shimmer placeholders. */
+      .card.skel {
+        aspect-ratio: 1;
+        background: var(--color-surface);
+        position: relative;
+        overflow: hidden;
+      }
+      .card.skel::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(128, 128, 128, 0.14),
+          transparent
+        );
+        transform: translateX(-100%);
+        animation: shimmer 1.3s infinite;
+      }
+      @keyframes shimmer {
+        100% {
+          transform: translateX(100%);
+        }
+      }
+      .end-hint {
+        text-align: center;
+        padding: 2rem;
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+      }
+      @media (max-width: 720px) {
+        .date-pill {
+          top: auto;
+          bottom: 4.5rem;
+          transform: none;
+        }
       }
       .card {
         background: var(--color-surface);
@@ -354,16 +468,39 @@ import { ApiService } from '../services/api.service';
     `,
   ],
 })
-export class AdminPhotosComponent implements OnInit {
+export class AdminPhotosComponent implements OnInit, AfterViewInit {
+  @ViewChild('grid') gridRef?: ElementRef<HTMLElement>;
+
   photos = signal<Photo[]>([]);
   galleries = signal<Gallery[]>([]);
   total = signal(0);
   loading = signal(true);
+  loadingMore = signal(false);
+  allLoaded = signal(false);
   uploading = signal(false);
   uploadCount = signal(0);
   dragOver = signal(false);
   editing = signal<string | null>(null);
   error = signal('');
+
+  // Timeline
+  currentLabel = signal('');
+  currentBack = signal('');
+
+  // Infinite scroll
+  private page = 1;
+  private pageSize = 40;
+  private skelCount = 12;
+  private seen = new Set<string>();
+  private ticking = false;
+  skeletons = computed(() =>
+    this.loadingMore() ? Array.from({ length: this.skelCount }, (_, i) => i) : [],
+  );
+
+  private readonly MONTHS = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December',
+  ];
 
   // Bulk selection
   selected = signal<Set<string>>(new Set());
@@ -378,18 +515,123 @@ export class AdminPhotosComponent implements OnInit {
   constructor(public api: ApiService) {}
 
   ngOnInit(): void {
-    forkJoin({
-      photos: this.api.getAdminPhotos(1, 200),
-      galleries: this.api.getGalleries(),
-    }).subscribe({
-      next: ({ photos, galleries }) => {
-        this.photos.set(photos.items);
-        this.total.set(photos.total);
-        this.galleries.set(galleries);
-        this.loading.set(false);
-      },
-      error: () => this.loading.set(false),
+    this.api.getGalleries().subscribe({
+      next: (galleries) => this.galleries.set(galleries),
     });
+  }
+
+  ngAfterViewInit(): void {
+    // Size each page to ~5 rows of the actual grid, then load the first page.
+    this.pageSize = this.computePageSize();
+    this.skelCount = Math.max(6, this.pageSize / 2);
+    this.loadMore();
+  }
+
+  /** Columns × 5 rows, from the measured grid width (falls back to 40). */
+  private computePageSize(): number {
+    const el = this.gridRef?.nativeElement;
+    const width = el?.clientWidth ?? 0;
+    if (!width) return 40;
+    const minCol = 150;
+    const gap = 12.8; // 0.8rem
+    const cols = Math.max(2, Math.floor((width + gap) / (minCol + gap)));
+    return Math.min(120, cols * 5);
+  }
+
+  private loadMore(): void {
+    if (this.loadingMore() || this.allLoaded()) return;
+    this.loadingMore.set(true);
+    this.api.getAdminPhotos(this.page, this.pageSize).subscribe({
+      next: (res) => {
+        this.total.set(res.total);
+        // Dedupe guard: never render a photo id twice, whatever the paging does.
+        const fresh = res.items.filter((p) => !this.seen.has(p.id));
+        fresh.forEach((p) => this.seen.add(p.id));
+        this.photos.update((cur) => [...cur, ...fresh]);
+        this.page += 1;
+        if (this.photos().length >= res.total || res.items.length === 0) {
+          this.allLoaded.set(true);
+        }
+        this.loading.set(false);
+        this.loadingMore.set(false);
+        // First fill often doesn't reach the fold — top up, and set the pill.
+        setTimeout(() => {
+          this.updateSticky();
+          this.maybeLoadMore();
+        });
+      },
+      error: () => {
+        this.error.set('Could not load photos.');
+        this.loading.set(false);
+        this.loadingMore.set(false);
+      },
+    });
+  }
+
+  private maybeLoadMore(): void {
+    const nearBottom =
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 700;
+    if (nearBottom) this.loadMore();
+  }
+
+  @HostListener('window:scroll')
+  onScroll(): void {
+    if (this.ticking) return;
+    this.ticking = true;
+    requestAnimationFrame(() => {
+      this.updateSticky();
+      this.maybeLoadMore();
+      this.ticking = false;
+    });
+  }
+
+  // ── Timeline helpers ──
+  private ym(iso: string): [number, number] {
+    const d = new Date(iso);
+    return [d.getFullYear(), d.getMonth()];
+  }
+  monthChanged(i: number): boolean {
+    const list = this.photos();
+    if (i === 0) return true;
+    const [y1, m1] = this.ym(list[i].uploaded_at);
+    const [y0, m0] = this.ym(list[i - 1].uploaded_at);
+    return y1 !== y0 || m1 !== m0;
+  }
+  monthLabel(p: Photo): string {
+    const [y, m] = this.ym(p.uploaded_at);
+    return `${this.MONTHS[m]} ${y}`;
+  }
+  shortMonth(p: Photo): string {
+    const [y, m] = this.ym(p.uploaded_at);
+    return `${this.MONTHS[m].slice(0, 3)} ${y}`;
+  }
+  monthBack(p: Photo): string {
+    const [y, m] = this.ym(p.uploaded_at);
+    const now = new Date();
+    const months = (now.getFullYear() - y) * 12 + (now.getMonth() - m);
+    if (months <= 0) return 'this month';
+    if (months === 1) return '1 month back';
+    if (months < 12) return `${months} months back`;
+    const years = Math.round((months / 12) * 10) / 10;
+    return `~${years} yr back`;
+  }
+
+  /** Reflect the topmost month divider that has scrolled past the header. */
+  private updateSticky(): void {
+    const seps = Array.from(
+      document.querySelectorAll<HTMLElement>('.month-sep'),
+    );
+    if (!seps.length) {
+      this.currentLabel.set('');
+      return;
+    }
+    let active = seps[0];
+    for (const s of seps) {
+      if (s.getBoundingClientRect().top <= 96) active = s;
+      else break;
+    }
+    this.currentLabel.set(active.dataset['label'] ?? '');
+    this.currentBack.set(active.dataset['back'] ?? '');
   }
 
   // ── Upload ──
@@ -412,6 +654,7 @@ export class AdminPhotosComponent implements OnInit {
     this.error.set('');
     this.api.uploadPhotos(files).subscribe({
       next: (created) => {
+        created.forEach((p) => this.seen.add(p.id));
         this.photos.update((cur) => [...created, ...cur]);
         this.total.update((t) => t + created.length);
         this.uploading.set(false);
@@ -461,6 +704,7 @@ export class AdminPhotosComponent implements OnInit {
     if (!confirm(`Delete ${ids.length} photo(s)? This cannot be undone.`)) return;
     this.api.bulkDelete(ids).subscribe(() => {
       const set = new Set(ids);
+      ids.forEach((id) => this.seen.delete(id));
       this.photos.update((cur) => cur.filter((p) => !set.has(p.id)));
       this.total.update((t) => t - ids.length);
       this.clearSelection();
@@ -535,6 +779,7 @@ export class AdminPhotosComponent implements OnInit {
   remove(p: Photo): void {
     if (!confirm(`Delete "${p.title || p.filename}"? This cannot be undone.`)) return;
     this.api.deletePhoto(p.id).subscribe(() => {
+      this.seen.delete(p.id);
       this.photos.update((cur) => cur.filter((x) => x.id !== p.id));
       this.total.update((t) => t - 1);
       this.editing.set(null);

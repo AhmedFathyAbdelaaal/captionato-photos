@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from ..config import settings
 from ..deps import get_current_admin, get_db
-from ..imaging import process_upload
+from ..imaging import generate_display, process_upload
 from ..models import Gallery, GalleryPhoto, Photo
 from ..schemas import (
     BulkAddGalleries,
@@ -34,6 +34,14 @@ router = APIRouter(prefix="/photos", tags=["photos"])
 ALLOWED_EXT = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"}
 
 
+def _delete_photo_files(photo: Photo) -> None:
+    """Remove a photo's original, thumbnail, and display files from disk."""
+    Path(photo.original_path).unlink(missing_ok=True)
+    Path(photo.thumb_path).unlink(missing_ok=True)
+    if photo.display_path:
+        Path(photo.display_path).unlink(missing_ok=True)
+
+
 def _paginate(
     db: Session, stmt, page: int, page_size: int, include_galleries: bool = False
 ) -> PhotoPage:
@@ -41,7 +49,10 @@ def _paginate(
     if include_galleries:
         stmt = stmt.options(selectinload(Photo.gallery_links))
     rows = db.scalars(
-        stmt.order_by(Photo.uploaded_at.desc())
+        # id is a stable, unique tiebreaker — without it, photos sharing an
+        # uploaded_at (a whole upload batch gets one timestamp) order
+        # unpredictably across pages, so OFFSET paging repeats/skips rows.
+        stmt.order_by(Photo.uploaded_at.desc(), Photo.id.desc())
         .offset((page - 1) * page_size)
         .limit(page_size)
     ).all()
@@ -84,8 +95,10 @@ def upload_photos(
 ):
     originals_dir = Path(settings.PHOTOS_ORIGINAL_PATH)
     thumbs_dir = Path(settings.PHOTOS_THUMB_PATH)
+    display_dir = Path(settings.PHOTOS_DISPLAY_PATH)
     originals_dir.mkdir(parents=True, exist_ok=True)
     thumbs_dir.mkdir(parents=True, exist_ok=True)
+    display_dir.mkdir(parents=True, exist_ok=True)
 
     created: list[Photo] = []
     for upload in files:
@@ -99,6 +112,7 @@ def upload_photos(
         photo_id = uuid.uuid4()
         original_abs = originals_dir / f"{photo_id}{ext}"
         thumb_abs = thumbs_dir / f"{photo_id}.jpg"
+        display_abs = display_dir / f"{photo_id}.jpg"
 
         # Stream to disk in chunks so a 25MB+ file never sits fully in memory.
         with original_abs.open("wb") as out:
@@ -113,11 +127,21 @@ def upload_photos(
                 detail=f"Could not process image {upload.filename}: {exc}",
             ) from exc
 
+        # The display derivative is non-critical: if it fails, leave it null and
+        # let the /display endpoint regenerate it lazily later.
+        display_path: str | None = None
+        try:
+            generate_display(original_abs, display_abs)
+            display_path = str(display_abs)
+        except Exception as exc:  # noqa: BLE001
+            print(f"[captionato] display derivative failed for {photo_id}: {exc}")
+
         photo = Photo(
             id=photo_id,
             filename=upload.filename or f"{photo_id}{ext}",
             original_path=str(original_abs),
             thumb_path=str(thumb_abs),
+            display_path=display_path,
             exif=exif or None,
             width=width,
             height=height,
@@ -156,8 +180,7 @@ def bulk_delete(
 ):
     photos = db.scalars(select(Photo).where(Photo.id.in_(body.photo_ids))).all()
     for photo in photos:
-        Path(photo.original_path).unlink(missing_ok=True)
-        Path(photo.thumb_path).unlink(missing_ok=True)
+        _delete_photo_files(photo)
         db.delete(photo)
     db.commit()
 
@@ -236,9 +259,7 @@ def delete_photo(
     photo = db.get(Photo, photo_id)
     if photo is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Photo not found")
-    # Remove files from disk; ignore if already gone.
-    Path(photo.original_path).unlink(missing_ok=True)
-    Path(photo.thumb_path).unlink(missing_ok=True)
+    _delete_photo_files(photo)
     db.delete(photo)
     db.commit()
 
@@ -260,6 +281,37 @@ def serve_thumb(photo_id: uuid.UUID, db: Session = Depends(get_db)):
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Thumbnail not found")
     return FileResponse(
         photo.thumb_path,
+        media_type="image/jpeg",
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )
+
+
+@router.get("/{photo_id}/display")
+def serve_display(photo_id: uuid.UUID, db: Session = Depends(get_db)):
+    """The lightbox image: a ~2560px derivative. Generated on upload; for older
+    photos (or if generation failed) it's created lazily on first request and
+    the path cached. Falls back to the original if it can't be produced."""
+    photo = db.get(Photo, photo_id)
+    if photo is None or not Path(photo.original_path).exists():
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Photo not found")
+
+    display_path = photo.display_path
+    if not display_path or not Path(display_path).exists():
+        display_abs = Path(settings.PHOTOS_DISPLAY_PATH) / f"{photo.id}.jpg"
+        try:
+            generate_display(Path(photo.original_path), display_abs)
+            photo.display_path = str(display_abs)
+            db.commit()
+            display_path = str(display_abs)
+        except Exception as exc:  # noqa: BLE001 — fall back to the original
+            print(f"[captionato] lazy display gen failed for {photo.id}: {exc}")
+            return FileResponse(
+                photo.original_path,
+                headers={"Cache-Control": "public, max-age=31536000, immutable"},
+            )
+
+    return FileResponse(
+        display_path,
         media_type="image/jpeg",
         headers={"Cache-Control": "public, max-age=31536000, immutable"},
     )

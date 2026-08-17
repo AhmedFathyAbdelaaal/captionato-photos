@@ -35,6 +35,7 @@ class PhotoOut(BaseModel):
     exif: dict | None = None
     uploaded_at: datetime
     thumbnail_url: str
+    display_url: str
     original_url: str
     # Populated only in the admin listing so the editor can pre-check galleries.
     gallery_ids: list[uuid.UUID] | None = None

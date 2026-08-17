@@ -26,6 +26,8 @@ class Photo(Base):
     filename: Mapped[str] = mapped_column(Text, nullable=False)
     original_path: Mapped[str] = mapped_column(Text, nullable=False)
     thumb_path: Mapped[str] = mapped_column(Text, nullable=False)
+    # ~2560px lightbox derivative; nullable + generated lazily for old photos.
+    display_path: Mapped[str | None] = mapped_column(Text)
     title: Mapped[str | None] = mapped_column(Text)
     caption: Mapped[str | None] = mapped_column(Text)
     visible: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)

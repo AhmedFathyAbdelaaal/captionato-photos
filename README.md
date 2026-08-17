@@ -86,16 +86,25 @@ When you upload in the admin panel (`backend/app/routers/photos.py` →
    `ImageOps.exif_transpose`.
 5. The thumbnail's dimensions are stored as `width`/`height` — used by the
    masonry grid to size cells *before* the image loads (no layout shift).
-6. EXIF strings are **sanitised** before storing (see the NUL-byte gotcha below).
+6. A **display derivative** (long edge ≤ `DISPLAY_MAX_EDGE`, default 2560px,
+   progressive JPEG q88) is written to `PHOTOS_DISPLAY_PATH` as `<uuid>.jpg`.
+   This is what the lightbox shows — high quality but a fraction of the
+   original's weight — so viewing a photo never pulls the full file. It's
+   non-critical: a failure just leaves `display_path` null and it's regenerated
+   lazily on first `/display` request (which also backfills older photos).
+7. EXIF strings are **sanitised** before storing (see the NUL-byte gotcha below).
 
-Originals are **never modified**. Thumbnails are only for fast grids/preview.
+Originals are **never modified**. Thumbnails are for grids; the display
+derivative is for the lightbox; the original is only ever the download target.
 
 ### Image serving
 
 - `GET /photos/{id}/thumb` → the thumbnail (long-cache headers).
-- `GET /photos/{id}/original` → the untouched original, served **inline** for
-  display in the lightbox.
-- `GET /photos/{id}/original?download=1` → same file but with a
+- `GET /photos/{id}/display` → the ~2560px display derivative for the lightbox
+  (generated on upload; lazily created + cached on first request for older
+  photos, falling back to the original if it can't be produced).
+- `GET /photos/{id}/original` → the untouched original, served **inline**.
+- `GET /photos/{id}/original?download=1` → same file with a
   `Content-Disposition: attachment` header so the browser downloads it with the
   real filename. This powers the lightbox "Download original" button.
 
@@ -145,7 +154,8 @@ photos
   id             UUID  PK
   filename       text          -- original upload name (for display/download)
   original_path  text          -- absolute path on the volume
-  thumb_path     text
+  thumb_path     text          -- ≤1600px grid/preview thumbnail
+  display_path   text  null    -- ≤2560px lightbox derivative (lazy for old rows)
   title          text  null
   caption        text  null
   visible        bool  = true  -- shown on the landing archive
@@ -316,10 +326,12 @@ docker compose up --build             # frontend :8080, backend :8000, postgres
 | `ADMIN_PASSWORD` | Initial admin password (bcrypt-hashed on seed) | `your-password` |
 | `PHOTOS_ORIGINAL_PATH` | Volume path for originals | `/data/photos/originals` |
 | `PHOTOS_THUMB_PATH` | Volume path for thumbnails | `/data/photos/thumbs` |
+| `PHOTOS_DISPLAY_PATH` | Volume path for lightbox derivatives | `/data/photos/display` |
 | `COLLAGE_ONEOFF_PATH` | Volume path for one-off collage images | `/data/photos/collage-oneoffs` |
 | `ALLOWED_ORIGINS` | Comma-separated CORS origins | `https://photos.captionato.tech,http://localhost:4200` |
 
-Optional: `THUMB_MAX_EDGE` (default 1600), `JWT_EXPIRE_MINUTES` (default 1 week),
+Optional: `THUMB_MAX_EDGE` (default 1600), `DISPLAY_MAX_EDGE` (default 2560),
+`JWT_EXPIRE_MINUTES` (default 1 week),
 `COLLAGE_SWEEP_DAYS` (default 30), `COLLAGE_EXPORT_QUALITY` (default 92),
 `COLLAGE_BORDER_COLOR` (default `#B23A52`).
 
@@ -393,6 +405,7 @@ Real issues hit while shipping this — documented so you don't re-hit them:
 | PATCH | `/photos/{id}` | ✔ | Title / caption / visibility / gallery membership |
 | DELETE | `/photos/{id}` | ✔ | Delete photo + files |
 | GET | `/photos/{id}/thumb` | – | Thumbnail |
+| GET | `/photos/{id}/display` | – | ~2560px lightbox derivative (lazy-generated) |
 | GET | `/photos/{id}/original` | – | Original (inline; `?download=1` to download) |
 | GET | `/photos/{id}/exif` | – | EXIF JSON |
 | GET | `/galleries` | – | Gallery index (with cover + count) |
@@ -420,12 +433,10 @@ Real issues hit while shipping this — documented so you don't re-hit them:
 
 ## Roadmap
 
-- **Three-size image logic** *(planned)*: add a display-resolution derivative
-  (~2560px, ~1–2MB) generated on upload for the lightbox, so large originals
-  don't have to download in full just to be viewed. Thumbnails stay for grids;
-  the true original is reserved for the download button. Needs a `/display`
-  endpoint, a DB column for the derivative path, and a one-time backfill of
-  existing photos.
+- **Three-size image logic** *(done)*: a ~2560px display derivative is generated
+  on upload and served to the lightbox (`/photos/{id}/display`); thumbnails stay
+  for grids and the original is reserved for download. Older photos backfill
+  lazily on first request — no batch job needed. See the image pipeline above.
 - Mobile responsiveness audit (masonry, lightbox, admin).
 - Photo migration from the previous Next.js gallery.
 

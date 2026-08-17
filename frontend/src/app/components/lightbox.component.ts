@@ -17,9 +17,10 @@ interface ExifRow {
   value: string;
 }
 
-/** Full-screen overlay shared by the landing + gallery views. The thumbnail is
- *  shown instantly (blurred) as a placeholder; a spinner runs while the full
- *  resolution original downloads, then it fades in over the thumbnail. */
+/** Full-screen overlay shared by the landing + gallery views. Shows a skeleton
+ *  while the ~2560px display derivative loads (a fraction of the original's
+ *  weight), then fades it in. The true original is reserved for the download
+ *  button. */
 @Component({
   selector: 'app-lightbox',
   standalone: true,
@@ -42,7 +43,7 @@ interface ExifRow {
             [style.aspectRatio]="ratio()"
           >
             <span class="spinner"></span>
-            <span class="loading-label mono">loading full resolution…</span>
+            <span class="loading-label mono">loading…</span>
           </div>
 
           <!-- Full-resolution original. -->
@@ -331,10 +332,10 @@ export class LightboxComponent implements OnChanges {
     return this.photos[this.index];
   }
 
-  /** Full-res src, with a cache-busting suffix once the user hits retry so the
-   *  browser actually re-requests a previously-failed image. */
+  /** Display-derivative src, with a cache-busting suffix once the user hits
+   *  retry so the browser actually re-requests a previously-failed image. */
   fullSrc(): string {
-    const url = this.api.imageUrl(this.current.original_url);
+    const url = this.api.imageUrl(this.current.display_url);
     return this.retryCount() ? `${url}?r=${this.retryCount()}` : url;
   }
 

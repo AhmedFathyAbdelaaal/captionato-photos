@@ -21,6 +21,7 @@ export interface Photo {
   exif?: Exif | null;
   uploaded_at: string;
   thumbnail_url: string;
+  display_url: string; // ~2560px lightbox derivative
   original_url: string;
   gallery_ids?: string[] | null; // admin listing only
 }

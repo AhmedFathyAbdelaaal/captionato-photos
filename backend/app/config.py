@@ -24,7 +24,11 @@ class Settings(BaseSettings):
     # ── Image storage (mapped to a Coolify persistent volume) ──
     PHOTOS_ORIGINAL_PATH: str = "/data/photos/originals"
     PHOTOS_THUMB_PATH: str = "/data/photos/thumbs"
+    PHOTOS_DISPLAY_PATH: str = "/data/photos/display"
     THUMB_MAX_EDGE: int = 1600  # longest-edge px for grid/lightbox thumbnails
+    # Longest-edge px for the lightbox "display" derivative — high quality but a
+    # fraction of the original's weight, so viewing never pulls the full file.
+    DISPLAY_MAX_EDGE: int = 2560
 
     # ── Collage maker ──
     # One-off collage images (not part of the permanent library) live here,

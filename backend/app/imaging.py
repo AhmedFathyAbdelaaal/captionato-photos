@@ -107,6 +107,45 @@ def extract_exif(img: Image.Image) -> dict:
     }
 
 
+def _downscale_jpeg(
+    original_abs: Path, out_abs: Path, max_edge: int, quality: int, progressive: bool
+) -> tuple[int, int]:
+    """Write a downscaled, orientation-correct JPEG of `original_abs` bounded to
+    `max_edge` on its longest side, and return the output's (width, height).
+
+    Memory-light: `draft()` lets the JPEG decoder load at a reduced scale so a
+    high-megapixel photo never expands to its full raster in RAM. Never upscales
+    (a small original just yields a same-size derivative).
+    """
+    out_abs.parent.mkdir(parents=True, exist_ok=True)
+    with Image.open(original_abs) as img:
+        img.draft("RGB", (max_edge, max_edge))
+        im = ImageOps.exif_transpose(img)  # decodes + honours orientation
+        im.thumbnail((max_edge, max_edge), Image.LANCZOS)
+        size = im.size
+        if im.mode in ("RGBA", "P", "LA"):
+            im = im.convert("RGB")
+        im.save(
+            out_abs,
+            format="JPEG",
+            quality=quality,
+            optimize=True,
+            progressive=progressive,
+        )
+    return size
+
+
+def generate_display(original_abs: Path, display_abs: Path) -> tuple[int, int]:
+    """Create the ~2560px lightbox derivative from an original. Returns its size."""
+    return _downscale_jpeg(
+        original_abs,
+        display_abs,
+        settings.DISPLAY_MAX_EDGE,
+        quality=88,
+        progressive=True,
+    )
+
+
 def process_upload(original_abs: Path, thumb_abs: Path) -> tuple[dict, int | None, int | None]:
     """Given an already-saved original, generate its thumbnail and return
     (exif_dict, width, height). The original file is never modified.
@@ -115,25 +154,14 @@ def process_upload(original_abs: Path, thumb_abs: Path) -> tuple[dict, int | Non
     decode), and `draft()` lets the JPEG decoder downscale during decode so a
     high-megapixel photo never expands to its full raster in RAM.
     """
-    thumb_abs.parent.mkdir(parents=True, exist_ok=True)
     edge = settings.THUMB_MAX_EDGE
-
     with Image.open(original_abs) as img:
         # Read from headers before any decode — cheap and full-resolution.
         exif = extract_exif(img)
 
-        # Ask the (JPEG) decoder to load at a reduced scale near the thumb size.
-        # No-op for formats that don't support it; harmless either way.
-        img.draft("RGB", (edge, edge))
-
-        thumb = ImageOps.exif_transpose(img)  # decodes + honours orientation
-        thumb.thumbnail((edge, edge), Image.LANCZOS)
-        # The thumbnail's dimensions carry the (orientation-correct) aspect
-        # ratio the masonry grid needs.
-        width, height = thumb.size
-
-        if thumb.mode in ("RGBA", "P", "LA"):
-            thumb = thumb.convert("RGB")
-        thumb.save(thumb_abs, format="JPEG", quality=85, optimize=True)
-
+    # The thumbnail's dimensions carry the (orientation-correct) aspect ratio
+    # the masonry grid needs.
+    width, height = _downscale_jpeg(
+        original_abs, thumb_abs, edge, quality=85, progressive=False
+    )
     return exif, width, height
