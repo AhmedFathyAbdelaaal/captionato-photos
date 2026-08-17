@@ -4,6 +4,7 @@ Originals are stored untouched (the old site's "no compression, ever" value is
 preserved). Thumbnails are downscaled to a long-edge bound for fast grids and
 lightbox display; full-res is only ever served from the original.
 """
+from datetime import datetime
 from fractions import Fraction
 from pathlib import Path
 
@@ -144,6 +145,23 @@ def generate_display(original_abs: Path, display_abs: Path) -> tuple[int, int]:
         quality=88,
         progressive=True,
     )
+
+
+def parse_exif_taken(exif: dict | None) -> "datetime | None":
+    """Turn a stored EXIF `date_taken` string into a datetime, or None. EXIF
+    uses `YYYY:MM:DD HH:MM:SS`; we also accept the dash variant some cameras
+    write."""
+    if not exif:
+        return None
+    raw = exif.get("date_taken")
+    if not isinstance(raw, str) or not raw.strip():
+        return None
+    for fmt in ("%Y:%m:%d %H:%M:%S", "%Y-%m-%d %H:%M:%S"):
+        try:
+            return datetime.strptime(raw.strip(), fmt)
+        except ValueError:
+            continue
+    return None
 
 
 def process_upload(original_abs: Path, thumb_abs: Path) -> tuple[dict, int | None, int | None]:

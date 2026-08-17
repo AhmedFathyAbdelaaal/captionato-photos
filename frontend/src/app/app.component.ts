@@ -19,7 +19,7 @@ import { ThemeService } from './services/theme.service';
     <header class="chrome" *ngIf="showChrome()">
       <a routerLink="/" class="brand">captionato<span>photos</span></a>
       <nav>
-        <a routerLink="/" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">archive</a>
+        <a routerLink="/portfolio" routerLinkActive="active">portfolio</a>
         <a routerLink="/galleries" routerLinkActive="active">galleries</a>
         <button class="toggle" (click)="theme.toggle()" [attr.aria-label]="'Toggle theme'">
           {{ theme.mode() === 'dark' ? '☾' : '☀' }}

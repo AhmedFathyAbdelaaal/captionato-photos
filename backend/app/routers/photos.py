@@ -17,7 +17,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from ..config import settings
 from ..deps import get_current_admin, get_db
-from ..imaging import generate_display, process_upload
+from ..imaging import generate_display, parse_exif_taken, process_upload
 from ..models import Gallery, GalleryPhoto, Photo
 from ..schemas import (
     BulkAddGalleries,
@@ -43,16 +43,28 @@ def _delete_photo_files(photo: Photo) -> None:
 
 
 def _paginate(
-    db: Session, stmt, page: int, page_size: int, include_galleries: bool = False
+    db: Session,
+    stmt,
+    page: int,
+    page_size: int,
+    include_galleries: bool = False,
+    sort: str = "taken",
 ) -> PhotoPage:
     total = db.scalar(select(func.count()).select_from(stmt.subquery()))
     if include_galleries:
         stmt = stmt.options(selectinload(Photo.gallery_links))
+    # "taken" sorts by capture date, falling back to upload date for photos with
+    # no EXIF date; "uploaded" sorts purely by when it was added.
+    order_col = (
+        func.coalesce(Photo.taken_at, Photo.uploaded_at)
+        if sort == "taken"
+        else Photo.uploaded_at
+    )
     rows = db.scalars(
-        # id is a stable, unique tiebreaker — without it, photos sharing an
-        # uploaded_at (a whole upload batch gets one timestamp) order
-        # unpredictably across pages, so OFFSET paging repeats/skips rows.
-        stmt.order_by(Photo.uploaded_at.desc(), Photo.id.desc())
+        # id is a stable, unique tiebreaker — without it, photos sharing a
+        # timestamp (a whole upload batch gets one) order unpredictably across
+        # pages, so OFFSET paging repeats/skips rows.
+        stmt.order_by(order_col.desc(), Photo.id.desc())
         .offset((page - 1) * page_size)
         .limit(page_size)
     ).all()
@@ -69,10 +81,11 @@ def _paginate(
 def list_public_photos(
     page: int = Query(1, ge=1),
     page_size: int = Query(60, ge=1, le=200),
+    sort: str = Query("taken", pattern="^(taken|uploaded)$"),
     db: Session = Depends(get_db),
 ):
     stmt = select(Photo).where(Photo.visible.is_(True))
-    return _paginate(db, stmt, page, page_size)
+    return _paginate(db, stmt, page, page_size, sort=sort)
 
 
 # ── Admin: every photo, including hidden ──
@@ -80,10 +93,13 @@ def list_public_photos(
 def list_admin_photos(
     page: int = Query(1, ge=1),
     page_size: int = Query(60, ge=1, le=200),
+    sort: str = Query("taken", pattern="^(taken|uploaded)$"),
     _admin=Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
-    return _paginate(db, select(Photo), page, page_size, include_galleries=True)
+    return _paginate(
+        db, select(Photo), page, page_size, include_galleries=True, sort=sort
+    )
 
 
 # ── Upload (one or many) ──
@@ -145,6 +161,7 @@ def upload_photos(
             exif=exif or None,
             width=width,
             height=height,
+            taken_at=parse_exif_taken(exif),
             visible=True,
         )
         db.add(photo)

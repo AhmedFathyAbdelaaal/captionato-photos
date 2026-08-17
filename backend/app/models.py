@@ -41,6 +41,10 @@ class Photo(Base):
     uploaded_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
+    # When the photo was actually shot (EXIF DateTimeOriginal). Null when the
+    # file carries no date; feeds a "sort by taken date" that falls back to
+    # uploaded_at for those.
+    taken_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     gallery_links: Mapped[list["GalleryPhoto"]] = relationship(
         back_populates="photo", cascade="all, delete-orphan"

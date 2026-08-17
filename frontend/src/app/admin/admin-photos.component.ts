@@ -22,6 +22,11 @@ import { ApiService } from '../services/api.service';
     <header class="top">
       <h1>Photos</h1>
       <span class="count mono">{{ total() }} total</span>
+      <div class="sorter" title="Sort by capture date (EXIF) or upload date">
+        <span class="sort-lbl">sort</span>
+        <button [class.on]="sortMode() === 'taken'" (click)="setSort('taken')">Taken</button>
+        <button [class.on]="sortMode() === 'uploaded'" (click)="setSort('uploaded')">Uploaded</button>
+      </div>
       <button
         class="btn-ghost sel-toggle"
         *ngIf="photos().length"
@@ -169,6 +174,34 @@ import { ApiService } from '../services/api.service';
         margin-left: auto;
         padding: 0.35rem 0.7rem;
         font-size: 0.85rem;
+      }
+      .sorter {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius);
+        padding: 0.15rem;
+      }
+      .sort-lbl {
+        font-size: 0.72rem;
+        color: var(--color-muted);
+        padding: 0 0.3rem;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+      .sorter button {
+        border: none;
+        background: transparent;
+        color: var(--color-muted);
+        padding: 0.25rem 0.6rem;
+        border-radius: calc(var(--radius) - 2px);
+        font-size: 0.82rem;
+        cursor: pointer;
+      }
+      .sorter button.on {
+        background: var(--color-accent);
+        color: #fff;
       }
       .drop {
         display: flex;
@@ -483,9 +516,10 @@ export class AdminPhotosComponent implements OnInit, AfterViewInit {
   editing = signal<string | null>(null);
   error = signal('');
 
-  // Timeline
+  // Timeline & sort
   currentLabel = signal('');
   currentBack = signal('');
+  sortMode = signal<'taken' | 'uploaded'>('taken');
 
   // Infinite scroll
   private page = 1;
@@ -538,10 +572,23 @@ export class AdminPhotosComponent implements OnInit, AfterViewInit {
     return Math.min(120, cols * 5);
   }
 
+  /** Switch the sort field and reload from the top. */
+  setSort(mode: 'taken' | 'uploaded'): void {
+    if (this.sortMode() === mode) return;
+    this.sortMode.set(mode);
+    this.photos.set([]);
+    this.seen.clear();
+    this.page = 1;
+    this.allLoaded.set(false);
+    this.loading.set(true);
+    this.currentLabel.set('');
+    this.loadMore();
+  }
+
   private loadMore(): void {
     if (this.loadingMore() || this.allLoaded()) return;
     this.loadingMore.set(true);
-    this.api.getAdminPhotos(this.page, this.pageSize).subscribe({
+    this.api.getAdminPhotos(this.page, this.pageSize, this.sortMode()).subscribe({
       next: (res) => {
         this.total.set(res.total);
         // Dedupe guard: never render a photo id twice, whatever the paging does.
@@ -586,27 +633,33 @@ export class AdminPhotosComponent implements OnInit, AfterViewInit {
   }
 
   // ── Timeline helpers ──
-  private ym(iso: string): [number, number] {
-    const d = new Date(iso);
+  /** The date the timeline groups by — capture date in "taken" mode (falling
+   *  back to upload date when EXIF has none), else upload date. Matches the
+   *  server's sort so groups line up with the order. */
+  private effDate(p: Photo): string {
+    return this.sortMode() === 'taken' ? p.taken_at ?? p.uploaded_at : p.uploaded_at;
+  }
+  private ym(p: Photo): [number, number] {
+    const d = new Date(this.effDate(p));
     return [d.getFullYear(), d.getMonth()];
   }
   monthChanged(i: number): boolean {
     const list = this.photos();
     if (i === 0) return true;
-    const [y1, m1] = this.ym(list[i].uploaded_at);
-    const [y0, m0] = this.ym(list[i - 1].uploaded_at);
+    const [y1, m1] = this.ym(list[i]);
+    const [y0, m0] = this.ym(list[i - 1]);
     return y1 !== y0 || m1 !== m0;
   }
   monthLabel(p: Photo): string {
-    const [y, m] = this.ym(p.uploaded_at);
+    const [y, m] = this.ym(p);
     return `${this.MONTHS[m]} ${y}`;
   }
   shortMonth(p: Photo): string {
-    const [y, m] = this.ym(p.uploaded_at);
+    const [y, m] = this.ym(p);
     return `${this.MONTHS[m].slice(0, 3)} ${y}`;
   }
   monthBack(p: Photo): string {
-    const [y, m] = this.ym(p.uploaded_at);
+    const [y, m] = this.ym(p);
     const now = new Date();
     const months = (now.getFullYear() - y) * 12 + (now.getMonth() - m);
     if (months <= 0) return 'this month';

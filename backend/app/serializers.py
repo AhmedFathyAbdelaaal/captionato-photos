@@ -30,6 +30,7 @@ def photo_out(photo: Photo, include_galleries: bool = False) -> PhotoOut:
         height=photo.height,
         exif=photo.exif,
         uploaded_at=photo.uploaded_at,
+        taken_at=photo.taken_at,
         thumbnail_url=thumb_url(photo),
         display_url=display_url(photo),
         original_url=original_url(photo),

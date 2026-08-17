@@ -46,9 +46,13 @@ export class ApiService {
   }
 
   // ── Photos (public) ──
-  getPhotos(page = 1, pageSize = 60): Observable<PhotoPage> {
+  getPhotos(
+    page = 1,
+    pageSize = 60,
+    sort: 'taken' | 'uploaded' = 'taken',
+  ): Observable<PhotoPage> {
     return this.http.get<PhotoPage>(
-      `${this.base}/photos?page=${page}&page_size=${pageSize}`,
+      `${this.base}/photos?page=${page}&page_size=${pageSize}&sort=${sort}`,
     );
   }
   getExif(photoId: string) {
@@ -56,9 +60,13 @@ export class ApiService {
   }
 
   // ── Photos (admin) ──
-  getAdminPhotos(page = 1, pageSize = 60): Observable<PhotoPage> {
+  getAdminPhotos(
+    page = 1,
+    pageSize = 60,
+    sort: 'taken' | 'uploaded' = 'taken',
+  ): Observable<PhotoPage> {
     return this.http.get<PhotoPage>(
-      `${this.base}/photos/admin?page=${page}&page_size=${pageSize}`,
+      `${this.base}/photos/admin?page=${page}&page_size=${pageSize}&sort=${sort}`,
     );
   }
   uploadPhotos(files: File[]): Observable<Photo[]> {

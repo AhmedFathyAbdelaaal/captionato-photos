@@ -20,6 +20,7 @@ export interface Photo {
   height?: number | null;
   exif?: Exif | null;
   uploaded_at: string;
+  taken_at?: string | null; // EXIF capture date; null when unknown
   thumbnail_url: string;
   display_url: string; // ~2560px lightbox derivative
   original_url: string;

@@ -9,6 +9,11 @@ export const routes: Routes = [
       import('./pages/landing.component').then((m) => m.LandingComponent),
   },
   {
+    path: 'portfolio',
+    loadComponent: () =>
+      import('./pages/portfolio.component').then((m) => m.PortfolioComponent),
+  },
+  {
     path: 'galleries',
     loadComponent: () =>
       import('./pages/galleries.component').then((m) => m.GalleriesComponent),

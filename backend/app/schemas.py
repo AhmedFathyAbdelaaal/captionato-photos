@@ -34,6 +34,7 @@ class PhotoOut(BaseModel):
     height: int | None = None
     exif: dict | None = None
     uploaded_at: datetime
+    taken_at: datetime | None = None
     thumbnail_url: str
     display_url: str
     original_url: str

@@ -162,7 +162,8 @@ photos
   width          int   null    -- thumbnail dims → aspect ratio for masonry
   height         int   null
   exif           jsonb null    -- sanitised camera/lens/etc.
-  uploaded_at    timestamptz
+  uploaded_at    timestamptz   -- when it was added
+  taken_at       timestamptz null  -- EXIF capture date (null if none); sort key
 
 galleries
   id             UUID  PK
@@ -207,8 +208,9 @@ collage_layers                  -- one placed photo on a collage canvas
 
 A photo can live in multiple galleries. Deleting a gallery unassigns its photos
 (it does not delete them). The schema is created by Alembic migrations
-(`0001_initial`, `0002_collages`), which `start.sh` runs
-(`alembic upgrade head`) on every boot.
+(`0001_initial` → `0004_photo_taken_at`), which `start.sh` runs
+(`alembic upgrade head`) on every boot. `0004` also **backfills** `taken_at`
+from each existing photo's stored EXIF date.
 
 ### Collage maker
 
@@ -399,8 +401,8 @@ Real issues hit while shipping this — documented so you don't re-hit them:
 | POST | `/auth/login` | – | Get a JWT |
 | GET | `/auth/me` | ✔ | Current admin |
 | POST | `/auth/password` | ✔ | Change password |
-| GET | `/photos` | – | Landing feed (visible, paginated) |
-| GET | `/photos/admin` | ✔ | All photos incl. hidden (+ gallery ids) |
+| GET | `/photos` | – | Public feed (visible, paginated; `?sort=taken\|uploaded`) |
+| GET | `/photos/admin` | ✔ | All photos incl. hidden (+ gallery ids; `?sort=`) |
 | POST | `/photos` | ✔ | Upload (multipart, one or many) |
 | PATCH | `/photos/{id}` | ✔ | Title / caption / visibility / gallery membership |
 | DELETE | `/photos/{id}` | ✔ | Delete photo + files |
