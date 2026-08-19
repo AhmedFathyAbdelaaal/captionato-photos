@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Captionato Starter — Preview</title>
+<link rel="icon" href="marks/favicon.svg" type="image/svg+xml" />
+<link rel="stylesheet" href="tokens.css" />
+<style>
+  /* This file only proves the starter works and shows copy-paste patterns.
+     Everything below is built from tokens.css — nothing hardcoded. */
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; padding: clamp(1.5rem, 4vw, 4rem);
+    background: var(--cap-bg); color: var(--cap-text);
+    font-family: var(--cap-font-text); line-height: 1.6;
+    transition: background .3s var(--cap-ease), color .3s var(--cap-ease);
+  }
+  ::selection { background: var(--cap-ember); color: var(--cap-band-fg-hi); }
+  :focus-visible { outline: 3px solid var(--cap-accent); outline-offset: 3px; border-radius: 6px; }
+  .wrap { max-width: 860px; margin: 0 auto; }
+  h1 { font-family: var(--cap-font-display); font-weight: 800; letter-spacing: var(--cap-display-tracking); font-size: clamp(2.2rem, 1.4rem + 3vw, 3.4rem); line-height: 1; margin: 0; }
+  h1 .rule { color: var(--cap-accent); }
+  .motto { font-family: var(--cap-font-display); font-weight: 700; color: var(--cap-accent); margin: .5rem 0 0; }
+  h2 { font-family: var(--cap-font-display); font-weight: 700; letter-spacing: -.02em; font-size: 1.15rem; margin: 2.6rem 0 1rem; }
+  .kicker { font-family: var(--cap-font-mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--cap-text-2); }
+  .top { display: flex; justify-content: space-between; align-items: flex-start; gap: 1rem; }
+  .card { background: var(--cap-surface); border: 1.5px solid var(--cap-line); border-radius: var(--cap-radius-card); padding: 1.4rem; box-shadow: var(--cap-shadow-card); }
+
+  .swatches { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px,1fr)); gap: 1rem; }
+  .sw { }
+  .sw .chip { height: 56px; border-radius: 999px; box-shadow: var(--cap-shadow-pin); border: 2px solid var(--cap-brass); }
+  .sw code { font-family: var(--cap-font-mono); font-size: .72rem; color: var(--cap-text-2); display: block; margin-top: .5rem; }
+  .sw b { font-size: .85rem; display: block; margin-top: .3rem; }
+
+  .specimens > div { margin-bottom: .8rem; }
+  .d-display { font-family: var(--cap-font-display); font-weight: 800; letter-spacing: var(--cap-display-tracking); font-size: 2.2rem; line-height: 1; }
+  .d-text { font-family: var(--cap-font-text); font-size: 1.05rem; max-width: 60ch; }
+  .d-mono { font-family: var(--cap-font-mono); letter-spacing: .04em; }
+
+  .row { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; }
+  .btn { font-family: var(--cap-font-text); font-weight: 600; font-size: .95rem; border: 0; cursor: pointer; padding: .8rem 1.35rem; border-radius: var(--cap-radius-pill); text-decoration: none; display: inline-flex; align-items: center; gap: .5rem; transition: transform .18s var(--cap-ease); }
+  .btn-primary { background: var(--cap-ember); color: var(--cap-band-fg-hi); box-shadow: var(--cap-shadow-btn); }
+  .btn-primary:hover { transform: translateY(-2px); }
+  .btn-ghost { background: transparent; color: var(--cap-text); box-shadow: inset 0 0 0 1.5px var(--cap-line); }
+  .btn-ghost:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1.5px var(--cap-capy); }
+  .badge { display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .9rem; border-radius: var(--cap-radius-pill); font-family: var(--cap-font-mono); font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; }
+  .badge.on { background: var(--cap-ember); color: var(--cap-band-fg-hi); }
+  .badge.off { color: var(--cap-text-2); box-shadow: inset 0 0 0 1.5px var(--cap-line); }
+  .badge .dot { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+  .board { background: var(--cap-band); color: var(--cap-band-fg); border-radius: var(--cap-radius-card); padding: 1.4rem; display: flex; align-items: center; gap: 1.2rem; }
+  .board img { width: 64px; height: 64px; }
+  .board .t { font-family: var(--cap-font-display); font-weight: 800; color: var(--cap-band-fg-hi); }
+
+  .toggle { font-family: var(--cap-font-mono); font-size: .72rem; text-transform: uppercase; letter-spacing: .1em; cursor: pointer; background: var(--cap-surface); color: var(--cap-text); border: 0; box-shadow: inset 0 0 0 1.5px var(--cap-line); border-radius: var(--cap-radius-pill); padding: .5rem .9rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <div>
+      <div class="kicker">Captionato · Starter Preview</div>
+      <h1 style="margin-top:.4rem">Stay soft. <span class="rule">Ship sharp.</span></h1>
+      <p class="motto">Built entirely from tokens.css</p>
+    </div>
+    <button class="toggle" id="t" type="button">Toggle theme</button>
+  </div>
+
+  <h2>Palette</h2>
+  <div class="swatches card">
+    <div class="sw"><div class="chip" style="background:var(--cap-ember)"></div><b>Ember Red</b><code>--cap-ember</code></div>
+    <div class="sw"><div class="chip" style="background:var(--cap-ink)"></div><b>Ink</b><code>--cap-ink</code></div>
+    <div class="sw"><div class="chip" style="background:var(--cap-brass)"></div><b>Brass</b><code>--cap-brass</code></div>
+    <div class="sw"><div class="chip" style="background:var(--cap-cream)"></div><b>Paper Cream</b><code>--cap-cream</code></div>
+    <div class="sw"><div class="chip" style="background:var(--cap-capy)"></div><b>Capy Brown</b><code>--cap-capy</code></div>
+  </div>
+
+  <h2>Type — display / text / mono</h2>
+  <div class="specimens card">
+    <div class="d-display">Warm &amp; sharp</div>
+    <div class="d-text">A capybara doesn't rush and doesn't panic. Set body in Hanken Grotesk; keep it plain and calm.</div>
+    <div class="d-mono">CAP-KIT · ED.01 · #D6362B</div>
+  </div>
+
+  <h2>Components</h2>
+  <div class="card">
+    <div class="row" style="margin-bottom:1rem">
+      <a href="#" class="btn btn-primary">Primary action</a>
+      <a href="#" class="btn btn-ghost">Ghost</a>
+      <span class="badge on"><span class="dot"></span> Live</span>
+      <span class="badge off"><span class="dot"></span> Draft</span>
+    </div>
+    <div class="board">
+      <img src="marks/capybara-pin.svg" alt="Captionato" />
+      <div><div class="t">Captionato</div><div style="color:var(--cap-band-fg)">A dark board — the mark pops here.</div></div>
+    </div>
+  </div>
+</div>
+<script>
+  var root = document.documentElement;
+  document.getElementById('t').addEventListener('click', function () {
+    root.setAttribute('data-theme', root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
+  });
+</script>
+</body>
+</html>

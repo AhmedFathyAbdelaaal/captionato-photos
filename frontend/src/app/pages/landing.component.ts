@@ -248,10 +248,10 @@ const SLOTS: Slot[] = [
       }
       .hero-copy h1 {
         font-family: var(--font-display);
-        font-weight: 700;
+        font-weight: 800;
         font-size: clamp(2.6rem, 9vw, 6rem);
         line-height: 0.95;
-        letter-spacing: -0.03em;
+        letter-spacing: -0.04em;
         margin: 0;
       }
       .hero-copy h1 span {
@@ -394,8 +394,9 @@ const SLOTS: Slot[] = [
       }
       .cta-main {
         font-family: var(--font-display);
-        font-weight: 700;
+        font-weight: 800;
         font-size: clamp(1.4rem, 4vw, 2.4rem);
+        letter-spacing: -0.03em;
       }
       .cta .arr {
         color: var(--color-accent);

@@ -95,7 +95,7 @@ const THEMES: ForceTheme[] = ['system', 'light', 'dark'];
               >
                 <input
                   type="color"
-                  [ngModel]="g.accent_color || '#b23a52'"
+                  [ngModel]="g.accent_color || '#d6362b'"
                   (ngModelChange)="g.accent_color = $event"
                   name="a{{ g.id }}"
                 />
@@ -330,7 +330,7 @@ export class AdminGalleriesComponent implements OnInit {
   draft: GalleryInput = { name: '', slug: '' };
   layouts = LAYOUTS;
   themes = THEMES;
-  defaultAccent = '#b23a52';
+  defaultAccent = '#d6362b';
   presets = [
     '#E0901E', // amber
     '#1FA6A6', // teal

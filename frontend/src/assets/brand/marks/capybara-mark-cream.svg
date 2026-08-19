@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Captionato capybara mark">
+  <!-- Captionato single-color mark in Paper Cream, for dark backgrounds. Eyes and nose are true knockouts (transparent). -->
+  <mask id="capy">
+    <rect width="120" height="120" fill="#000"/>
+    <ellipse cx="32" cy="40" rx="6" ry="7" fill="#fff"/>
+    <ellipse cx="88" cy="40" rx="6" ry="7" fill="#fff"/>
+    <rect x="23" y="38" width="74" height="48" rx="15" fill="#fff"/>
+    <ellipse cx="46" cy="51" rx="3.4" ry="4" fill="#000"/>
+    <ellipse cx="74" cy="51" rx="3.4" ry="4" fill="#000"/>
+    <rect x="44" y="61" width="32" height="14" rx="6" fill="#000"/>
+  </mask>
+  <rect width="120" height="120" fill="#f1e7d6" mask="url(#capy)"/>
+</svg>

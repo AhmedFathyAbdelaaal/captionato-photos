@@ -1,0 +1,95 @@
+/* ============================================================
+   CAPTIONATO — Brand Tokens  ·  Edition 01
+   Drop-in CSS variables for any project. Import this file, then
+   build with var(--cap-*). All tokens are prefixed --cap- so they
+   never collide with your project's own variables.
+   Light + dark are both here: set <html data-theme="dark"> to flip.
+   ============================================================ */
+
+/* Fonts — quick start via Google Fonts. For production, self-host these. */
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap');
+
+:root {
+  /* ---- Brand colors — FIXED, never theme-flip ---- */
+  --cap-ember: #d6362b;        /* the signal */
+  --cap-ember-deep: #ac281f;   /* pressed / links on light */
+  --cap-ember-soft: #f6d9cf;   /* soft red wash */
+  --cap-ink: #141110;          /* warm near-black */
+  --cap-ink-2: #2a2320;
+  --cap-brass: #c6a24e;        /* keyline metal — thin marks only */
+  --cap-brass-bright: #e6c877;
+  --cap-brass-deep: #96712f;
+  --cap-cream: #f1e7d6;        /* paper */
+  --cap-cream-hi: #faf3e6;     /* lifted paper */
+  --cap-capy: #9a6a45;         /* the fur */
+  --cap-capy-dark: #6f4a2e;
+
+  /* ---- Semantic (theme-aware) — build your UI with THESE ---- */
+  --cap-bg: var(--cap-cream);          /* page ground */
+  --cap-surface: var(--cap-cream-hi);  /* cards, panels */
+  --cap-text: var(--cap-ink);          /* primary text */
+  --cap-text-2: #6a584a;               /* secondary text (warm, never gray) */
+  --cap-line: #d8c9b2;                 /* 1.5px hairline */
+  --cap-accent: var(--cap-ember);      /* the one signal per view */
+  /* dark "display boards" — always dark, always light text, in BOTH themes */
+  --cap-band: #141110;
+  --cap-band-fg: #f1e7d6;
+  --cap-band-fg-hi: #faf3e6;
+
+  /* ---- Typography ---- */
+  --cap-font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --cap-font-text: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --cap-font-mono: "Courier Prime", ui-monospace, "Courier New", monospace;
+  --cap-display-tracking: -0.04em;     /* headlines are always tightly tracked */
+
+  /* ---- Radii ---- */
+  --cap-radius-sm: 4px;
+  --cap-radius-card: 18px;
+  --cap-radius-pin: 26px;
+  --cap-radius-pill: 999px;
+
+  /* ---- Shadows — warm & tinted, never gray ---- */
+  --cap-shadow-pin: 0 18px 34px -14px rgba(20,17,16,.55), 0 4px 10px -4px rgba(20,17,16,.35);
+  --cap-shadow-card: 0 26px 60px -30px rgba(20,17,16,.45);
+  --cap-shadow-btn: 0 10px 20px -8px rgba(172,40,31,.7), inset 0 1px 0 rgba(255,255,255,.25);
+
+  /* ---- Motion ---- */
+  --cap-ease: cubic-bezier(.16,.84,.34,1);
+  --cap-ease-out: cubic-bezier(.22,1,.36,1);
+
+  /* ---- Spacing rhythm ---- */
+  --cap-space-xs: .7rem;
+  --cap-space-sm: 1.1rem;
+  --cap-space-md: 1.4rem;
+  --cap-space-lg: 1.6rem;
+  --cap-space-xl: 2.4rem;
+}
+
+/* ---- Dark theme: flips ONLY the semantic tokens. Brand colors stay put. ---- */
+[data-theme="dark"] {
+  --cap-bg: #17120e;
+  --cap-surface: #211b16;
+  --cap-text: #f1e7d6;
+  --cap-text-2: #a2917d;
+  --cap-line: #342c24;
+  --cap-accent: #ef5a4e;       /* brighter red for contrast on dark */
+  --cap-band: #0e0b09;
+  --cap-shadow-card: 0 26px 60px -30px rgba(0,0,0,.62);
+  --cap-shadow-pin: 0 18px 34px -14px rgba(0,0,0,.7), 0 4px 10px -4px rgba(0,0,0,.5);
+}
+
+/* Optional: follow the OS theme when you haven't set data-theme yourself.
+   Delete this block if you only want an explicit toggle. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --cap-bg: #17120e;
+    --cap-surface: #211b16;
+    --cap-text: #f1e7d6;
+    --cap-text-2: #a2917d;
+    --cap-line: #342c24;
+    --cap-accent: #ef5a4e;
+    --cap-band: #0e0b09;
+    --cap-shadow-card: 0 26px 60px -30px rgba(0,0,0,.62);
+    --cap-shadow-pin: 0 18px 34px -14px rgba(0,0,0,.7), 0 4px 10px -4px rgba(0,0,0,.5);
+  }
+}

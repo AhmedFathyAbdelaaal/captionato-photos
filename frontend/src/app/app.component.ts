@@ -17,7 +17,16 @@ import { ThemeService } from './services/theme.service';
   imports: [CommonModule, RouterOutlet, RouterLink, RouterLinkActive],
   template: `
     <header class="chrome" *ngIf="showChrome()">
-      <a routerLink="/" class="brand">captionato<span>photos</span></a>
+      <a routerLink="/" class="brand" aria-label="Captionato Photos — home">
+        <img
+          class="mark"
+          [src]="theme.mode() === 'dark' ? 'assets/brand/marks/capybara-mark-cream.svg' : 'assets/brand/marks/capybara-mark-ink.svg'"
+          alt=""
+          width="28"
+          height="28"
+        />
+        <span class="wordmark">captionato<span class="rule">photos</span></span>
+      </a>
       <nav>
         <a routerLink="/portfolio" routerLinkActive="active">portfolio</a>
         <a routerLink="/galleries" routerLinkActive="active">galleries</a>
@@ -44,12 +53,22 @@ import { ThemeService } from './services/theme.service';
         border-bottom: 1px solid var(--color-border);
       }
       .brand {
-        font-family: var(--font-display);
-        font-weight: 700;
-        font-size: 1.15rem;
-        letter-spacing: -0.02em;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
       }
-      .brand span {
+      .brand .mark {
+        display: block;
+        width: 28px;
+        height: 28px;
+      }
+      .brand .wordmark {
+        font-family: var(--font-display);
+        font-weight: 800;
+        font-size: 1.15rem;
+        letter-spacing: -0.03em;
+      }
+      .brand .rule {
         color: var(--color-accent);
         margin-left: 0.15em;
       }

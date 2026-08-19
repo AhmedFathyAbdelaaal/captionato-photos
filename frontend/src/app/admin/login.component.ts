@@ -12,6 +12,13 @@ import { AuthService } from '../services/auth.service';
   template: `
     <div class="gate">
       <form (ngSubmit)="submit()" class="card">
+        <img
+          class="pin"
+          src="assets/brand/marks/capybara-pin.svg"
+          alt=""
+          width="64"
+          height="64"
+        />
         <h1>captionato<span>photos</span></h1>
         <p class="sub">Admin access</p>
 
@@ -57,8 +64,17 @@ import { AuthService } from '../services/auth.service';
         border-radius: var(--radius);
         padding: 2rem;
       }
+      .pin {
+        display: block;
+        width: 64px;
+        height: 64px;
+        margin: 0 auto -0.2rem;
+        filter: drop-shadow(0 6px 14px rgba(20, 17, 16, 0.28));
+      }
       h1 {
         font-family: var(--font-display);
+        font-weight: 800;
+        letter-spacing: -0.03em;
         text-align: center;
         margin: 0;
       }

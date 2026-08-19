@@ -1,0 +1,1087 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Captionato — Brand Kit, Edition 01</title>
+<script>(function(){try{var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('captionato-theme')||'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<meta name="description" content="The Captionato brand kit: a collectible enamel-badge system. Mark, palette, type, voice, and applications. Cute on the outside, precise on the inside." />
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml" />
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png" />
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png" />
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Captionato — Brand Kit" />
+<meta property="og:description" content="One calm brand, assembled like a pin kit. Stay soft. Ship sharp." />
+<meta property="og:image" content="assets/og-image.png" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Captionato — Brand Kit" />
+<meta name="twitter:description" content="One calm brand, assembled like a pin kit. Stay soft. Ship sharp." />
+<meta name="twitter:image" content="assets/og-image.png" />
+<meta name="theme-color" content="#d6362b" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Hanken+Grotesk:wght@400;500;600;700&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
+<style>
+/*
+  THESIS: The brand is a collectible enamel-badge kit, spec'd like a pin catalog; it refuses the clean white swatch-grid brand microsite.
+  OWN-WORLD: Warm cream backing-card grounds punctuated by dark felt boards; domed hard-enamel pins with brass keylines. Ember Red / Ink / Brass / Cream / Capy-Brown. Bricolage Grotesque display, Hanken Grotesk text, Courier Prime spec-mono. Caliper tick-rules and plate-catalog numbers.
+  STORY: Visitor lands on the capybara pin, reads Captionato as warm-but-precise, scrolls a numbered catalog of the kit (mark, palette, type, voice, applications), and leaves able to reuse it.
+  FIRST VIEWPORT: Full-bleed cream backing card; a large capybara enamel pin, gently bobbing under a caliper measure; CAPTIONATO wordmark and "Stay soft. Ship sharp."; a monospace catalog line along the top.
+  FORM: Enamel-pin / patch collector kit; grounded candidate #6; seed key 6a87a8ad.
+  FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.
+*/
+
+/* ============ TOKENS ============ */
+:root {
+  --ember: #d6362b;
+  --ember-deep: #ac281f;
+  --ember-soft: #f6d9cf;
+  --ink: #141110;
+  --ink-2: #2a2320;
+  --brass: #c6a24e;
+  --brass-bright: #e6c877;
+  --brass-deep: #96712f;
+  --cream: #f1e7d6;
+  --cream-hi: #faf3e6;
+  --capy: #9a6a45;
+  --capy-dark: #6f4a2e;
+  --muted: #6a584a;        /* warm secondary text on cream */
+  --muted-dk: #b8a894;     /* warm secondary text on ink */
+  --line: #d8c9b2;         /* hairline on cream */
+  --line-dk: #3a312b;      /* hairline on ink */
+
+  --font-display: "Bricolage Grotesque", ui-sans-serif, system-ui, sans-serif;
+  --font-text: "Hanken Grotesk", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "Courier Prime", ui-monospace, "Courier New", monospace;
+
+  --measure: 66ch;
+  --wrap: 1180px;
+  --radius-pin: 26px;
+  --ease: cubic-bezier(.16,.84,.34,1);
+  --ease-out: cubic-bezier(.22,1,.36,1);
+
+  --shadow-pin: 0 18px 34px -14px rgba(20,17,16,.55), 0 4px 10px -4px rgba(20,17,16,.35);
+  --shadow-card: 0 26px 60px -30px rgba(20,17,16,.45);
+  /* fixed "band" tokens: dark display boards + their light text, never flipped by theme */
+  --band: #141110;
+  --band-fg: #f1e7d6;
+  --band-fg-hi: #faf3e6;
+}
+
+/* ===== DARK THEME ===== flips the page tokens; brand colors (ember/brass/capy) stay fixed */
+[data-theme="dark"] {
+  --cream: #17120e;      /* page ground */
+  --cream-hi: #211b16;   /* card / panel surfaces */
+  --ink: #f1e7d6;        /* primary text */
+  --muted: #a2917d;      /* secondary text on page */
+  --line: #342c24;       /* hairlines */
+  --band: #0e0b09;       /* felt boards go deeper so they still separate */
+  --shadow-card: 0 26px 60px -30px rgba(0,0,0,.62);
+  --shadow-pin: 0 18px 34px -14px rgba(0,0,0,.7), 0 4px 10px -4px rgba(0,0,0,.5);
+}
+[data-theme="dark"] .plate-code,
+[data-theme="dark"] .type-card .meta .n,
+[data-theme="dark"] .dl-group h3 .k,
+[data-theme="dark"] .dodont .do .tag,
+[data-theme="dark"] a:not(.btn),
+[data-theme="dark"] .sig .lnk a.site { color: #ef5a4e; }
+[data-theme="dark"] .mailcard .mailbar { background: #2a2320; }
+[data-theme="dark"] .mailcard .mailbar span { color: var(--muted); }
+[data-theme="dark"] .tabmock { box-shadow: var(--shadow-card); }
+[data-theme="dark"] body { background-image: radial-gradient(130% 120% at 15% -6%, rgba(214,54,43,.10), transparent 50%); }
+[data-theme="dark"] .mark-hero-card { background: radial-gradient(60% 60% at 50% 42%, rgba(230,200,120,.10), transparent 70%), var(--cream-hi); }
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  margin: 0;
+  font-family: var(--font-text);
+  color: var(--ink);
+  background: var(--cream);
+  line-height: 1.6;
+  font-size: clamp(1rem, 0.96rem + 0.2vw, 1.075rem);
+  font-weight: 400;
+  overflow-x: hidden;
+  /* warm paper grain */
+  background-image:
+    radial-gradient(120% 120% at 12% 0%, rgba(255,255,255,.5), transparent 42%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+}
+
+/* ============ TYPE ============ */
+h1, h2, h3 { font-family: var(--font-display); font-weight: 700; line-height: 1.02; letter-spacing: -0.03em; margin: 0; text-wrap: balance; }
+p { margin: 0 0 1.1em; max-width: var(--measure); }
+a { color: var(--ember-deep); text-underline-offset: 3px; text-decoration-thickness: 1.5px; }
+::selection { background: var(--ember); color: var(--band-fg-hi); }
+
+.mono { font-family: var(--font-mono); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; }
+.tick-label { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+
+/* ============ LAYOUT ============ */
+.wrap { width: min(100% - 2.5rem, var(--wrap)); margin-inline: auto; }
+section { position: relative; }
+
+/* plate heading block */
+.plate-head { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.4rem; padding-bottom: 1.1rem; border-bottom: 1.5px solid var(--line); }
+.plate-code { font-family: var(--font-mono); font-size: .78rem; letter-spacing: .16em; text-transform: uppercase; color: var(--ember-deep); white-space: nowrap; }
+.plate-head h2 { font-size: clamp(2rem, 1.3rem + 2.9vw, 3.4rem); }
+.plate-head .lede { margin: 0; color: var(--muted); font-size: 1.02rem; max-width: 34ch; margin-left: auto; }
+.felt .plate-head { border-color: var(--line-dk); }
+.felt .plate-code { color: var(--brass-bright); }
+.felt .plate-head .lede { color: var(--muted-dk); }
+
+/* ============ ENAMEL PIN (shared) ============ */
+.pin { position: relative; display: inline-grid; place-items: center; line-height: 0;
+  filter: drop-shadow(0 14px 20px rgba(20,17,16,.4)) drop-shadow(0 3px 5px rgba(20,17,16,.35)); }
+.pin svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* ============ HERO ============ */
+.hero { padding: clamp(1.6rem,4vw,3rem) 0 clamp(3rem,7vw,6rem); }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding-block: 1.1rem 0; color: var(--muted); flex-wrap: wrap; }
+.topbar .brandline { display: flex; align-items: center; gap: .6rem; color: var(--ink); }
+.topbar .brandline b { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; }
+.top-right { display: flex; align-items: center; gap: 1rem; }
+.theme-toggle { width: 40px; height: 40px; border-radius: 50%; border: 0; cursor: pointer; display: grid; place-items: center; background: var(--cream-hi); color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); transition: transform .18s var(--ease), box-shadow .18s var(--ease); flex: none; }
+.theme-toggle:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1.5px var(--capy); }
+.theme-toggle .i-sun { display: none; }
+.theme-toggle .i-moon { display: block; }
+[data-theme="dark"] .theme-toggle { color: var(--brass-bright); }
+[data-theme="dark"] .theme-toggle .i-sun { display: block; }
+[data-theme="dark"] .theme-toggle .i-moon { display: none; }
+
+.hero-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(1.5rem,4vw,4rem); align-items: center; margin-top: clamp(2rem,5vw,4.5rem); }
+
+.hero h1 { font-size: clamp(2.9rem, 1.7rem + 5.4vw, 5.4rem); font-weight: 800; letter-spacing: -0.045em; }
+.hero h1 .rule { color: var(--ember); }
+.hero .motto { font-family: var(--font-display); font-weight: 700; font-size: clamp(1.15rem,.9rem+1vw,1.5rem); letter-spacing: -0.02em; margin: 1.1rem 0 1.4rem; }
+.hero .sub { color: var(--muted); font-size: 1.08rem; }
+.hero .cta-row { display: flex; gap: .8rem; flex-wrap: wrap; margin-top: 2rem; align-items: center; }
+
+.btn { font-family: var(--font-text); font-weight: 600; font-size: .95rem; border: 0; cursor: pointer; padding: .8rem 1.35rem; border-radius: 999px; display: inline-flex; align-items: center; gap: .5rem; text-decoration: none; transition: transform .18s var(--ease), box-shadow .18s var(--ease), background .18s; }
+.btn-primary { background: var(--ember); color: var(--band-fg-hi); box-shadow: 0 10px 20px -8px rgba(172,40,31,.7), inset 0 1px 0 rgba(255,255,255,.25); }
+.btn-primary:hover { transform: translateY(-2px); box-shadow: 0 16px 26px -10px rgba(172,40,31,.75), inset 0 1px 0 rgba(255,255,255,.3); }
+.btn-ghost { background: transparent; color: var(--ink); box-shadow: inset 0 0 0 1.5px var(--line); }
+.btn-ghost:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1.5px var(--capy); }
+
+/* hero pin stage with caliper */
+.pin-stage { position: relative; display: grid; place-items: center; padding: 2rem; }
+.pin-stage .hero-pin { width: clamp(230px, 30vw, 360px); aspect-ratio: 1; animation: bob 6s var(--ease-out) infinite; }
+@keyframes bob { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-14px) rotate(1deg); } }
+@media (prefers-reduced-motion: reduce) { .pin-stage .hero-pin { animation: none; } }
+
+.caliper { position: absolute; inset: 0; pointer-events: none; color: var(--capy-dark); }
+.caliper .spec { position: absolute; font-family: var(--font-mono); font-size: .68rem; letter-spacing: .1em; color: var(--muted); background: var(--cream); padding: 2px 6px; border-radius: 4px; }
+.caliper .spec.w { left: 50%; bottom: 6%; transform: translateX(-50%); }
+.caliper .spec.h { right: 4%; top: 50%; transform: translateY(-50%) rotate(90deg); transform-origin: center; }
+
+/* ============ MARQUEE STRIP ============ */
+.strip { background: var(--band); color: var(--band-fg); overflow: hidden; border-block: 2px solid var(--brass-deep); }
+.strip .track { display: flex; gap: 3rem; padding: .85rem 0; white-space: nowrap; width: max-content; animation: slide 28s linear infinite; font-family: var(--font-mono); font-size: .78rem; letter-spacing: .22em; text-transform: uppercase; color: var(--brass-bright); }
+.strip .track span { display: inline-flex; align-items: center; gap: 3rem; }
+.strip .track span::after { content: "✦"; color: var(--ember); }
+@keyframes slide { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+@media (prefers-reduced-motion: reduce) { .strip .track { animation: none; } }
+
+/* ============ SECTIONS ============ */
+.plate { padding: clamp(3.5rem,8vw,7rem) 0; }
+.felt { background: var(--band); color: var(--band-fg);
+  background-image:
+    radial-gradient(140% 120% at 50% -10%, rgba(214,54,43,.14), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n2'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n2)' opacity='0.05'/%3E%3C/svg%3E");
+}
+.felt h1, .felt h2, .felt h3 { color: var(--band-fg-hi); }
+.felt p { color: var(--muted-dk); }
+.felt a { color: var(--brass-bright); }
+
+/* ---- Plate 01: The Mark ---- */
+.mark-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 1.4rem; }
+.card { background: var(--cream-hi); border: 1.5px solid var(--line); border-radius: 18px; padding: 1.6rem; box-shadow: var(--shadow-card); position: relative; }
+.felt .card { background: #1c1815; border-color: var(--line-dk); }
+.card .card-code { position: absolute; top: 1rem; right: 1.15rem; }
+.mark-hero-card { grid-column: span 7; display: grid; place-items: center; min-height: 320px; background:
+  radial-gradient(60% 60% at 50% 42%, rgba(255,255,255,.7), transparent 70%), var(--cream-hi); }
+.mark-hero-card .pin { width: 190px; aspect-ratio: 1; }
+.mark-side { grid-column: span 5; display: grid; gap: 1.4rem; align-content: start; }
+.mono-mark { display: flex; gap: 1.2rem; align-items: center; }
+.mono-mark .swatch-pin { width: 66px; aspect-ratio: 1; flex: none; }
+.wordmark-demo { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.03em; font-size: clamp(1.6rem,1.2rem+1.6vw,2.4rem); display: flex; align-items: center; gap: .6rem; }
+.wordmark-demo .glyph { width: 1.05em; height: 1.05em; }
+.clearspace { display: grid; place-items: center; padding: 1.2rem; }
+.clearspace .box { position: relative; padding: 26px; border: 1px dashed var(--capy); border-radius: 10px; }
+.clearspace .box .pin { width: 80px; aspect-ratio: 1; }
+.clearspace .box::before, .clearspace .box::after { content: "x"; position: absolute; font-family: var(--font-mono); font-size: .62rem; color: var(--muted); }
+.clearspace .box::before { top: 4px; left: 6px; }
+.clearspace .box::after { bottom: 4px; right: 6px; }
+
+.dodont { display: grid; grid-template-columns: 1fr 1fr; gap: 1.2rem; margin-top: 1.4rem; }
+.dodont .item { border-radius: 14px; padding: 1.1rem 1.2rem; font-size: .92rem; display: flex; gap: .7rem; align-items: flex-start; }
+.dodont .do { background: rgba(214,54,43,.06); box-shadow: inset 0 0 0 1.5px var(--ember-soft); }
+.dodont .dont { background: rgba(20,17,16,.035); box-shadow: inset 0 0 0 1.5px var(--line); }
+.dodont .tag { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; padding-top: .12rem; }
+.dodont .do .tag { color: var(--ember-deep); }
+.dodont .dont .tag { color: var(--muted); }
+
+/* ---- Plate 02: Palette ---- */
+.palette-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 1.6rem; }
+.chip { text-align: left; }
+.chip .chip-pin { width: 100%; aspect-ratio: 1; max-width: 190px; margin: 0 auto 1.1rem; }
+.chip h3 { font-size: 1.15rem; letter-spacing: -0.02em; margin-bottom: .35rem; }
+.chip .role { font-family: var(--font-text); font-size: .86rem; color: var(--muted); margin-bottom: .7rem; min-height: 2.4em; }
+.felt .chip .role { color: var(--muted-dk); }
+.chip .hex { font-family: var(--font-mono); font-size: .8rem; letter-spacing: .06em; display: inline-flex; align-items: center; gap: .5rem; cursor: pointer; border: 0; background: transparent; color: inherit; padding: .2rem .1rem; }
+.chip .hex .copy { color: var(--muted); font-size: .68rem; }
+.chip .hex.copied .copy { color: var(--ember); }
+
+/* ---- Plate 03: Type ---- */
+.type-stack { display: grid; gap: 1.4rem; }
+.type-card { background: var(--cream-hi); border: 1.5px solid var(--line); border-radius: 18px; padding: clamp(1.4rem,3vw,2.4rem); box-shadow: var(--shadow-card); display: grid; grid-template-columns: 200px 1fr; gap: 1.5rem 2rem; align-items: center; }
+.type-card .meta { border-right: 1.5px solid var(--line); padding-right: 1.5rem; }
+.type-card .meta .n { font-family: var(--font-mono); font-size: .72rem; letter-spacing: .14em; text-transform: uppercase; color: var(--ember-deep); }
+.type-card .meta h3 { font-size: 1.5rem; margin: .3rem 0 .5rem; }
+.type-card .meta p { font-size: .86rem; color: var(--muted); margin: 0; }
+.type-card .specimen { min-width: 0; }
+.spc-display { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.4rem,1.4rem+4vw,4.2rem); letter-spacing: -0.045em; line-height: .95; }
+.spc-text { font-family: var(--font-text); font-size: 1.15rem; line-height: 1.55; max-width: 46ch; }
+.spc-mono { font-family: var(--font-mono); font-size: 1.05rem; letter-spacing: .02em; }
+.glyphline { font-size: 1.4rem; letter-spacing: .04em; color: var(--muted); margin-top: .8rem; }
+.scale-row { display: flex; align-items: baseline; gap: 1.4rem; flex-wrap: wrap; margin-top: 1rem; color: var(--capy-dark); }
+.scale-row span { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+
+/* ---- Plate 04: Voice ---- */
+.voice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+.voice-lead p { font-size: clamp(1.2rem,1rem+.8vw,1.55rem); font-family: var(--font-display); font-weight: 600; letter-spacing: -0.02em; line-height: 1.3; color: var(--cream-hi); }
+.voice-traits { display: grid; gap: .7rem; margin-top: 1.5rem; }
+.trait { display: flex; gap: .8rem; align-items: baseline; font-size: .98rem; color: var(--muted-dk); }
+.trait b { color: var(--brass-bright); font-family: var(--font-mono); font-size: .74rem; letter-spacing: .1em; text-transform: uppercase; min-width: 84px; }
+.say-swap { display: grid; gap: 1rem; }
+.say { border-radius: 14px; padding: 1.1rem 1.3rem; }
+.say .tag { font-family: var(--font-mono); font-size: .68rem; letter-spacing: .12em; text-transform: uppercase; margin-bottom: .5rem; display: block; }
+.say.we { background: rgba(214,54,43,.14); box-shadow: inset 0 0 0 1.5px rgba(214,54,43,.4); }
+.say.we .tag { color: #f0a89f; }
+.say.not { background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1.5px var(--line-dk); }
+.say.not .tag { color: var(--muted-dk); }
+.say p { margin: 0; color: var(--cream); font-size: 1.02rem; }
+.say.not p { color: var(--muted-dk); text-decoration: line-through; text-decoration-color: rgba(184,168,148,.5); }
+
+/* ---- Plate 05: In the Wild ---- */
+.wild-grid { display: grid; grid-template-columns: repeat(12,1fr); gap: 1.4rem; }
+.app-icon { grid-column: span 4; }
+.app-icon .tile { aspect-ratio: 1; width: 72%; margin-inline: auto; border-radius: 26px; display: grid; place-items: center; box-shadow: var(--shadow-pin); position: relative; overflow: hidden;
+  background: radial-gradient(70% 70% at 30% 25%, #e85145, var(--ember) 55%, var(--ember-deep)); }
+.app-icon .tile .glyph { width: 58%; }
+.avatar { grid-column: span 4; display: grid; place-items: center; }
+.avatar .ring { width: 72%; aspect-ratio: 1; border-radius: 50%; padding: 10px; background: conic-gradient(from 200deg, var(--brass-bright), var(--brass-deep), var(--brass-bright)); box-shadow: var(--shadow-pin); }
+.avatar .ring .inner { width: 100%; height: 100%; border-radius: 50%; background: var(--capy); display: grid; place-items: center; overflow: hidden; }
+.avatar .ring .inner .glyph { width: 78%; margin-top: 8%; }
+.sticker-card { grid-column: span 4; display: grid; align-content: space-between; gap: 1rem; }
+.sticker-card .sheet { display: flex; gap: .7rem; flex-wrap: wrap; }
+.sticker-card .sheet .s { width: 58px; aspect-ratio: 1; }
+.ui-demo { grid-column: span 12; background: var(--cream-hi); border-radius: 18px; padding: clamp(1.4rem,3vw,2.2rem); box-shadow: var(--shadow-card); border: 1.5px solid var(--line); }
+.ui-demo .bar { display: flex; align-items: center; gap: .8rem; padding-bottom: 1.2rem; border-bottom: 1.5px solid var(--line); margin-bottom: 1.3rem; }
+.ui-demo .bar .glyph { width: 34px; }
+.ui-demo .bar .name { font-family: var(--font-display); font-weight: 800; letter-spacing: -0.02em; font-size: 1.25rem; }
+.ui-demo .bar .nav { margin-left: auto; display: flex; gap: 1.3rem; color: var(--muted); font-size: .9rem; }
+.ui-demo .bar .nav a { text-decoration: none; color: var(--muted); }
+.ui-demo .panel { display: flex; gap: 1rem; align-items: center; flex-wrap: wrap; }
+.badge-token { display: inline-flex; align-items: center; gap: .5rem; padding: .45rem .9rem; border-radius: 999px; font-family: var(--font-mono); font-size: .74rem; letter-spacing: .08em; text-transform: uppercase; }
+.badge-token.on { background: var(--ember); color: var(--band-fg-hi); }
+.badge-token.off { background: transparent; color: var(--muted); box-shadow: inset 0 0 0 1.5px var(--line); }
+.badge-token .d { width: 8px; height: 8px; border-radius: 50%; background: currentColor; }
+
+/* ---- Plate 06: Favicon & Social ---- */
+.split2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.8rem; align-items: start; }
+.tabmock { background: #0f0d0b; border-radius: 12px; padding: .7rem .7rem 0; box-shadow: var(--shadow-card); }
+.tabmock .row { display: flex; gap: .4rem; align-items: flex-end; }
+.tabmock .tab { display: flex; align-items: center; gap: .5rem; background: var(--cream-hi); color: var(--ink); border-radius: 8px 8px 0 0; padding: .5rem .75rem; font-size: .8rem; font-weight: 600; max-width: 200px; }
+.tabmock .tab img { width: 16px; height: 16px; border-radius: 3px; flex: none; }
+.tabmock .tab span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tabmock .tab.dim { background: #2a2320; color: var(--muted-dk); font-weight: 400; }
+.tabmock .addr { background: var(--cream-hi); border-radius: 0 0 8px 8px; height: 36px; display: flex; align-items: center; padding: 0 .85rem; font-family: var(--font-mono); font-size: .72rem; color: var(--muted); }
+.favrow { display: flex; align-items: flex-end; gap: 1.5rem; margin-top: 1.6rem; flex-wrap: wrap; }
+.favrow figure { margin: 0; display: grid; gap: .55rem; justify-items: center; }
+.favrow img { border-radius: 5px; box-shadow: 0 4px 10px -4px rgba(20,17,16,.45); }
+.favrow figcaption { font-family: var(--font-mono); font-size: .64rem; letter-spacing: .1em; color: var(--muted-dk); }
+.linkcard { border-radius: 16px; overflow: hidden; box-shadow: var(--shadow-card); background: #1c1815; border: 1.5px solid var(--line-dk); }
+.linkcard > img { width: 100%; display: block; }
+.linkcard .m { padding: 1rem 1.2rem; }
+.linkcard .m .u { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .06em; text-transform: uppercase; color: var(--muted-dk); }
+.linkcard .m h3 { font-size: 1.1rem; margin: .35rem 0 .3rem; }
+.linkcard .m p { font-size: .85rem; color: var(--muted-dk); margin: 0; max-width: none; }
+
+/* ---- Plate 07: Stickers & Merch ---- */
+.merch { display: grid; grid-template-columns: 1.1fr .9fr; gap: 1.8rem; align-items: start; }
+.sheet { background: var(--cream-hi); border: 1.5px solid var(--line); border-radius: 18px; padding: .9rem; box-shadow: var(--shadow-card); }
+.sheet img { width: 100%; display: block; border-radius: 10px; }
+.sheet .cap, .mock .cap { display: block; font-family: var(--font-mono); font-size: .66rem; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-top: .7rem; text-align: center; }
+.mocks { display: grid; gap: 1.4rem; }
+.mock { border-radius: 16px; box-shadow: var(--shadow-card); padding: 1.5rem; display: grid; place-items: center; }
+.mock svg { display: block; filter: drop-shadow(0 8px 14px rgba(20,17,16,.3)); }
+.mock.tee { background: var(--band); }
+.mock.tote { background: #e7dcc6; }
+
+/* ---- Plate 08: Email Signature ---- */
+.sig-wrap { display: grid; grid-template-columns: 1.2fr .8fr; gap: 2rem; align-items: center; }
+.mailcard { background: var(--cream-hi); border-radius: 14px; box-shadow: var(--shadow-card); overflow: hidden; }
+.mailcard .mailbar { background: #efe6d4; padding: .7rem 1rem; display: flex; gap: .5rem; align-items: center; border-bottom: 1.5px solid var(--line); }
+.mailcard .mailbar i { width: 11px; height: 11px; border-radius: 50%; background: var(--capy); display: block; opacity: .5; }
+.mailcard .mailbar span { font-family: var(--font-mono); font-size: .7rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-left: .4rem; }
+.mailcard .mailbody { padding: 1.6rem 1.4rem; }
+.sig { display: flex; align-items: center; font-family: Arial, Helvetica, sans-serif; }
+.sig img { width: 54px; height: 54px; border-radius: 12px; margin-right: 16px; }
+.sig .bar { border-left: 2px solid var(--brass); padding-left: 16px; }
+.sig .nm { font-size: 17px; font-weight: bold; color: var(--ink); }
+.sig .role { font-size: 13px; color: var(--capy); padding: 3px 0 7px; }
+.sig .lnk { font-size: 13px; }
+.sig .lnk a.site { color: var(--ember-deep); text-decoration: none; font-weight: bold; }
+.sig .lnk a.mail { color: var(--muted); text-decoration: none; }
+.felt .btn-ghost { color: var(--cream); box-shadow: inset 0 0 0 1.5px var(--line-dk); }
+.felt .btn-ghost:hover { box-shadow: inset 0 0 0 1.5px var(--brass); }
+
+/* ---- Plate 09: Asset Kit ---- */
+.dl-groups { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.8rem; }
+.dl-group h3 { font-size: 1.05rem; margin-bottom: .9rem; display: flex; align-items: baseline; gap: .5rem; }
+.dl-group h3 .k { font-family: var(--font-mono); font-size: .64rem; letter-spacing: .1em; color: var(--ember-deep); text-transform: uppercase; }
+.dl-list { list-style: none; margin: 0; padding: 0; display: grid; gap: .5rem; }
+.dl-list a { display: flex; align-items: center; gap: .6rem; text-decoration: none; color: var(--ink); font-family: var(--font-mono); font-size: .78rem; padding: .55rem .75rem; border-radius: 9px; background: var(--cream-hi); box-shadow: inset 0 0 0 1.5px var(--line); transition: box-shadow .16s var(--ease), transform .16s var(--ease); }
+.dl-list a:hover { box-shadow: inset 0 0 0 1.5px var(--capy); transform: translateX(2px); }
+.dl-list a .dn { margin-left: auto; color: var(--muted); }
+
+/* ---- Colophon ---- */
+.colophon { padding: clamp(3rem,6vw,5rem) 0; text-align: center; }
+.colophon .pin { width: 96px; aspect-ratio: 1; margin: 0 auto 1.6rem; }
+.colophon h2 { font-size: clamp(1.8rem,1.3rem+2vw,2.8rem); margin-bottom: .8rem; }
+.colophon .meta-line { font-family: var(--font-mono); font-size: .74rem; letter-spacing: .12em; text-transform: uppercase; color: var(--muted-dk); margin-top: 1.6rem; }
+.colophon .meta-line span { color: var(--brass-bright); }
+footer { border-top: 1.5px solid var(--line-dk); margin-top: 3rem; padding-top: 1.6rem; display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; font-size: .82rem; color: var(--muted-dk); }
+
+/* ============ REVEAL ============ */
+.reveal { opacity: 0; transform: translateY(22px); transition: opacity .7s var(--ease-out), transform .7s var(--ease-out); }
+.reveal.in { opacity: 1; transform: none; }
+@media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } }
+
+/* interactive pin lift */
+.lift { transition: transform .28s var(--ease), filter .28s var(--ease); will-change: transform; }
+.lift:hover { transform: translateY(-6px) scale(1.03) rotate(-1.5deg); filter: drop-shadow(0 22px 26px rgba(20,17,16,.42)) drop-shadow(0 5px 8px rgba(20,17,16,.4)); }
+@media (prefers-reduced-motion: reduce) { .lift:hover { transform: none; } }
+
+/* ===== MOTION — "Stay soft. Ship sharp." ===== */
+/* Enamel catches the light on hover (glint on the pin's own svg, so the drop-shadow filter is untouched) */
+.lift svg, .hero-pin svg { transition: filter .3s var(--ease); }
+.lift:hover svg, .hero-pin:hover svg { filter: brightness(1.08) saturate(1.06); }
+
+/* Focal moment: the hero stage settles in, the pin glints once, the caliper measures it */
+.pin-stage { animation: stage-in .8s var(--ease-out) both; }
+@keyframes stage-in { 0% { opacity: 0; transform: translateY(-18px); } 100% { opacity: 1; transform: none; } }
+.pin-stage .hero-pin svg { animation: pin-glint 1.5s var(--ease-out) .35s; }
+@keyframes pin-glint { 0%,100% { filter: brightness(1); } 22% { filter: brightness(1.5) saturate(1.12); } 55% { filter: brightness(1.02); } }
+.caliper svg line { stroke-dasharray: 320; stroke-dashoffset: 320; animation: caliper-draw .9s var(--ease-out) .55s forwards; }
+@keyframes caliper-draw { to { stroke-dashoffset: 0; } }
+.caliper .spec { opacity: 0; animation: spec-in .5s var(--ease-out) 1.15s forwards; }
+@keyframes spec-in { to { opacity: 1; } }
+
+/* Press feedback */
+.btn:active { transform: translateY(0) scale(.975); }
+.dl-list a:active { transform: translateX(1px) scale(.99); }
+.hex:active { transform: scale(.97); }
+.theme-toggle:active { transform: translateY(0) scale(.94); }
+
+@media (prefers-reduced-motion: reduce) {
+  .pin-stage, .pin-stage .hero-pin svg { animation: none; opacity: 1; transform: none; }
+  .caliper svg line { animation: none; stroke-dashoffset: 0; }
+  .caliper .spec { animation: none; opacity: 1; }
+  .lift:hover svg, .hero-pin:hover svg { filter: none; }
+}
+
+/* Delight: the capybara is alive — a calm blink on arrival, a wink when greeted */
+.hero-pin { cursor: pointer; }
+.hero-capy .lid { transform: scaleY(0); transform-box: fill-box; transform-origin: center top; }
+.hero-capy.blink .lid { animation: capblink .55s var(--ease-out); }
+.hero-capy.wink .lid-r { animation: capblink .6s var(--ease-out); }
+@keyframes capblink { 0%,100% { transform: scaleY(0); } 42%,56% { transform: scaleY(1); } }
+@media (prefers-reduced-motion: reduce) { .hero-capy .lid { animation: none; transform: scaleY(0); } }
+
+:focus-visible { outline: 3px solid var(--ember); outline-offset: 3px; border-radius: 6px; }
+.felt :focus-visible { outline-color: var(--brass-bright); }
+
+/* custom scrollbar */
+* { scrollbar-width: thin; scrollbar-color: var(--capy) transparent; }
+*::-webkit-scrollbar { width: 12px; height: 12px; }
+*::-webkit-scrollbar-thumb { background: var(--capy); border-radius: 20px; border: 3px solid var(--cream); }
+.felt *::-webkit-scrollbar-thumb { border-color: var(--ink); }
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 900px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 2.5rem; }
+  .pin-stage { order: -1; }
+  .mark-hero-card { grid-column: span 12; min-height: 260px; }
+  .mark-side { grid-column: span 12; }
+  .type-card { grid-template-columns: 1fr; gap: 1.2rem; }
+  .type-card .meta { border-right: 0; border-bottom: 1.5px solid var(--line); padding-right: 0; padding-bottom: 1.2rem; }
+  .voice-grid { grid-template-columns: 1fr; }
+  .app-icon, .avatar, .sticker-card { grid-column: span 12; max-width: 320px; }
+  .avatar, .app-icon, .sticker-card { margin-inline: auto; }
+  .split2, .merch, .sig-wrap { grid-template-columns: 1fr; }
+}
+@media (max-width: 560px) {
+  .plate-head .lede { margin-left: 0; }
+  .dodont { grid-template-columns: 1fr; }
+  .topbar .meta-r { display: none; }
+}
+</style>
+</head>
+<body>
+<!--
+  CAPTIONATO BRAND KIT — direction contract (seed 6a87a8ad)
+  THESIS: brand as a collectible enamel-badge kit, spec'd like a pin catalog; refuses the white swatch-grid microsite.
+  OWN-WORLD: warm cream backing-card grounds + dark felt boards; domed hard-enamel pins, brass keylines; Ember Red/Ink/Brass/Cream/Capy-Brown; Bricolage Grotesque display / Hanken Grotesk text / Courier Prime spec-mono; caliper tick-rules, plate-catalog numbers.
+  STORY: land on the capybara pin -> read Captionato as warm-but-precise -> scroll a numbered catalog (mark, palette, type, voice, applications) -> leave able to reuse it.
+  FIRST VIEWPORT: full-bleed cream card; capybara enamel pin bobbing under a caliper; CAPTIONATO + "Stay soft. Ship sharp."; monospace catalog line.
+  FORM: enamel pin/patch collector kit; candidate #6; seed 6a87a8ad.
+  FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.
+-->
+
+<!-- ========= SVG SYMBOL LIBRARY ========= -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <!-- brass rim gradient -->
+    <linearGradient id="brassRim" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e6c877"/>
+      <stop offset=".45" stop-color="#c6a24e"/>
+      <stop offset=".75" stop-color="#96712f"/>
+      <stop offset="1" stop-color="#e6c877"/>
+    </linearGradient>
+    <!-- enamel gloss -->
+    <radialGradient id="glossRed" cx="34%" cy="28%" r="80%">
+      <stop offset="0" stop-color="#ef6357"/>
+      <stop offset=".5" stop-color="#d6362b"/>
+      <stop offset="1" stop-color="#ac281f"/>
+    </radialGradient>
+    <radialGradient id="glossHi" cx="32%" cy="24%" r="45%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- ===== Capybara knockout mask (single-color mark) ===== -->
+    <!-- geometry shared with #capyPin: wide loaf head, tiny ears, dominant blunt nose -->
+    <mask id="capyKnock" maskUnits="userSpaceOnUse" x="0" y="0" width="120" height="120">
+      <rect width="120" height="120" fill="black"/>
+      <!-- tiny lateral ears, barely breaking the crown (no inner detail) -->
+      <ellipse cx="32" cy="40" rx="6" ry="7" fill="#fff"/>
+      <ellipse cx="88" cy="40" rx="6" ry="7" fill="#fff"/>
+      <!-- wide boxy loaf head (clearly wider than tall, low rounding) -->
+      <rect x="23" y="38" width="74" height="48" rx="15" fill="#fff"/>
+      <!-- small high-set wide eyes (holes) -->
+      <ellipse cx="46" cy="51" rx="3.4" ry="4" fill="#000"/>
+      <ellipse cx="74" cy="51" rx="3.4" ry="4" fill="#000"/>
+      <!-- dominant broad blunt nose owning the lower face (hole) -->
+      <rect x="44" y="61" width="32" height="14" rx="6" fill="#000"/>
+    </mask>
+
+    <!-- ===== Full enamel capybara pin ===== -->
+    <symbol id="capyPin" viewBox="0 0 120 120">
+      <!-- pin base plate -->
+      <rect x="8" y="8" width="104" height="104" rx="30" fill="url(#brassRim)"/>
+      <rect x="12.5" y="12.5" width="95" height="95" rx="26" fill="url(#glossRed)"/>
+      <!-- capybara: wide boxy loaf head, tiny lateral ears, muzzle owning the lower face -->
+      <g>
+        <!-- tiny lateral ears behind head (no inner detail; drawn first so the head crops them to nubs) -->
+        <ellipse cx="32" cy="40" rx="6.5" ry="7.5" fill="#845a38"/>
+        <ellipse cx="88" cy="40" rx="6.5" ry="7.5" fill="#845a38"/>
+        <!-- wide boxy loaf head -->
+        <rect x="23" y="38" width="74" height="48" rx="15" fill="#9a6a45" stroke="#c6a24e" stroke-width="2.4"/>
+        <!-- dominant broad muzzle across the lower face -->
+        <path d="M28 70 C28 60 40 55 60 55 C80 55 92 60 92 70 C92 80 80 86 60 86 C40 86 28 80 28 70 Z" fill="#b98a63"/>
+        <!-- small high-set wide eyes -->
+        <ellipse cx="46" cy="51" rx="3.4" ry="4" fill="#241a12"/>
+        <ellipse cx="74" cy="51" rx="3.4" ry="4" fill="#241a12"/>
+        <circle cx="47" cy="49.6" r="1.1" fill="#fff" opacity=".85"/>
+        <circle cx="75" cy="49.6" r="1.1" fill="#fff" opacity=".85"/>
+        <!-- signature broad blunt nose owning the lower face -->
+        <rect x="44" y="61" width="32" height="14" rx="6" fill="#3a2a1c"/>
+        <ellipse cx="54" cy="68" rx="1.7" ry="2.1" fill="#20130d"/>
+        <ellipse cx="66" cy="68" rx="1.7" ry="2.1" fill="#20130d"/>
+        <!-- subtle calm mouth -->
+        <path d="M60 75 L60 79 M60 79 C56 81.5 53 81.5 51 79.6 M60 79 C64 81.5 67 81.5 69 79.6" fill="none" stroke="#6f4a2e" stroke-width="1.9" stroke-linecap="round"/>
+      </g>
+      <!-- gloss highlight over enamel -->
+      <rect x="12.5" y="12.5" width="95" height="95" rx="26" fill="url(#glossHi)"/>
+      <!-- pin post dots -->
+      <circle cx="26" cy="60" r="3" fill="#96712f" opacity=".7"/>
+      <circle cx="94" cy="60" r="3" fill="#96712f" opacity=".7"/>
+    </symbol>
+
+    <!-- ===== Single-color capybara mark (knockout, adapts to any ground) ===== -->
+    <symbol id="capyGlyph" viewBox="0 0 120 120">
+      <rect width="120" height="120" fill="currentColor" mask="url(#capyKnock)"/>
+    </symbol>
+
+    <!-- ===== Enamel color chip (parametrized via CSS currentColor face) ===== -->
+    <symbol id="chipPin" viewBox="0 0 120 120">
+      <circle cx="60" cy="60" r="54" fill="url(#brassRim)"/>
+      <circle cx="60" cy="60" r="48" fill="currentColor"/>
+      <circle cx="60" cy="60" r="48" fill="url(#glossHi)"/>
+      <circle cx="42" cy="46" r="4" fill="#96712f" opacity=".55"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ================= HERO ================= -->
+<header class="hero">
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brandline">
+        <svg class="glyph" width="26" height="26" style="color:var(--ember)"><use href="#capyGlyph"/></svg>
+        <b>Captionato</b>
+      </div>
+      <div class="top-right">
+        <span class="mono meta-r" style="color:var(--muted)">Brand Kit · Edition 01 · <span id="pubdate">2026</span></span>
+        <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle dark mode" title="Toggle light / dark">
+          <svg class="i-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2v2.6M12 19.4V22M2 12h2.6M19.4 12H22M4.9 4.9l1.9 1.9M17.2 17.2l1.9 1.9M19.1 4.9l-1.9 1.9M6.8 17.2l-1.9 1.9"/></svg>
+          <svg class="i-moon" width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20 14.6A8 8 0 0 1 9.4 4 7 7 0 1 0 20 14.6Z"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="hero-grid">
+      <div class="hero-copy">
+        <h1>One calm brand,<br>assembled like a <span class="rule">pin kit.</span></h1>
+        <p class="motto">Stay soft. Ship sharp.</p>
+        <p class="sub">Captionato is a personal brand with a capybara's temperament: warm, unbothered, quietly precise. This is its kit. Every part is a spec'd badge you can pull off the card and use anywhere.</p>
+        <div class="cta-row">
+          <a href="#mark" class="btn btn-primary">Open the kit <span aria-hidden="true">↓</span></a>
+          <a href="#palette" class="btn btn-ghost">Jump to colors</a>
+        </div>
+      </div>
+
+      <div class="pin-stage">
+        <div class="pin hero-pin" role="button" tabindex="0" aria-label="Captionato capybara — give it a wink" title="psst — click me">
+          <svg viewBox="0 0 120 120" class="hero-capy">
+            <rect x="8" y="8" width="104" height="104" rx="30" fill="url(#brassRim)"/>
+            <rect x="12.5" y="12.5" width="95" height="95" rx="26" fill="url(#glossRed)"/>
+            <g>
+              <ellipse cx="32" cy="40" rx="6.5" ry="7.5" fill="#845a38"/>
+              <ellipse cx="88" cy="40" rx="6.5" ry="7.5" fill="#845a38"/>
+              <rect x="23" y="38" width="74" height="48" rx="15" fill="#9a6a45" stroke="#c6a24e" stroke-width="2.4"/>
+              <path d="M28 70 C28 60 40 55 60 55 C80 55 92 60 92 70 C92 80 80 86 60 86 C40 86 28 80 28 70 Z" fill="#b98a63"/>
+              <ellipse cx="46" cy="51" rx="3.4" ry="4" fill="#241a12"/>
+              <ellipse cx="74" cy="51" rx="3.4" ry="4" fill="#241a12"/>
+              <circle cx="47" cy="49.6" r="1.1" fill="#ffffff" opacity=".85"/>
+              <circle cx="75" cy="49.6" r="1.1" fill="#ffffff" opacity=".85"/>
+              <rect class="lid lid-l" x="42.6" y="47" width="6.8" height="8.8" rx="3" fill="#9a6a45"/>
+              <rect class="lid lid-r" x="70.6" y="47" width="6.8" height="8.8" rx="3" fill="#9a6a45"/>
+              <rect x="44" y="61" width="32" height="14" rx="6" fill="#3a2a1c"/>
+              <ellipse cx="54" cy="68" rx="1.7" ry="2.1" fill="#20130d"/>
+              <ellipse cx="66" cy="68" rx="1.7" ry="2.1" fill="#20130d"/>
+              <path d="M60 75 L60 79 M60 79 C56 81.5 53 81.5 51 79.6 M60 79 C64 81.5 67 81.5 69 79.6" fill="none" stroke="#6f4a2e" stroke-width="1.9" stroke-linecap="round"/>
+            </g>
+            <rect x="12.5" y="12.5" width="95" height="95" rx="26" fill="url(#glossHi)"/>
+            <circle cx="26" cy="60" r="3" fill="#96712f" opacity=".7"/>
+            <circle cx="94" cy="60" r="3" fill="#96712f" opacity=".7"/>
+          </svg>
+        </div>
+        <div class="caliper" aria-hidden="true">
+          <svg width="100%" height="100%" viewBox="0 0 400 400" preserveAspectRatio="none" style="position:absolute;inset:0">
+            <g stroke="currentColor" stroke-width="1" opacity=".5" fill="none">
+              <line x1="60" y1="352" x2="340" y2="352"/><line x1="60" y1="346" x2="60" y2="358"/><line x1="340" y1="346" x2="340" y2="358"/>
+              <line x1="360" y1="70" x2="360" y2="330"/><line x1="354" y1="70" x2="366" y2="70"/><line x1="354" y1="330" x2="366" y2="330"/>
+            </g>
+          </svg>
+          <span class="spec w">1.25 in</span>
+          <span class="spec h">1.25 in</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ================= STRIP ================= -->
+<div class="strip" aria-hidden="true">
+  <div class="track">
+    <span>Hard enamel</span><span>Brass keyline</span><span>Warm &amp; precise</span><span>Capybara-approved</span>
+    <span>Hard enamel</span><span>Brass keyline</span><span>Warm &amp; precise</span><span>Capybara-approved</span>
+  </div>
+</div>
+
+<!-- ================= PLATE 01 · THE MARK ================= -->
+<section class="plate" id="mark">
+  <div class="wrap">
+    <div class="plate-head reveal">
+      <span class="plate-code">Plate 01 · CAP-MRK</span>
+      <h2>The Mark</h2>
+      <p class="lede">One capybara, calm and centered. It leads every surface Captionato touches.</p>
+    </div>
+
+    <div class="mark-grid">
+      <div class="card mark-hero-card reveal">
+        <span class="card-code mono" style="color:var(--muted)">CAP-MRK-01</span>
+        <div class="pin lift"><svg viewBox="0 0 120 120"><use href="#capyPin"/></svg></div>
+      </div>
+
+      <div class="mark-side">
+        <div class="card reveal">
+          <span class="mono" style="color:var(--muted)">Wordmark lockup</span>
+          <div class="wordmark-demo" style="margin-top:.8rem">
+            <svg class="glyph" viewBox="0 0 120 120" style="color:var(--ember)"><use href="#capyGlyph"/></svg>
+            Captionato
+          </div>
+        </div>
+        <div class="card reveal">
+          <span class="mono" style="color:var(--muted)">Single-color mark</span>
+          <div class="mono-mark" style="margin-top:.9rem">
+            <div class="pin swatch-pin" style="filter:none"><svg viewBox="0 0 120 120" style="color:var(--ink)"><use href="#capyGlyph"/></svg></div>
+            <div class="pin swatch-pin" style="filter:none"><svg viewBox="0 0 120 120" style="color:var(--ember)"><use href="#capyGlyph"/></svg></div>
+            <div class="pin swatch-pin" style="filter:none;background:var(--ink);border-radius:14px;padding:8px"><svg viewBox="0 0 120 120" style="color:var(--cream)"><use href="#capyGlyph"/></svg></div>
+          </div>
+        </div>
+        <div class="card reveal clearspace">
+          <span class="card-code mono" style="color:var(--muted)">Clear space = x</span>
+          <div class="box"><div class="pin" style="filter:none"><svg viewBox="0 0 120 120"><use href="#capyPin"/></svg></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="dodont reveal">
+      <div class="item do"><span class="tag">Do</span><span>Give the pin room to breathe and keep it upright. A calm capy is a centered capy.</span></div>
+      <div class="item dont"><span class="tag">Don't</span><span>Stretch, tilt hard, recolor the fur, or drop the brass rim. The pin is one fixed object.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLATE 02 · PALETTE ================= -->
+<section class="plate felt" id="palette">
+  <div class="wrap">
+    <div class="plate-head reveal">
+      <span class="plate-code">Plate 02 · CAP-CLR</span>
+      <h2>Palette</h2>
+      <p class="lede">Two colors carry the brand; three keep it warm. Red leads, ink grounds, brass is the metal you earn.</p>
+    </div>
+
+    <div class="palette-row">
+      <div class="chip reveal">
+        <div class="pin chip-pin lift"><svg viewBox="0 0 120 120" style="color:var(--ember)"><use href="#chipPin"/></svg></div>
+        <h3>Ember Red</h3>
+        <p class="role">The signal. Primary actions, the mark's field, one bold accent per view.</p>
+        <button class="hex" data-hex="#D6362B">#D6362B <span class="copy">click to copy</span></button>
+      </div>
+      <div class="chip reveal">
+        <div class="pin chip-pin lift"><svg viewBox="0 0 120 120" style="color:var(--ink)"><use href="#chipPin"/></svg></div>
+        <h3>Ink</h3>
+        <p class="role">Warm near-black. Body text, structure, and the felt board pins pop against.</p>
+        <button class="hex" data-hex="#141110">#141110 <span class="copy">click to copy</span></button>
+      </div>
+      <div class="chip reveal">
+        <div class="pin chip-pin lift"><svg viewBox="0 0 120 120" style="color:var(--brass)"><use href="#chipPin"/></svg></div>
+        <h3>Brass</h3>
+        <p class="role">The keyline metal. Thin rims and small marks only. Precious, never a fill.</p>
+        <button class="hex" data-hex="#C6A24E">#C6A24E <span class="copy">click to copy</span></button>
+      </div>
+      <div class="chip reveal">
+        <div class="pin chip-pin lift"><svg viewBox="0 0 120 120" style="color:var(--cream)"><use href="#chipPin"/></svg></div>
+        <h3>Paper Cream</h3>
+        <p class="role">The backing card and default ground. Warm, matte, easy on the eyes.</p>
+        <button class="hex" data-hex="#F1E7D6">#F1E7D6 <span class="copy">click to copy</span></button>
+      </div>
+      <div class="chip reveal">
+        <div class="pin chip-pin lift"><svg viewBox="0 0 120 120" style="color:var(--capy)"><use href="#chipPin"/></svg></div>
+        <h3>Capy Brown</h3>
+        <p class="role">The fur. Secondary warmth, quiet dividers, and the friendly hand of the brand.</p>
+        <button class="hex" data-hex="#9A6A45">#9A6A45 <span class="copy">click to copy</span></button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLATE 03 · TYPE ================= -->
+<section class="plate" id="type">
+  <div class="wrap">
+    <div class="plate-head reveal">
+      <span class="plate-code">Plate 03 · CAP-TYP</span>
+      <h2>Typeface Kit</h2>
+      <p class="lede">Three faces, three jobs: one to announce, one to explain, one to spec.</p>
+    </div>
+
+    <div class="type-stack">
+      <div class="type-card reveal">
+        <div class="meta">
+          <span class="n">01 · Display</span>
+          <h3>Bricolage Grotesque</h3>
+          <p>Headlines, the wordmark, the loud moments. Set it bold and tight.</p>
+        </div>
+        <div class="specimen">
+          <div class="spc-display">Warm &amp; sharp</div>
+          <div class="scale-row">
+            <span style="font-size:2.6rem">Aa</span><span style="font-size:1.8rem">Bb</span><span style="font-size:1.3rem">Cc</span>
+            <span class="mono" style="color:var(--muted)">600 · 700 · 800 · −0.04em</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="type-card reveal">
+        <div class="meta">
+          <span class="n">02 · Text</span>
+          <h3>Hanken Grotesk</h3>
+          <p>Everything you actually read. Friendly, roomy, quietly professional.</p>
+        </div>
+        <div class="specimen">
+          <p class="spc-text" style="margin:0">A capybara doesn't rush and doesn't panic. Captionato writes the same way: plain sentences, a little warmth, nothing to prove. Regular for body, medium for emphasis.</p>
+        </div>
+      </div>
+
+      <div class="type-card reveal">
+        <div class="meta">
+          <span class="n">03 · Type</span>
+          <h3>Courier Prime</h3>
+          <p>The typewriter. Specs, codes, labels, and the small print with character.</p>
+        </div>
+        <div class="specimen">
+          <div class="spc-mono">CAP-KIT · ED.01 · v1.0</div>
+          <div class="glyphline mono">0123456789 · #D6362B · &amp;%@</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLATE 04 · VOICE ================= -->
+<section class="plate felt" id="voice">
+  <div class="wrap">
+    <div class="plate-head reveal">
+      <span class="plate-code">Plate 04 · CAP-VOX</span>
+      <h2>Voice</h2>
+      <p class="lede">Talk like the capybara looks: calm, kind, and never in a hurry.</p>
+    </div>
+
+    <div class="voice-grid">
+      <div class="voice-lead reveal">
+        <p>Warm first, clever second. Say the true thing plainly, add one small kindness, and stop.</p>
+        <div class="voice-traits">
+          <div class="trait"><b>Calm</b> No hype, no urgency, no exclamation pile-ups.</div>
+          <div class="trait"><b>Kind</b> Assume the reader is smart and having a normal day.</div>
+          <div class="trait"><b>Precise</b> Short words. Real numbers. Name the thing.</div>
+          <div class="trait"><b>Playful</b> One wink per page — earned, never forced.</div>
+        </div>
+      </div>
+      <div class="say-swap reveal">
+        <div class="say we">
+          <span class="tag">We say</span>
+          <p>"Saved. Take your time — it'll be here when you get back."</p>
+        </div>
+        <div class="say not">
+          <span class="tag">Not this</span>
+          <p>"SUCCESS!! 🚀 Your changes have been saved instantly!!!"</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLATE 05 · IN THE WILD ================= -->
+<section class="plate" id="wild">
+  <div class="wrap">
+    <div class="plate-head reveal">
+      <span class="plate-code">Plate 05 · CAP-APP</span>
+      <h2>In the Wild</h2>
+      <p class="lede">The same pin, pulled off the card and worn everywhere Captionato shows up.</p>
+    </div>
+
+    <div class="wild-grid">
+      <div class="app-icon reveal">
+        <div class="tile">
+          <svg class="glyph" viewBox="0 0 120 120" style="color:var(--cream);width:58%"><use href="#capyGlyph"/></svg>
+        </div>
+        <p class="tick-label" style="text-align:center;margin-top:.9rem">App icon</p>
+      </div>
+
+      <div class="avatar reveal">
+        <div class="ring"><div class="inner"><svg class="glyph" viewBox="0 0 120 120" style="color:var(--cream)"><use href="#capyGlyph"/></svg></div></div>
+        <p class="tick-label" style="text-align:center;margin-top:.9rem">Profile avatar</p>
+      </div>
+
+      <div class="sticker-card reveal">
+        <div class="card" style="padding:1.3rem">
+          <span class="mono" style="color:var(--muted)">Sticker sheet</span>
+          <div class="sheet" style="margin-top:1rem">
+            <div class="pin s" style="filter:none"><svg viewBox="0 0 120 120"><use href="#capyPin"/></svg></div>
+            <div class="pin s" style="filter:none"><svg viewBox="0 0 120 120" style="color:var(--ember)"><use href="#chipPin"/></svg></div>
+            <div class="pin s" style="filter:none"><svg viewBox="0 0 120 120" style="color:var(--capy)"><use href="#capyGlyph"/></svg></div>
+            <div class="pin s" style="filter:none"><svg viewBox="0 0 120 120" style="color:var(--ink)"><use href="#chipPin"/></svg></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ui-demo reveal">
+        <div class="bar">
+          <svg class="glyph" viewBox="0 0 120 120" style="color:var(--ember)"><use href="#capyGlyph"/></svg>
+          <span class="name">Captionato</span>
+          <nav class="nav"><a href="#mark">Apps</a><a href="#voice">About</a><a href="#wild">Contact</a></nav>
+        </div>
+        <div class="panel">
+          <span class="badge-token on"><span class="d"></span> Live</span>
+          <span class="badge-token off"><span class="d"></span> Draft</span>
+          <a href="#" class="btn btn-primary" style="margin-left:auto">Get the app</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLATE 06 · FAVICON & SOCIAL ================= -->
+<section class="plate felt" id="social">
+  <div class="wrap">
+    <div class="plate-head reveal">
+      <span class="plate-code">Plate 06 · CAP-ICO</span>
+      <h2>Favicon &amp; Social</h2>
+      <p class="lede">The mark shrunk to a tab, and the card people see when the link gets shared.</p>
+    </div>
+    <div class="split2">
+      <div class="reveal">
+        <div class="tabmock">
+          <div class="row">
+            <div class="tab"><img src="assets/favicon.svg" alt=""><span>Captionato — Brand Kit</span></div>
+            <div class="tab dim"><span>New Tab</span></div>
+          </div>
+          <div class="addr">captionato.tech</div>
+        </div>
+        <div class="favrow">
+          <figure><img src="assets/favicon.svg" width="16" height="16" alt="favicon at 16 pixels"><figcaption>16px</figcaption></figure>
+          <figure><img src="assets/favicon.svg" width="32" height="32" alt="favicon at 32 pixels"><figcaption>32px</figcaption></figure>
+          <figure><img src="assets/favicon.svg" width="64" height="64" alt="favicon at 64 pixels"><figcaption>64px</figcaption></figure>
+          <figure><img src="assets/apple-touch-icon.png" width="88" height="88" alt="apple touch icon" style="border-radius:20px"><figcaption>apple-touch</figcaption></figure>
+        </div>
+      </div>
+      <div class="reveal">
+        <div class="linkcard">
+          <img src="assets/og-image.png" alt="Captionato social share image: the capybara pin, the wordmark, and the motto">
+          <div class="m"><span class="u">captionato.tech</span><h3>Captionato — Brand Kit</h3><p>One calm brand, assembled like a pin kit. Stay soft. Ship sharp.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLATE 07 · STICKERS & MERCH ================= -->
+<section class="plate" id="merch">
+  <div class="wrap">
+    <div class="plate-head reveal">
+      <span class="plate-code">Plate 07 · CAP-MRCH</span>
+      <h2>Stickers &amp; Merch</h2>
+      <p class="lede">Pull the pins off the card. A print-ready sticker sheet, and a couple of things to wear.</p>
+    </div>
+    <div class="merch">
+      <div class="reveal">
+        <div class="sheet">
+          <img src="assets/stickers/sticker-sheet.png" alt="Captionato sticker sheet: the enamel pin, single-color marks, and a wordmark strip, drawn as die-cut stickers">
+          <span class="cap">Print-ready · assets/stickers/sticker-sheet.png</span>
+        </div>
+      </div>
+      <div class="mocks">
+        <div class="mock tee reveal">
+          <svg width="150" height="150" viewBox="0 0 150 150" role="img" aria-label="T-shirt with the capybara mark on the chest">
+            <path d="M46 20 L61 13 Q75 25 89 13 L104 20 L129 40 L114 59 L104 51 L104 133 Q75 139 46 133 L46 51 L36 59 L21 40 Z" fill="#20140f" stroke="#3a312b" stroke-width="2"/>
+            <g transform="translate(53,60) scale(0.36)"><use href="#capyGlyph" style="color:#f1e7d6"/></g>
+          </svg>
+          <span class="cap" style="color:var(--muted-dk)">Tee</span>
+        </div>
+        <div class="mock tote reveal">
+          <svg width="150" height="160" viewBox="0 0 150 160" role="img" aria-label="Tote bag with the capybara mark">
+            <path d="M46 52 C46 15 64 15 64 52" fill="none" stroke="#9a6a45" stroke-width="7"/>
+            <path d="M86 52 C86 15 104 15 104 52" fill="none" stroke="#9a6a45" stroke-width="7"/>
+            <rect x="30" y="50" width="90" height="102" rx="8" fill="#f1e7d6" stroke="#9a6a45" stroke-width="3"/>
+            <g transform="translate(52,78) scale(0.36)"><use href="#capyGlyph" style="color:#d6362b"/></g>
+          </svg>
+          <span class="cap">Tote</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLATE 08 · EMAIL SIGNATURE ================= -->
+<section class="plate felt" id="signature">
+  <div class="wrap">
+    <div class="plate-head reveal">
+      <span class="plate-code">Plate 08 · CAP-SIG</span>
+      <h2>Email Signature</h2>
+      <p class="lede">A calm sign-off. Built as a table so it survives every mail client.</p>
+    </div>
+    <div class="sig-wrap">
+      <div class="reveal">
+        <div class="mailcard">
+          <div class="mailbar"><i></i><i></i><i></i><span>New Message</span></div>
+          <div class="mailbody">
+            <p style="margin:0 0 1.3rem;color:var(--muted)">…thanks, and talk soon.</p>
+            <div class="sig">
+              <img src="assets/email-mark-128.png" alt="Captionato">
+              <div class="bar">
+                <div class="nm">Your Name</div>
+                <div class="role">Captionato · Stay soft. Ship sharp.</div>
+                <div class="lnk"><a class="site" href="https://captionato.tech">captionato.tech</a> &nbsp;·&nbsp; <a class="mail" href="#">you@captionato.tech</a></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="reveal">
+        <p>Grab the ready-to-paste version, swap in your name and a hosted mark URL, and drop it into your mail client's signature editor.</p>
+        <a class="btn btn-ghost" href="email-signature.html">Open email-signature.html</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PLATE 09 · THE ASSET KIT ================= -->
+<section class="plate" id="downloads">
+  <div class="wrap">
+    <div class="plate-head reveal">
+      <span class="plate-code">Plate 09 · CAP-DL</span>
+      <h2>The Asset Kit</h2>
+      <p class="lede">Everything above, as files. Click to download, or right-click to save.</p>
+    </div>
+    <div class="dl-groups">
+      <div class="dl-group reveal">
+        <h3>Marks <span class="k">SVG · transparent PNG</span></h3>
+        <ul class="dl-list">
+          <li><a href="assets/marks/capybara-pin.svg" download>capybara-pin.svg <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/marks/capybara-mark-ink.svg" download>mark-ink.svg <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/marks/capybara-mark-ember.svg" download>mark-ember.svg <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/marks/capybara-mark-cream.svg" download>mark-cream.svg <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/marks/capybara-pin-512.png" download>pin-512.png <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/marks/capybara-mark-ember-512.png" download>mark-ember-512.png <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/marks/capybara-mark-ink-512.png" download>mark-ink-512.png <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/marks/capybara-mark-cream-512.png" download>mark-cream-512.png <span class="dn" aria-hidden="true">↓</span></a></li>
+        </ul>
+      </div>
+      <div class="dl-group reveal">
+        <h3>Icons <span class="k">favicon</span></h3>
+        <ul class="dl-list">
+          <li><a href="assets/favicon.svg" download>favicon.svg <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/favicon-32.png" download>favicon-32.png <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/favicon-192.png" download>favicon-192.png <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/favicon-512.png" download>favicon-512.png <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/apple-touch-icon.png" download>apple-touch-icon.png <span class="dn" aria-hidden="true">↓</span></a></li>
+        </ul>
+      </div>
+      <div class="dl-group reveal">
+        <h3>Social &amp; Stickers <span class="k">PNG</span></h3>
+        <ul class="dl-list">
+          <li><a href="assets/og-image.png" download>og-image.png <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/stickers/sticker-sheet.png" download>sticker-sheet.png <span class="dn" aria-hidden="true">↓</span></a></li>
+        </ul>
+      </div>
+      <div class="dl-group reveal">
+        <h3>Email <span class="k">HTML · PNG</span></h3>
+        <ul class="dl-list">
+          <li><a href="email-signature.html" download>email-signature.html <span class="dn" aria-hidden="true">↓</span></a></li>
+          <li><a href="assets/email-mark-128.png" download>email-mark-128.png <span class="dn" aria-hidden="true">↓</span></a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= COLOPHON ================= -->
+<section class="plate felt colophon">
+  <div class="wrap">
+    <div class="pin reveal"><svg viewBox="0 0 120 120"><use href="#capyPin"/></svg></div>
+    <h2 class="reveal">That's the kit.</h2>
+    <p class="reveal" style="margin-inline:auto;color:var(--muted-dk)">Pull any badge off the card and it still reads Captionato. Keep it warm, keep it precise, and when in doubt, ask what the capybara would do.</p>
+    <p class="meta-line reveal">Captionato Brand Kit · Edition 01 · <span id="pubdate2">2026</span> · seed <span>6a87a8ad</span></p>
+    <footer class="wrap" style="width:100%">
+      <span>Captionato — personal brand of a calm maker.</span>
+      <span class="mono">Stay soft. Ship sharp.</span>
+    </footer>
+  </div>
+</section>
+
+<script>
+(function () {
+  // publish date / edition stamp
+  var d = new Date();
+  var stamp = d.getFullYear();
+  var el1 = document.getElementById('pubdate'); if (el1) el1.textContent = stamp;
+  var el2 = document.getElementById('pubdate2'); if (el2) el2.textContent = stamp;
+
+  // orchestrated reveal — one shared cadence, badges settle in on scroll
+  var reveals = [].slice.call(document.querySelectorAll('.reveal'));
+  var staticShot = /(?:\?|&)shot/.test(location.search);
+  if (/only=new/.test(location.search)) {
+    ['.hero', '.strip', '#mark', '#palette', '#type', '#voice', '#wild', '.colophon'].forEach(function (sel) {
+      var el = document.querySelector(sel); if (el) el.style.display = 'none';
+    });
+  }
+  if (staticShot || !('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    reveals.forEach(function (r) { r.classList.add('in'); });
+  } else {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          var group = e.target.parentElement ? [].slice.call(e.target.parentElement.querySelectorAll(':scope > .reveal')) : [e.target];
+          var idx = Math.max(0, group.indexOf(e.target));
+          e.target.style.transitionDelay = (idx * 70) + 'ms';
+          e.target.classList.add('in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.16, rootMargin: '0px 0px -8% 0px' });
+    reveals.forEach(function (r) { io.observe(r); });
+  }
+
+  // copy hex to clipboard
+  document.querySelectorAll('.hex').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var hex = btn.getAttribute('data-hex');
+      var done = function () {
+        btn.classList.add('copied');
+        var c = btn.querySelector('.copy'); var prev = c ? c.textContent : '';
+        if (c) c.textContent = 'pinned ✓';
+        setTimeout(function () { btn.classList.remove('copied'); if (c) c.textContent = prev; }, 1400);
+      };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(hex).then(done).catch(done);
+      } else { done(); }
+    });
+  });
+
+  // theme toggle (light / dark)
+  var tbtn = document.getElementById('themeToggle');
+  if (tbtn) tbtn.addEventListener('click', function () {
+    var root = document.documentElement;
+    var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+    root.setAttribute('data-theme', next);
+    try { localStorage.setItem('captionato-theme', next); } catch (e) {}
+  });
+
+  // pause looping motion when offscreen or the tab is hidden (budget + a11y)
+  function pauseWhenAway(el) {
+    if (!el) return;
+    var onscreen = true;
+    var apply = function () { el.style.animationPlayState = (onscreen && !document.hidden) ? '' : 'paused'; };
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (es) { onscreen = es[0].isIntersecting; apply(); }, { threshold: 0 }).observe(el);
+    }
+    document.addEventListener('visibilitychange', apply);
+  }
+  pauseWhenAway(document.querySelector('.pin-stage .hero-pin'));
+  pauseWhenAway(document.querySelector('.strip .track'));
+
+  // Delight: the capybara blinks on arrival, and winks when you greet it
+  var heroCapy = document.querySelector('.hero-capy');
+  var heroPin = document.querySelector('.pin-stage .hero-pin');
+  if (heroCapy && heroPin && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    var winkT;
+    var wink = function () {
+      heroCapy.classList.remove('wink');
+      requestAnimationFrame(function () { requestAnimationFrame(function () { heroCapy.classList.add('wink'); }); });
+      clearTimeout(winkT); winkT = setTimeout(function () { heroCapy.classList.remove('wink'); }, 680);
+    };
+    // one calm ambient blink once the entrance has settled — it's alive, not eager
+    setTimeout(function () { heroCapy.classList.add('blink'); setTimeout(function () { heroCapy.classList.remove('blink'); }, 620); }, 2050);
+    heroPin.addEventListener('click', wink);
+    heroPin.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wink(); } });
+  }
+})();
+</script>
+</body>
+</html>

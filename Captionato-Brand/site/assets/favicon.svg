@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Captionato">
+  <!-- Captionato favicon / app icon: cream capybara knockout on an Ember Red tile. Reads at 16px. -->
+  <mask id="capy">
+    <rect width="120" height="120" fill="#000"/>
+    <ellipse cx="32" cy="39" rx="6" ry="7" fill="#fff"/>
+    <ellipse cx="88" cy="39" rx="6" ry="7" fill="#fff"/>
+    <rect x="23" y="37" width="74" height="46" rx="15" fill="#fff"/>
+    <ellipse cx="46" cy="49" rx="3.6" ry="4.2" fill="#000"/>
+    <ellipse cx="74" cy="49" rx="3.6" ry="4.2" fill="#000"/>
+    <rect x="44" y="59" width="32" height="14" rx="6" fill="#000"/>
+  </mask>
+  <rect x="4" y="4" width="112" height="112" rx="26" fill="#d6362b"/>
+  <rect width="120" height="120" fill="#f1e7d6" mask="url(#capy)"/>
+</svg>

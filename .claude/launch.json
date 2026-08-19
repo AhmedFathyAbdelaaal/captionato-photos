@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "captionato-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "frontend", "run", "start", "--", "--host", "127.0.0.1", "--port", "4200"],
+      "port": 4200
+    }
+  ]
+}

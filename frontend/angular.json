@@ -59,10 +59,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "buildTarget": "captionato-photos-web:build:production"
+              "browserTarget": "captionato-photos-web:build:production"
             },
             "development": {
-              "buildTarget": "captionato-photos-web:build:development"
+              "browserTarget": "captionato-photos-web:build:development"
             }
           },
           "defaultConfiguration": "development"

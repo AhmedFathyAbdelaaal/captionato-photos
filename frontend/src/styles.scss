@@ -1,21 +1,38 @@
 /* ───────────────────────────────────────────────────────────────────────
-   Captionato Photos — design system
-   Tokens come in pairs (light default + dark). A gallery page can override
-   --color-accent / force a theme by setting data-theme on a wrapper element.
+   Captionato Photos — design system  ·  Enamel Badge edition
+   Brand truth from Captionato-Brand/starter/tokens.css. Two layers:
+     1. --cap-*  raw brand tokens (fixed, from the brand kit)
+     2. --color-* semantic aliases (theme-aware, what the app builds with)
+   Fonts: Bricolage Grotesque (display) · Hanken Grotesk (text) · Courier Prime (mono)
    ─────────────────────────────────────────────────────────────────────── */
 
 :root,
 [data-theme='light'] {
-  --color-paper: #fafaf8;
-  --color-ink: #14140f;
-  --color-accent: #b23a52;
-  --color-muted: #6b6b65;
-  --color-surface: #f0efeb;
-  --color-border: #e0ded8;
+  /* Brand — fixed. Never theme-flip. */
+  --cap-ember: #d6362b;
+  --cap-ember-deep: #ac281f;
+  --cap-ember-soft: #f6d9cf;
+  --cap-ink: #141110;
+  --cap-ink-2: #2a2320;
+  --cap-brass: #c6a24e;
+  --cap-brass-bright: #e6c877;
+  --cap-brass-deep: #96712f;
+  --cap-cream: #f1e7d6;
+  --cap-cream-hi: #faf3e6;
+  --cap-capy: #9a6a45;
+  --cap-capy-dark: #6f4a2e;
 
-  --font-display: 'Space Grotesk', system-ui, sans-serif;
-  --font-body: 'Inter', system-ui, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  /* Semantic (light) — legacy --color-* names stay so components keep working. */
+  --color-paper: var(--cap-cream);
+  --color-ink: var(--cap-ink);
+  --color-accent: var(--cap-ember);
+  --color-muted: #6a584a;             /* warm text-2, never gray */
+  --color-surface: var(--cap-cream-hi);
+  --color-border: #d8c9b2;            /* --cap-line */
+
+  --font-display: 'Bricolage Grotesque', system-ui, sans-serif;
+  --font-body: 'Hanken Grotesk', system-ui, sans-serif;
+  --font-mono: 'Courier Prime', ui-monospace, 'Courier New', monospace;
 
   --radius: 4px;
   --gap: 16px;
@@ -24,23 +41,23 @@
 }
 
 [data-theme='dark'] {
-  --color-paper: #0f0f0a;
-  --color-ink: #fafaf8;
-  --color-accent: #c4455e;
-  --color-muted: #9b9b93;
-  --color-surface: #1a1a14;
-  --color-border: #2a2a22;
+  --color-paper: #17120e;
+  --color-ink: var(--cap-cream);
+  --color-accent: #ef5a4e;             /* brighter ember for dark contrast */
+  --color-muted: #a2917d;
+  --color-surface: #211b16;
+  --color-border: #342c24;
 }
 
 /* Follow system preference when no explicit theme is set on <html>. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --color-paper: #0f0f0a;
-    --color-ink: #fafaf8;
-    --color-accent: #c4455e;
-    --color-muted: #9b9b93;
-    --color-surface: #1a1a14;
-    --color-border: #2a2a22;
+    --color-paper: #17120e;
+    --color-ink: var(--cap-cream);
+    --color-accent: #ef5a4e;
+    --color-muted: #a2917d;
+    --color-surface: #211b16;
+    --color-border: #342c24;
   }
 }
 
@@ -70,9 +87,14 @@ h2,
 h3,
 h4 {
   font-family: var(--font-display);
-  font-weight: 600;
-  letter-spacing: -0.01em;
+  font-weight: 700;
+  letter-spacing: -0.02em;             /* display is always tight */
   margin: 0 0 0.5em;
+}
+
+::selection {
+  background: var(--cap-ember);
+  color: var(--cap-cream-hi);
 }
 
 a {
@@ -117,7 +139,7 @@ button {
 /* Accent button used across admin + public chrome. */
 .btn-accent {
   background: var(--color-accent);
-  color: #fff;
+  color: var(--cap-cream-hi);
   border: none;
   border-radius: var(--radius);
   padding: 0.6rem 1.1rem;

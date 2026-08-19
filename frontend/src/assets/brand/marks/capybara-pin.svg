@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120" role="img" aria-label="Captionato capybara enamel pin">
+  <!-- Captionato full-color enamel pin. Self-contained. -->
+  <defs>
+    <linearGradient id="brass" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e6c877"/><stop offset=".45" stop-color="#c6a24e"/><stop offset=".75" stop-color="#96712f"/><stop offset="1" stop-color="#e6c877"/>
+    </linearGradient>
+    <radialGradient id="red" cx="34%" cy="28%" r="80%">
+      <stop offset="0" stop-color="#ef6357"/><stop offset=".5" stop-color="#d6362b"/><stop offset="1" stop-color="#ac281f"/>
+    </radialGradient>
+    <radialGradient id="hi" cx="32%" cy="24%" r="45%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".55"/><stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect x="8" y="8" width="104" height="104" rx="30" fill="url(#brass)"/>
+  <rect x="12.5" y="12.5" width="95" height="95" rx="26" fill="url(#red)"/>
+  <g>
+    <ellipse cx="32" cy="40" rx="6.5" ry="7.5" fill="#845a38"/>
+    <ellipse cx="88" cy="40" rx="6.5" ry="7.5" fill="#845a38"/>
+    <rect x="23" y="38" width="74" height="48" rx="15" fill="#9a6a45" stroke="#c6a24e" stroke-width="2.4"/>
+    <path d="M28 70 C28 60 40 55 60 55 C80 55 92 60 92 70 C92 80 80 86 60 86 C40 86 28 80 28 70 Z" fill="#b98a63"/>
+    <ellipse cx="46" cy="51" rx="3.4" ry="4" fill="#241a12"/>
+    <ellipse cx="74" cy="51" rx="3.4" ry="4" fill="#241a12"/>
+    <circle cx="47" cy="49.6" r="1.1" fill="#ffffff" opacity=".85"/>
+    <circle cx="75" cy="49.6" r="1.1" fill="#ffffff" opacity=".85"/>
+    <rect x="44" y="61" width="32" height="14" rx="6" fill="#3a2a1c"/>
+    <ellipse cx="54" cy="68" rx="1.7" ry="2.1" fill="#20130d"/>
+    <ellipse cx="66" cy="68" rx="1.7" ry="2.1" fill="#20130d"/>
+    <path d="M60 75 L60 79 M60 79 C56 81.5 53 81.5 51 79.6 M60 79 C64 81.5 67 81.5 69 79.6" fill="none" stroke="#6f4a2e" stroke-width="1.9" stroke-linecap="round"/>
+  </g>
+  <rect x="12.5" y="12.5" width="95" height="95" rx="26" fill="url(#hi)"/>
+  <circle cx="26" cy="60" r="3" fill="#96712f" opacity=".7"/>
+  <circle cx="94" cy="60" r="3" fill="#96712f" opacity=".7"/>
+</svg>

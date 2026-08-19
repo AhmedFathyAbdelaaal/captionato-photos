@@ -484,8 +484,8 @@ interface Snapshot {
       }
       .guide-line {
         position: absolute;
-        background: #b23a52;
-        box-shadow: 0 0 3px rgba(178, 58, 82, 0.9);
+        background: #d6362b;
+        box-shadow: 0 0 3px rgba(214, 54, 43, 0.9);
       }
       .guide-line.vert {
         top: 0;
@@ -521,7 +521,7 @@ interface Snapshot {
         pointer-events: none;
       }
       .layer.bordered .clip {
-        outline: 3px solid #b23a52;
+        outline: 3px solid #d6362b;
       }
       .layer.selected {
         box-shadow: 0 0 0 2px var(--color-accent), 0 4px 18px rgba(0, 0, 0, 0.3);
