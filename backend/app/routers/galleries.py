@@ -10,12 +10,17 @@ from ..schemas import (
     GalleryCreate,
     GalleryDetailOut,
     GalleryOut,
+    GalleryUnlock,
     GalleryUpdate,
     ReorderRequest,
 )
+from ..security import hash_password, verify_password
 from ..serializers import gallery_out, photo_out
 
 router = APIRouter(prefix="/galleries", tags=["galleries"])
+
+# Slugs that would shadow the admin subroute; validated on create/update.
+RESERVED_SLUGS = {"admin", "reorder"}
 
 
 def _cover_for(db: Session, gallery: Gallery) -> Photo | None:
@@ -33,9 +38,37 @@ def _cover_for(db: Session, gallery: Gallery) -> Photo | None:
     return link.photo if link else None
 
 
-# ── Public list ──
+def _detail(gallery: Gallery, cover: Photo | None, *, locked: bool) -> GalleryDetailOut:
+    """Build the detail response, hiding photos when locked."""
+    base = gallery_out(gallery, cover)
+    if locked:
+        return GalleryDetailOut(**base.model_dump(), photos=[], locked=True)
+    ordered = sorted(gallery.photo_links, key=lambda link: link.display_order)
+    return GalleryDetailOut(
+        **base.model_dump(),
+        photos=[photo_out(link.photo) for link in ordered],
+        locked=False,
+    )
+
+
+# ── Public list (public visibility only) ──
 @router.get("", response_model=list[GalleryOut])
 def list_galleries(db: Session = Depends(get_db)):
+    galleries = db.scalars(
+        select(Gallery)
+        .where(Gallery.visibility == "public")
+        .options(selectinload(Gallery.photo_links))
+        .order_by(Gallery.display_order, Gallery.created_at)
+    ).all()
+    return [gallery_out(g, _cover_for(db, g)) for g in galleries]
+
+
+# ── Admin list (all visibilities, including hidden + password-gated) ──
+@router.get("/admin", response_model=list[GalleryOut])
+def list_admin_galleries(
+    _admin=Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
     galleries = db.scalars(
         select(Gallery)
         .options(selectinload(Gallery.photo_links))
@@ -45,6 +78,8 @@ def list_galleries(db: Session = Depends(get_db)):
 
 
 # ── Public detail by slug ──
+# Password-gated galleries return a locked stub (no photos) until POST /unlock.
+# Unlisted galleries return full detail — the URL itself is the gate.
 @router.get("/{slug}", response_model=GalleryDetailOut)
 def get_gallery(slug: str, db: Session = Depends(get_db)):
     gallery = db.scalar(
@@ -55,12 +90,30 @@ def get_gallery(slug: str, db: Session = Depends(get_db)):
     if gallery is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
 
-    ordered = sorted(gallery.photo_links, key=lambda link: link.display_order)
-    base = gallery_out(gallery, _cover_for(db, gallery))
-    return GalleryDetailOut(
-        **base.model_dump(),
-        photos=[photo_out(link.photo) for link in ordered],
+    locked = gallery.visibility == "password" and bool(gallery.password_hash)
+    return _detail(gallery, _cover_for(db, gallery), locked=locked)
+
+
+# ── Unlock a password-gated gallery ──
+@router.post("/{slug}/unlock", response_model=GalleryDetailOut)
+def unlock_gallery(
+    slug: str,
+    body: GalleryUnlock,
+    db: Session = Depends(get_db),
+):
+    gallery = db.scalar(
+        select(Gallery)
+        .where(Gallery.slug == slug)
+        .options(selectinload(Gallery.photo_links).selectinload(GalleryPhoto.photo))
     )
+    if gallery is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
+    if gallery.visibility != "password" or not gallery.password_hash:
+        # Not a password gallery — return the full detail so a stale UI recovers.
+        return _detail(gallery, _cover_for(db, gallery), locked=False)
+    if not verify_password(body.password, gallery.password_hash):
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Wrong password")
+    return _detail(gallery, _cover_for(db, gallery), locked=False)
 
 
 # ── Create ──
@@ -70,11 +123,25 @@ def create_gallery(
     _admin=Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
+    if body.slug in RESERVED_SLUGS:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, "Slug is reserved")
     if db.scalar(select(Gallery).where(Gallery.slug == body.slug)):
         raise HTTPException(status.HTTP_409_CONFLICT, "Slug already in use")
+    if body.visibility == "password" and not body.password:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "Password-gated galleries need a password.",
+        )
     # New galleries go to the end of the display order.
-    max_order = db.scalar(select(Gallery.display_order).order_by(Gallery.display_order.desc()).limit(1))
-    gallery = Gallery(**body.model_dump(), display_order=(max_order or 0) + 1)
+    max_order = db.scalar(
+        select(Gallery.display_order).order_by(Gallery.display_order.desc()).limit(1)
+    )
+    data = body.model_dump(exclude={"password"})
+    gallery = Gallery(
+        **data,
+        display_order=(max_order or 0) + 1,
+        password_hash=hash_password(body.password) if body.password else None,
+    )
     db.add(gallery)
     db.commit()
     db.refresh(gallery)
@@ -95,8 +162,35 @@ def update_gallery(
 
     data = body.model_dump(exclude_unset=True)
     if "slug" in data and data["slug"] != gallery.slug:
+        if data["slug"] in RESERVED_SLUGS:
+            raise HTTPException(status.HTTP_400_BAD_REQUEST, "Slug is reserved")
         if db.scalar(select(Gallery).where(Gallery.slug == data["slug"])):
             raise HTTPException(status.HTTP_409_CONFLICT, "Slug already in use")
+
+    # Password handling: empty string clears; otherwise hash. Only touched when
+    # explicitly present in the payload.
+    if "password" in data:
+        pw = data.pop("password")
+        if pw == "" or pw is None:
+            gallery.password_hash = None
+        else:
+            gallery.password_hash = hash_password(pw)
+
+    # Guard: switching to password visibility without an existing hash needs one.
+    new_visibility = data.get("visibility", gallery.visibility)
+    if new_visibility == "password" and not gallery.password_hash:
+        raise HTTPException(
+            status.HTTP_400_BAD_REQUEST,
+            "Set a password before switching to password visibility.",
+        )
+    # Leaving password visibility — drop the hash so we don't stash unused secrets.
+    if (
+        new_visibility != "password"
+        and gallery.visibility == "password"
+        and "password" not in body.model_fields_set
+    ):
+        gallery.password_hash = None
+
     for field, value in data.items():
         setattr(gallery, field, value)
 

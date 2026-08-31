@@ -71,6 +71,12 @@ class Gallery(Base):
     )  # system|light|dark
     accent_color: Mapped[str | None] = mapped_column(String(9))  # hex, nullable
     display_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
+    # public: listed everywhere · unlisted: link-only · password: link + bcrypt gate
+    visibility: Mapped[str] = mapped_column(
+        String(15), default="public", nullable=False
+    )
+    # bcrypt hash — populated only when visibility="password".
+    password_hash: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

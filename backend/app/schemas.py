@@ -70,6 +70,9 @@ class BulkAddGalleries(BulkIds):
 
 
 # ── Galleries ──
+GalleryVisibility = Literal["public", "unlisted", "password"]
+
+
 class GalleryBase(BaseModel):
     name: str
     slug: str
@@ -78,10 +81,12 @@ class GalleryBase(BaseModel):
     layout: str = "masonry"
     force_theme: str = "system"
     accent_color: str | None = None
+    visibility: GalleryVisibility = "public"
 
 
 class GalleryCreate(GalleryBase):
-    pass
+    # Optional plaintext password — hashed server-side when visibility="password".
+    password: str | None = Field(default=None, min_length=1, max_length=200)
 
 
 class GalleryUpdate(BaseModel):
@@ -93,6 +98,10 @@ class GalleryUpdate(BaseModel):
     force_theme: str | None = None
     accent_color: str | None = None
     display_order: int | None = None
+    visibility: GalleryVisibility | None = None
+    # Only sent when the admin wants to change the password (or set one when
+    # switching to password visibility). Empty string clears it.
+    password: str | None = Field(default=None, max_length=200)
 
 
 class GalleryOut(GalleryBase):
@@ -103,10 +112,19 @@ class GalleryOut(GalleryBase):
     created_at: datetime
     photo_count: int = 0
     cover_thumbnail_url: str | None = None
+    # Never expose the hash; a boolean flag is enough for the admin UI.
+    has_password: bool = False
 
 
 class GalleryDetailOut(GalleryOut):
     photos: list[PhotoOut] = []
+    # True when the caller has NOT unlocked a password-gated gallery. When true,
+    # `photos` is empty and only name/description/cover are populated.
+    locked: bool = False
+
+
+class GalleryUnlock(BaseModel):
+    password: str = Field(min_length=1, max_length=200)
 
 
 class ReorderRequest(BaseModel):

@@ -1,5 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 import { GalleryDetail, Photo } from '../models';
@@ -11,7 +12,7 @@ import { RevealDirective } from '../components/reveal.directive';
 @Component({
   selector: 'app-gallery-detail',
   standalone: true,
-  imports: [CommonModule, LightboxComponent, RevealDirective],
+  imports: [CommonModule, FormsModule, LightboxComponent, RevealDirective],
   template: `
     <div class="wrap" *ngIf="gallery() as g">
       <header class="head">
@@ -20,7 +21,35 @@ import { RevealDirective } from '../components/reveal.directive';
         <p *ngIf="g.description">{{ g.description }}</p>
       </header>
 
-      <ng-container [ngSwitch]="g.layout">
+      <!-- Password gate for locked galleries -->
+      <section class="gate" *ngIf="g.locked" role="dialog" aria-label="Password required">
+        <div class="gate-card">
+          <span class="gate-icon" aria-hidden="true">🔒</span>
+          <h2>This gallery is private.</h2>
+          <p class="muted">
+            Enter the password shared with you to view it.
+          </p>
+          <form (ngSubmit)="submitUnlock()" class="gate-form">
+            <input
+              type="password"
+              [(ngModel)]="password"
+              name="password"
+              placeholder="Password"
+              [disabled]="unlocking()"
+              autocomplete="off"
+              #pwInput
+              (input)="unlockError.set('')"
+              required
+            />
+            <button class="btn-accent" type="submit" [disabled]="!password || unlocking()">
+              {{ unlocking() ? 'Checking…' : 'Unlock' }}
+            </button>
+          </form>
+          <p class="gate-err" *ngIf="unlockError()">{{ unlockError() }}</p>
+        </div>
+      </section>
+
+      <ng-container *ngIf="!g.locked" [ngSwitch]="g.layout">
         <!-- MASONRY -->
         <section *ngSwitchCase="'masonry'" class="masonry">
           <figure class="cell" appReveal *ngFor="let p of g.photos; let i = index" (click)="open(i)">
@@ -454,6 +483,69 @@ import { RevealDirective } from '../components/reveal.directive';
         font-family: var(--font-mono);
         padding: 3rem;
       }
+
+      /* ── Password gate ── */
+      .gate {
+        display: grid;
+        place-items: center;
+        padding: 2rem 0 4rem;
+      }
+      .gate-card {
+        width: min(420px, 100%);
+        text-align: center;
+        padding: 2rem 1.6rem;
+        background: var(--color-surface);
+        border: 1.5px solid var(--color-border);
+        border-radius: calc(var(--radius) * 5);
+        box-shadow: 0 40px 80px -30px rgba(20, 17, 16, 0.4);
+        animation: gate-in 0.35s var(--ease);
+      }
+      @keyframes gate-in {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+      }
+      .gate-icon {
+        display: block;
+        font-size: 1.8rem;
+        margin-bottom: 0.4rem;
+      }
+      .gate-card h2 {
+        font-family: var(--font-display);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        font-size: 1.3rem;
+        margin: 0 0 0.3rem;
+      }
+      .gate-card .muted {
+        color: var(--color-muted);
+        margin: 0 0 1.4rem;
+        font-size: 0.92rem;
+      }
+      .gate-form {
+        display: flex;
+        gap: 0.5rem;
+      }
+      .gate-form input {
+        flex: 1 1 auto;
+        font-family: var(--font-body);
+        font-size: 1rem;
+        padding: 0.65rem 0.85rem;
+        background: var(--color-paper);
+        border: 1.5px solid var(--color-border);
+        border-radius: var(--radius);
+        color: var(--color-ink);
+      }
+      .gate-form input:focus {
+        outline: 2px solid var(--color-accent);
+        border-color: transparent;
+      }
+      .gate-err {
+        color: var(--color-accent);
+        margin: 0.8rem 0 0;
+        font-size: 0.88rem;
+      }
     `,
   ],
 })
@@ -464,6 +556,12 @@ export class GalleryDetailComponent implements OnInit, OnDestroy {
   lightboxIndex = signal<number | null>(null);
   slide = signal(0);
 
+  // Password gate state
+  password = '';
+  unlocking = signal(false);
+  unlockError = signal('');
+  private slug = '';
+
   constructor(
     private route: ActivatedRoute,
     public api: ApiService,
@@ -471,18 +569,80 @@ export class GalleryDetailComponent implements OnInit, OnDestroy {
   ) {}
 
   ngOnInit(): void {
-    const slug = this.route.snapshot.paramMap.get('slug')!;
-    this.api.getGallery(slug).subscribe({
+    this.slug = this.route.snapshot.paramMap.get('slug')!;
+    this.api.getGallery(this.slug).subscribe({
       next: (g) => {
         this.gallery.set(g);
         this.loading.set(false);
         this.theme.setGalleryOverride(g.force_theme, g.accent_color ?? null);
+        // If a remembered password unlocks this gallery, apply it silently.
+        if (g.locked) this.tryRememberedUnlock();
       },
       error: () => {
         this.loading.set(false);
         this.notFound.set(true);
       },
     });
+  }
+
+  /** Attempt unlock using a previously-accepted password from localStorage. */
+  private tryRememberedUnlock(): void {
+    const stored = this.rememberedPassword(this.slug);
+    if (!stored) return;
+    this.api.unlockGallery(this.slug, stored).subscribe({
+      next: (fresh) => this.gallery.set(fresh),
+      // Stored password no longer works (admin rotated it). Silently forget it.
+      error: () => this.forgetPassword(this.slug),
+    });
+  }
+
+  submitUnlock(): void {
+    const pw = this.password;
+    if (!pw) return;
+    this.unlocking.set(true);
+    this.unlockError.set('');
+    this.api.unlockGallery(this.slug, pw).subscribe({
+      next: (fresh) => {
+        this.gallery.set(fresh);
+        this.rememberPassword(this.slug, pw);
+        this.password = '';
+        this.unlocking.set(false);
+      },
+      error: (e) => {
+        this.unlocking.set(false);
+        this.unlockError.set(
+          e.status === 401 ? 'Wrong password.' : 'Something went wrong. Try again.',
+        );
+      },
+    });
+  }
+
+  // ── Password memory ── Persist per-slug in localStorage so refresh doesn't
+  // re-prompt. This is a courtesy, not security: the gallery still hits the
+  // server on every load and the token cache is per-browser.
+  private storageKey(slug: string): string {
+    return `captionato_gal_pw:${slug}`;
+  }
+  private rememberedPassword(slug: string): string | null {
+    try {
+      return localStorage.getItem(this.storageKey(slug));
+    } catch {
+      return null;
+    }
+  }
+  private rememberPassword(slug: string, pw: string): void {
+    try {
+      localStorage.setItem(this.storageKey(slug), pw);
+    } catch {
+      /* private-mode / disabled — fine, they'll re-enter next visit. */
+    }
+  }
+  private forgetPassword(slug: string): void {
+    try {
+      localStorage.removeItem(this.storageKey(slug));
+    } catch {
+      /* ignore */
+    }
   }
 
   ngOnDestroy(): void {

@@ -104,8 +104,10 @@ def gallery_out(gallery: Gallery, cover: Photo | None = None) -> GalleryOut:
         layout=gallery.layout,
         force_theme=gallery.force_theme,
         accent_color=gallery.accent_color,
+        visibility=gallery.visibility,
         display_order=gallery.display_order,
         created_at=gallery.created_at,
         photo_count=len(gallery.photo_links),
         cover_thumbnail_url=thumb_url(cover) if cover else None,
+        has_password=bool(gallery.password_hash),
     )

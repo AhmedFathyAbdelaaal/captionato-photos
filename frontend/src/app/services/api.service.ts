@@ -107,11 +107,23 @@ export class ApiService {
   }
 
   // ── Galleries ──
+  /** Public list — omits unlisted/password galleries. */
   getGalleries(): Observable<Gallery[]> {
     return this.http.get<Gallery[]>(`${this.base}/galleries`);
   }
+  /** Admin list — all galleries regardless of visibility. */
+  getAdminGalleries(): Observable<Gallery[]> {
+    return this.http.get<Gallery[]>(`${this.base}/galleries/admin`);
+  }
   getGallery(slug: string): Observable<GalleryDetail> {
     return this.http.get<GalleryDetail>(`${this.base}/galleries/${slug}`);
+  }
+  /** Try to unlock a password-gated gallery; 401 on wrong password. */
+  unlockGallery(slug: string, password: string): Observable<GalleryDetail> {
+    return this.http.post<GalleryDetail>(
+      `${this.base}/galleries/${slug}/unlock`,
+      { password },
+    );
   }
   createGallery(body: GalleryInput): Observable<Gallery> {
     return this.http.post<Gallery>(`${this.base}/galleries`, body);

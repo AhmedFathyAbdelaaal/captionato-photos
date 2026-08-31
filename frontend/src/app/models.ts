@@ -47,6 +47,8 @@ export type GalleryLayout =
 
 export type ForceTheme = 'system' | 'light' | 'dark';
 
+export type GalleryVisibility = 'public' | 'unlisted' | 'password';
+
 export interface Gallery {
   id: string;
   name: string;
@@ -56,14 +58,19 @@ export interface Gallery {
   layout: GalleryLayout;
   force_theme: ForceTheme;
   accent_color?: string | null;
+  visibility: GalleryVisibility;
   display_order: number;
   created_at: string;
   photo_count: number;
   cover_thumbnail_url?: string | null;
+  /** True when a password_hash is set on the backend (never the hash itself). */
+  has_password: boolean;
 }
 
 export interface GalleryDetail extends Gallery {
   photos: Photo[];
+  /** True when the visitor hasn't unlocked a password-gated gallery yet. */
+  locked: boolean;
 }
 
 // ── Collage maker ──
@@ -121,4 +128,7 @@ export interface GalleryInput {
   force_theme?: ForceTheme;
   accent_color?: string | null;
   display_order?: number;
+  visibility?: GalleryVisibility;
+  /** Plaintext — hashed server-side. Empty string clears an existing password. */
+  password?: string | null;
 }

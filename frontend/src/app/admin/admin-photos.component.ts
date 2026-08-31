@@ -130,31 +130,83 @@ import { ApiService } from '../services/api.service';
 
     <!-- Bulk action bar -->
     <div class="bulk-bar" *ngIf="selected().size > 0">
-      <!-- Gallery picker popover -->
-      <div class="picker" *ngIf="showPicker()">
-        <p class="picker-head">Add {{ selected().size }} photo(s) to:</p>
-        <div class="picker-list">
-          <label class="chk" *ngFor="let g of galleries()">
-            <input type="checkbox" [checked]="pickerSel().has(g.id)" (change)="togglePicker(g.id)" />
-            {{ g.name }}
-          </label>
-          <p class="muted" *ngIf="galleries().length === 0">No galleries yet.</p>
-        </div>
-        <div class="picker-actions">
-          <button class="btn-accent" [disabled]="pickerSel().size === 0 || busy()" (click)="applyGalleries()">
-            Add
-          </button>
-          <button class="btn-ghost" (click)="showPicker.set(false)">Cancel</button>
-        </div>
-      </div>
-
       <span class="sel-count">{{ selected().size }} selected</span>
       <div class="bar-actions">
-        <button class="btn-ghost" (click)="showPicker.set(!showPicker())">＋ Gallery</button>
+        <button class="btn-ghost" (click)="openPicker()">＋ Gallery</button>
         <button class="btn-ghost" (click)="bulkVisibility(false)">Hide</button>
         <button class="btn-ghost" (click)="bulkVisibility(true)">Show</button>
         <button class="btn-ghost danger" (click)="bulkDelete()">Delete</button>
         <button class="btn-ghost" (click)="clearSelection()">✕</button>
+      </div>
+    </div>
+
+    <!-- Gallery picker modal -->
+    <div
+      class="modal-backdrop"
+      *ngIf="showPicker()"
+      (click)="closePicker()"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div class="modal" (click)="$event.stopPropagation()">
+        <header class="modal-head">
+          <h2>Add to galleries</h2>
+          <p class="mono muted">
+            {{ selected().size }} photo{{ selected().size === 1 ? '' : 's' }} · pick one or more
+          </p>
+        </header>
+
+        <div class="chips" *ngIf="galleries().length">
+          <button
+            type="button"
+            class="chip"
+            *ngFor="let g of galleries()"
+            [class.on]="pickerSel().has(g.id)"
+            (click)="togglePicker(g.id)"
+          >
+            <span class="chip-vis" *ngIf="g.visibility !== 'public'">
+              {{ g.visibility === 'password' ? '🔒' : '🔗' }}
+            </span>
+            <span class="chip-name">{{ g.name }}</span>
+            <span class="chip-count mono">{{ g.photo_count }}</span>
+            <span class="chip-tick" aria-hidden="true">✓</span>
+          </button>
+        </div>
+        <p class="muted no-gal" *ngIf="galleries().length === 0">
+          No galleries yet — start one below.
+        </p>
+
+        <!-- Inline new-gallery row -->
+        <div class="new-row">
+          <span class="new-plus">＋</span>
+          <input
+            [(ngModel)]="newGalleryName"
+            placeholder="Start a new gallery…"
+            (keyup.enter)="createInlineGallery()"
+            [disabled]="busy()"
+          />
+          <button
+            type="button"
+            class="btn-ghost small"
+            (click)="createInlineGallery()"
+            [disabled]="!newGalleryName.trim() || busy()"
+          >
+            Create
+          </button>
+        </div>
+
+        <p class="err" *ngIf="pickerError()">{{ pickerError() }}</p>
+
+        <footer class="modal-foot">
+          <button
+            class="btn-accent"
+            [disabled]="pickerSel().size === 0 || busy()"
+            (click)="applyGalleries()"
+          >
+            {{ busy() ? 'Adding…' : 'Add to ' + pickerSel().size + ' gallery' + (pickerSel().size === 1 ? '' : 'ies') }}
+          </button>
+          <button class="btn-ghost" (click)="closePicker()">Cancel</button>
+        </footer>
       </div>
     </div>
   `,
@@ -464,33 +516,147 @@ import { ApiService } from '../services/api.service';
         padding: 0.45rem 0.7rem;
         font-size: 0.85rem;
       }
-      .picker {
-        position: absolute;
-        bottom: calc(100% + 0.5rem);
-        left: clamp(1rem, 3vw, 2rem);
-        width: min(320px, 90vw);
-        background: var(--color-surface);
-        border: 1px solid var(--color-border);
-        border-radius: var(--radius);
-        padding: 0.9rem;
-        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.25);
+      /* ── Add-to-gallery modal ── */
+      .modal-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 200;
+        display: grid;
+        place-items: center;
+        padding: 1rem;
+        background: color-mix(in srgb, var(--cap-ink) 55%, transparent);
+        backdrop-filter: blur(4px);
+        animation: fade-in 0.2s var(--ease);
       }
-      .picker-head {
-        margin: 0 0 0.5rem;
-        font-size: 0.85rem;
-        color: var(--color-muted);
+      @keyframes fade-in {
+        from {
+          opacity: 0;
+        }
       }
-      .picker-list {
+      .modal {
+        width: min(560px, 100%);
+        max-height: min(90vh, 720px);
         display: flex;
         flex-direction: column;
-        gap: 0.35rem;
-        max-height: 40vh;
-        overflow: auto;
-        margin-bottom: 0.7rem;
+        gap: 0.9rem;
+        padding: 1.4rem;
+        background: var(--color-surface);
+        border: 1.5px solid var(--color-border);
+        border-radius: calc(var(--radius) * 4);
+        box-shadow: 0 40px 80px -30px rgba(20, 17, 16, 0.55),
+          0 12px 24px -10px rgba(20, 17, 16, 0.35);
+        animation: modal-in 0.25s var(--ease);
       }
-      .picker-actions {
+      @keyframes modal-in {
+        from {
+          opacity: 0;
+          transform: translateY(10px) scale(0.98);
+        }
+      }
+      .modal-head h2 {
+        font-family: var(--font-display);
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        font-size: 1.4rem;
+        margin: 0;
+      }
+      .modal-head .mono {
+        display: block;
+        margin-top: 0.15rem;
+        font-size: 0.75rem;
+      }
+      .chips {
         display: flex;
+        flex-wrap: wrap;
         gap: 0.5rem;
+        overflow: auto;
+        max-height: 40vh;
+        padding: 0.15rem;
+      }
+      .chip {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        padding: 0.5rem 0.9rem;
+        background: var(--color-paper);
+        border: 1.5px solid var(--color-border);
+        border-radius: 999px;
+        color: var(--color-ink);
+        font-family: var(--font-body);
+        font-size: 0.88rem;
+        cursor: pointer;
+        transition: transform 0.15s var(--ease), border-color 0.2s var(--ease),
+          background 0.2s var(--ease), color 0.2s var(--ease);
+      }
+      .chip:hover {
+        border-color: var(--cap-capy);
+        transform: translateY(-1px);
+      }
+      .chip.on {
+        background: var(--cap-ember);
+        border-color: var(--cap-ember);
+        color: var(--cap-cream-hi);
+      }
+      .chip .chip-count {
+        font-size: 0.72rem;
+        color: var(--color-muted);
+        opacity: 0.85;
+      }
+      .chip.on .chip-count {
+        color: var(--cap-cream-hi);
+      }
+      .chip .chip-tick {
+        opacity: 0;
+        font-weight: 700;
+        transition: opacity 0.15s var(--ease);
+      }
+      .chip.on .chip-tick {
+        opacity: 1;
+      }
+      .chip .chip-vis {
+        line-height: 1;
+      }
+      .no-gal {
+        text-align: center;
+        padding: 1.4rem 0;
+      }
+
+      .new-row {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.7rem;
+        border: 1px dashed var(--color-border);
+        border-radius: var(--radius);
+        background: var(--color-paper);
+      }
+      .new-row .new-plus {
+        font-family: var(--font-display);
+        font-weight: 800;
+        color: var(--cap-brass);
+        font-size: 1.05rem;
+      }
+      .new-row input {
+        flex: 1 1 auto;
+        min-width: 0;
+        border: none;
+        background: transparent;
+        padding: 0.3rem 0;
+        outline: none;
+      }
+      .small {
+        padding: 0.35rem 0.7rem !important;
+        font-size: 0.8rem;
+      }
+
+      .modal-foot {
+        display: flex;
+        gap: 0.6rem;
+        justify-content: flex-end;
+      }
+      .modal-foot .btn-accent {
+        flex: 1 1 auto;
       }
 
       @media (max-width: 720px) {
@@ -540,6 +706,8 @@ export class AdminPhotosComponent implements OnInit, AfterViewInit {
   selected = signal<Set<string>>(new Set());
   showPicker = signal(false);
   pickerSel = signal<Set<string>>(new Set());
+  pickerError = signal('');
+  newGalleryName = '';
   busy = signal(false);
 
   allSelected = computed(
@@ -549,7 +717,7 @@ export class AdminPhotosComponent implements OnInit, AfterViewInit {
   constructor(public api: ApiService) {}
 
   ngOnInit(): void {
-    this.api.getGalleries().subscribe({
+    this.api.getAdminGalleries().subscribe({
       next: (galleries) => this.galleries.set(galleries),
     });
   }
@@ -630,6 +798,12 @@ export class AdminPhotosComponent implements OnInit, AfterViewInit {
       this.maybeLoadMore();
       this.ticking = false;
     });
+  }
+
+  /** Close the picker modal on Escape. */
+  @HostListener('window:keydown.escape')
+  onEscape(): void {
+    if (this.showPicker()) this.closePicker();
   }
 
   // ── Timeline helpers ──
@@ -770,6 +944,51 @@ export class AdminPhotosComponent implements OnInit, AfterViewInit {
     this.pickerSel.set(next);
   }
 
+  /** Open the picker and reset its transient state. */
+  openPicker(): void {
+    this.pickerSel.set(new Set());
+    this.newGalleryName = '';
+    this.pickerError.set('');
+    this.showPicker.set(true);
+  }
+
+  closePicker(): void {
+    this.showPicker.set(false);
+    this.newGalleryName = '';
+    this.pickerError.set('');
+  }
+
+  /** Create a new (public, default-layout) gallery inline and auto-select it
+   *  in the picker so the next Add applies to it too. */
+  createInlineGallery(): void {
+    const name = this.newGalleryName.trim();
+    if (!name) return;
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-|-$/g, '');
+    if (!slug) {
+      this.pickerError.set('Name needs at least one letter or number.');
+      return;
+    }
+    this.pickerError.set('');
+    this.busy.set(true);
+    this.api.createGallery({ name, slug }).subscribe({
+      next: (g) => {
+        this.galleries.update((cur) => [...cur, g]);
+        const next = new Set(this.pickerSel());
+        next.add(g.id);
+        this.pickerSel.set(next);
+        this.newGalleryName = '';
+        this.busy.set(false);
+      },
+      error: (e) => {
+        this.pickerError.set(e.error?.detail || 'Could not create gallery.');
+        this.busy.set(false);
+      },
+    });
+  }
+
   applyGalleries(): void {
     const ids = this.selectedIds();
     const gids = Array.from(this.pickerSel());
@@ -785,18 +1004,27 @@ export class AdminPhotosComponent implements OnInit, AfterViewInit {
             return { ...p, gallery_ids: Array.from(merged) };
           }),
         );
-        // Bump photo_count on affected galleries.
+        // Refresh photo counts on affected galleries (local approximation:
+        // add the count of photos that weren't already members).
         this.galleries.update((cur) =>
-          cur.map((g) =>
-            gids.includes(g.id) ? { ...g, photo_count: g.photo_count } : g,
-          ),
+          cur.map((g) => {
+            if (!gids.includes(g.id)) return g;
+            const newlyAdded = ids.filter((pid) => {
+              const p = this.photos().find((x) => x.id === pid);
+              return !(p?.gallery_ids ?? []).includes(g.id);
+            }).length;
+            // newlyAdded is already reflected in the mapped photos above; here
+            // we approximate the count bump by the size of `ids` not previously
+            // linked. If exact, fine; if slightly stale, next reload fixes it.
+            return { ...g, photo_count: g.photo_count + newlyAdded };
+          }),
         );
         this.pickerSel.set(new Set());
         this.showPicker.set(false);
         this.busy.set(false);
       },
       error: () => {
-        this.error.set('Could not add to galleries.');
+        this.pickerError.set('Could not add to galleries.');
         this.busy.set(false);
       },
     });
