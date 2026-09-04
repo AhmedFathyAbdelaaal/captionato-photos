@@ -8,11 +8,18 @@ import { ApiService } from '../services/api.service';
 import { ThemeService } from '../services/theme.service';
 import { LightboxComponent } from '../components/lightbox.component';
 import { RevealDirective } from '../components/reveal.directive';
+import { PhotoComponent } from '../components/photo.component';
 
 @Component({
   selector: 'app-gallery-detail',
   standalone: true,
-  imports: [CommonModule, FormsModule, LightboxComponent, RevealDirective],
+  imports: [
+    CommonModule,
+    FormsModule,
+    LightboxComponent,
+    RevealDirective,
+    PhotoComponent,
+  ],
   template: `
     <div class="wrap" *ngIf="gallery() as g">
       <header class="head">
@@ -53,21 +60,37 @@ import { RevealDirective } from '../components/reveal.directive';
         <!-- MASONRY -->
         <section *ngSwitchCase="'masonry'" class="masonry">
           <figure class="cell" appReveal *ngFor="let p of g.photos; let i = index" (click)="open(i)">
-            <img [src]="api.imageUrl(p.thumbnail_url)" [alt]="p.title || p.filename" loading="lazy" />
+            <app-photo
+              [src]="api.imageUrl(p.thumbnail_url)"
+              [alt]="p.title || p.filename"
+              fit="natural"
+              [width]="p.width"
+              [height]="p.height"
+            ></app-photo>
           </figure>
         </section>
 
         <!-- UNIFORM GRID -->
         <section *ngSwitchCase="'grid'" class="uniform">
           <figure class="cell" appReveal *ngFor="let p of g.photos; let i = index" (click)="open(i)">
-            <img [src]="api.imageUrl(p.thumbnail_url)" [alt]="p.title || p.filename" loading="lazy" />
+            <app-photo
+              [src]="api.imageUrl(p.thumbnail_url)"
+              [alt]="p.title || p.filename"
+              fit="cover"
+            ></app-photo>
           </figure>
         </section>
 
         <!-- EDITORIAL -->
         <section *ngSwitchCase="'editorial'" class="editorial">
           <figure class="cell" appReveal *ngFor="let p of g.photos; let i = index" (click)="open(i)">
-            <img [src]="api.imageUrl(p.thumbnail_url)" [alt]="p.title || p.filename" loading="lazy" />
+            <app-photo
+              [src]="api.imageUrl(p.thumbnail_url)"
+              [alt]="p.title || p.filename"
+              fit="natural"
+              [width]="p.width"
+              [height]="p.height"
+            ></app-photo>
             <figcaption *ngIf="p.title || p.caption">
               <strong *ngIf="p.title">{{ p.title }}</strong>
               <span *ngIf="p.caption">{{ p.caption }}</span>
@@ -215,15 +238,25 @@ import { RevealDirective } from '../components/reveal.directive';
         break-inside: avoid;
       }
 
-      /* uniform grid */
+      /* uniform grid — the cell defines the square box that app-photo fills */
       .uniform {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
         gap: var(--gap);
       }
-      .uniform .cell img {
+      .uniform .cell {
         aspect-ratio: 1;
-        object-fit: cover;
+      }
+
+      /* Decorative layouts keep plain <img>; give them a warm placeholder block
+         so slow connections don't show empty space before the image paints. */
+      .slideshow img,
+      .moodboard img,
+      .collage img,
+      .polaroid img,
+      .filmstrip img,
+      .marquee img {
+        background: var(--color-surface);
       }
 
       /* editorial */

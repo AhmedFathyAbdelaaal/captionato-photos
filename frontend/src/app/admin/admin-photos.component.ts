@@ -11,7 +11,7 @@ import {
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
-import { Gallery, Photo } from '../models';
+import { FEATURED_TAG, Gallery, Photo } from '../models';
 import { ApiService } from '../services/api.service';
 
 @Component({
@@ -89,6 +89,14 @@ import { ApiService } from '../services/api.service';
           >
             {{ p.visible ? '👁' : '🚫' }}
           </button>
+          <button
+            class="star"
+            [class.on]="isFeatured(p)"
+            (click)="toggleFeatured(p)"
+            [title]="isFeatured(p) ? 'Featured on homepage' : 'Feature on homepage'"
+          >
+            {{ isFeatured(p) ? '★' : '☆' }}
+          </button>
           <button class="edit" (click)="editing.set(editing() === p.id ? null : p.id)">⋯</button>
         </div>
 
@@ -96,6 +104,22 @@ import { ApiService } from '../services/api.service';
         <div class="editor" *ngIf="editing() === p.id">
           <label>Title<input [(ngModel)]="p.title" placeholder="Untitled" /></label>
           <label>Caption<textarea [(ngModel)]="p.caption" rows="2"></textarea></label>
+          <fieldset>
+            <legend>Tags</legend>
+            <div class="tag-chips">
+              <span class="tag-chip" *ngFor="let t of p.tags">
+                {{ t }}
+                <button type="button" (click)="removeTag(p, t)" title="Remove tag">✕</button>
+              </span>
+              <input
+                class="tag-add"
+                [(ngModel)]="tagDraft[p.id]"
+                placeholder="add tag…"
+                (keydown.enter)="addTag(p, tagDraft[p.id]); $event.preventDefault()"
+                [attr.list]="'taglist'"
+              />
+            </div>
+          </fieldset>
           <fieldset>
             <legend>Galleries</legend>
             <label class="chk" *ngFor="let g of galleries()">
@@ -128,11 +152,28 @@ import { ApiService } from '../services/api.service';
       No photos yet — add some above.
     </p>
 
+    <!-- Shared tag suggestions for the tag inputs -->
+    <datalist id="taglist">
+      <option *ngFor="let t of allTags()" [value]="t"></option>
+    </datalist>
+
     <!-- Bulk action bar -->
     <div class="bulk-bar" *ngIf="selected().size > 0">
       <span class="sel-count">{{ selected().size }} selected</span>
       <div class="bar-actions">
         <button class="btn-ghost" (click)="openPicker()">＋ Gallery</button>
+        <button class="btn-ghost" (click)="bulkFeature(true)" title="Add to homepage">★ Feature</button>
+        <button class="btn-ghost" (click)="bulkFeature(false)" title="Remove from homepage">☆ Unfeature</button>
+        <form class="bulk-tag" (ngSubmit)="bulkAddTag()">
+          <input
+            [(ngModel)]="bulkTagDraft"
+            name="bulkTag"
+            placeholder="tag…"
+            list="taglist"
+            autocomplete="off"
+          />
+          <button class="btn-ghost" type="submit" [disabled]="!bulkTagDraft.trim()">Tag</button>
+        </form>
         <button class="btn-ghost" (click)="bulkVisibility(false)">Hide</button>
         <button class="btn-ghost" (click)="bulkVisibility(true)">Show</button>
         <button class="btn-ghost danger" (click)="bulkDelete()">Delete</button>
@@ -405,7 +446,8 @@ import { ApiService } from '../services/api.service';
       }
       .check,
       .vis,
-      .edit {
+      .edit,
+      .star {
         position: absolute;
         border: none;
         border-radius: 50%;
@@ -416,6 +458,15 @@ import { ApiService } from '../services/api.service';
         display: grid;
         place-items: center;
         font-size: 0.95rem;
+      }
+      .star {
+        bottom: 0.4rem;
+        right: 0.4rem;
+        color: var(--color-muted);
+      }
+      .star.on {
+        color: var(--cap-brass-deep);
+        background: color-mix(in srgb, var(--cap-brass) 30%, var(--color-paper));
       }
       .check {
         top: 0.4rem;
@@ -464,6 +515,60 @@ import { ApiService } from '../services/api.service';
         border: 1px solid var(--color-border);
         border-radius: var(--radius);
         font-size: 0.8rem;
+      }
+      /* Tag chips in the inline editor */
+      .tag-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.35rem;
+        padding: 0.3rem;
+        align-items: center;
+      }
+      .tag-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        padding: 0.2rem 0.5rem;
+        border-radius: 999px;
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
+        background: var(--cap-cream-hi);
+        color: var(--cap-ink-2);
+        box-shadow: inset 0 0 0 1px var(--color-border);
+      }
+      [data-theme='dark'] .tag-chip {
+        background: color-mix(in srgb, var(--cap-ink) 55%, transparent);
+        color: var(--cap-cream-hi);
+      }
+      .tag-chip button {
+        border: none;
+        background: none;
+        color: inherit;
+        cursor: pointer;
+        opacity: 0.6;
+        padding: 0;
+        line-height: 1;
+      }
+      .tag-chip button:hover {
+        opacity: 1;
+        color: var(--color-accent);
+      }
+      .tag-add {
+        flex: 1 1 90px;
+        min-width: 70px;
+        font-size: 0.75rem !important;
+        padding: 0.25rem 0.4rem !important;
+      }
+      /* Bulk tag mini-form */
+      .bulk-tag {
+        display: inline-flex;
+        gap: 0.3rem;
+        align-items: center;
+      }
+      .bulk-tag input {
+        width: 6.5rem;
+        padding: 0.4rem 0.5rem;
+        font-size: 0.82rem;
       }
       legend {
         color: var(--color-muted);
@@ -710,6 +815,11 @@ export class AdminPhotosComponent implements OnInit, AfterViewInit {
   newGalleryName = '';
   busy = signal(false);
 
+  // Tags
+  allTags = signal<string[]>([]);
+  tagDraft: Record<string, string> = {};
+  bulkTagDraft = '';
+
   allSelected = computed(
     () => this.photos().length > 0 && this.selected().size === this.photos().length,
   );
@@ -720,6 +830,7 @@ export class AdminPhotosComponent implements OnInit, AfterViewInit {
     this.api.getAdminGalleries().subscribe({
       next: (galleries) => this.galleries.set(galleries),
     });
+    this.api.getPhotoTags().subscribe({ next: (t) => this.allTags.set(t) });
   }
 
   ngAfterViewInit(): void {
@@ -1047,14 +1158,93 @@ export class AdminPhotosComponent implements OnInit, AfterViewInit {
     p.gallery_ids = Array.from(set);
   }
 
+  // ── Tags ──
+  isFeatured(p: Photo): boolean {
+    return (p.tags ?? []).includes(FEATURED_TAG);
+  }
+
+  /** Star toggle: immediately persists the featured tag (no Save needed). */
+  toggleFeatured(p: Photo): void {
+    const on = this.isFeatured(p);
+    const next = on
+      ? (p.tags ?? []).filter((t) => t !== FEATURED_TAG)
+      : [...(p.tags ?? []), FEATURED_TAG];
+    p.tags = next;
+    this.api.updatePhoto(p.id, { tags: next }).subscribe({
+      next: (fresh) => {
+        p.tags = fresh.tags ?? next;
+        this.mergeTagVocab(p.tags);
+      },
+    });
+  }
+
+  /** Add a tag in the inline editor (local only; persisted on Save). */
+  addTag(p: Photo, raw: string | undefined): void {
+    const t = (raw ?? '').trim().toLowerCase();
+    if (!t) return;
+    if (!(p.tags ?? []).includes(t)) p.tags = [...(p.tags ?? []), t];
+    this.tagDraft[p.id] = '';
+  }
+
+  removeTag(p: Photo, t: string): void {
+    p.tags = (p.tags ?? []).filter((x) => x !== t);
+  }
+
   save(p: Photo): void {
     this.api
       .updatePhoto(p.id, {
         title: p.title ?? null,
         caption: p.caption ?? null,
+        tags: p.tags ?? [],
         gallery_ids: p.gallery_ids ?? [],
       })
-      .subscribe(() => this.editing.set(null));
+      .subscribe((fresh) => {
+        p.tags = fresh.tags ?? p.tags;
+        this.mergeTagVocab(p.tags ?? []);
+        this.editing.set(null);
+      });
+  }
+
+  // ── Bulk tags ──
+  bulkFeature(on: boolean): void {
+    const ids = this.selectedIds();
+    const add = on ? [FEATURED_TAG] : [];
+    const remove = on ? [] : [FEATURED_TAG];
+    this.api.bulkTags(ids, add, remove).subscribe({
+      next: () => this.applyTagDeltaLocally(ids, add, remove),
+    });
+  }
+
+  bulkAddTag(): void {
+    const t = this.bulkTagDraft.trim().toLowerCase();
+    if (!t) return;
+    const ids = this.selectedIds();
+    this.api.bulkTags(ids, [t], []).subscribe({
+      next: () => {
+        this.applyTagDeltaLocally(ids, [t], []);
+        this.mergeTagVocab([t]);
+        this.bulkTagDraft = '';
+      },
+    });
+  }
+
+  /** Mirror a bulk add/remove on the in-memory photos so the UI stays live. */
+  private applyTagDeltaLocally(ids: string[], add: string[], remove: string[]): void {
+    const sel = new Set(ids);
+    const rm = new Set(remove);
+    this.photos.update((cur) =>
+      cur.map((p) => {
+        if (!sel.has(p.id)) return p;
+        const tags = new Set((p.tags ?? []).filter((t) => !rm.has(t)));
+        add.forEach((t) => tags.add(t));
+        return { ...p, tags: Array.from(tags) };
+      }),
+    );
+  }
+
+  private mergeTagVocab(tags: string[]): void {
+    const set = new Set([...this.allTags(), ...tags]);
+    this.allTags.set([...set].sort());
   }
 
   remove(p: Photo): void {

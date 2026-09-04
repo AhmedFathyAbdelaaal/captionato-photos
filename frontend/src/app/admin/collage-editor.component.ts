@@ -142,6 +142,14 @@ interface Snapshot {
       >
         ▣ Border
       </button>
+      <button
+        class="btn-ghost"
+        [class.on]="l.locked"
+        (click)="toggleLock(l)"
+        [title]="l.locked ? 'Locked — click to unlock' : 'Lock position, size & rotation'"
+      >
+        {{ l.locked ? '🔒 Locked' : '🔓 Lock' }}
+      </button>
       <span class="sep"></span>
       <button class="btn-ghost" (click)="reorder(l, 'front')" title="Bring to front">⏫</button>
       <button class="btn-ghost" (click)="reorder(l, 'up')" title="Bring forward">🔼</button>
@@ -220,6 +228,7 @@ interface Snapshot {
           *ngFor="let l of layers(); trackBy: trackLayer"
           [class.selected]="selected() === l.id"
           [class.bordered]="l.border_enabled"
+          [class.locked]="l.locked"
           [class.cropping]="cropMode() && selected() === l.id"
           [style.left.%]="l.pos_x * 100"
           [style.top.%]="l.pos_y * 100"
@@ -240,7 +249,7 @@ interface Snapshot {
               alt=""
             />
           </div>
-          <ng-container *ngIf="selected() === l.id">
+          <ng-container *ngIf="selected() === l.id && !l.locked">
             <span class="rot-handle" (pointerdown)="onRotateDown($event, l)">↻</span>
             <span
               class="handle"
@@ -249,6 +258,7 @@ interface Snapshot {
               (pointerdown)="onResizeDown($event, l, h)"
             ></span>
           </ng-container>
+          <span class="lock-badge" *ngIf="l.locked" title="Locked">🔒</span>
         </div>
       </div>
       </div>
@@ -529,6 +539,24 @@ interface Snapshot {
       .layer.cropping {
         box-shadow: 0 0 0 2px #3aa7b2, 0 4px 18px rgba(0, 0, 0, 0.3);
         cursor: move;
+      }
+      .layer.locked {
+        cursor: not-allowed;
+      }
+      .layer.locked.selected {
+        box-shadow: 0 0 0 2px var(--cap-brass), 0 4px 18px rgba(0, 0, 0, 0.3);
+      }
+      .lock-badge {
+        position: absolute;
+        top: 4px;
+        left: 4px;
+        z-index: 600;
+        font-size: 0.8rem;
+        line-height: 1;
+        padding: 2px 4px;
+        border-radius: 6px;
+        background: color-mix(in srgb, var(--cap-ink) 62%, transparent);
+        pointer-events: none;
       }
 
       .handle {
@@ -939,6 +967,8 @@ export class CollageEditorComponent implements OnInit, OnDestroy {
   }
 
   private beginDrag(e: PointerEvent, l: CollageLayer, mode: DragMode, handle: string): void {
+    // Locked layers can be selected (to unlock) but never moved/resized/rotated.
+    if (l.locked) return;
     const canvas = this.canvasRef?.nativeElement;
     if (!canvas) return;
     this.dragMoved = false;
@@ -1155,6 +1185,8 @@ export class CollageEditorComponent implements OnInit, OnDestroy {
       return;
     }
     // Arrow nudges: one grid cell when snapping, otherwise fine (Shift = 5%).
+    // Locked layers don't nudge.
+    if (l.locked) return;
     const stepX = this.snap() ? this.stepX() : e.shiftKey ? 0.05 : 0.01;
     const stepY = this.snap() ? this.stepY() : e.shiftKey ? 0.05 : 0.01;
     const nudge: Record<string, CollageLayerInput> = {
@@ -1249,6 +1281,12 @@ export class CollageEditorComponent implements OnInit, OnDestroy {
   toggleBorder(l: CollageLayer): void {
     this.patchLocal(l, { border_enabled: !l.border_enabled });
     this.commit('border');
+  }
+
+  /** Freeze/unfreeze a layer's position, size and rotation. */
+  toggleLock(l: CollageLayer): void {
+    this.patchLocal(l, { locked: !l.locked });
+    this.commit('lock');
   }
 
   /** Clone a layer, offset by one grid step so the copy is visible. */

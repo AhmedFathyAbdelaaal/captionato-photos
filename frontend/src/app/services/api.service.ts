@@ -55,6 +55,13 @@ export class ApiService {
       `${this.base}/photos?page=${page}&page_size=${pageSize}&sort=${sort}`,
     );
   }
+  /** Homepage hero feed: recent visible photos tagged 'featured'
+   *  (falls back to recent-overall when nothing is featured yet). */
+  getFeaturedPhotos(page = 1, pageSize = 30): Observable<PhotoPage> {
+    return this.http.get<PhotoPage>(
+      `${this.base}/photos/featured?page=${page}&page_size=${pageSize}`,
+    );
+  }
   getExif(photoId: string) {
     return this.http.get(`${this.base}/photos/${photoId}/exif`);
   }
@@ -64,10 +71,16 @@ export class ApiService {
     page = 1,
     pageSize = 60,
     sort: 'taken' | 'uploaded' = 'taken',
+    tag?: string,
   ): Observable<PhotoPage> {
+    const tagParam = tag ? `&tag=${encodeURIComponent(tag)}` : '';
     return this.http.get<PhotoPage>(
-      `${this.base}/photos/admin?page=${page}&page_size=${pageSize}&sort=${sort}`,
+      `${this.base}/photos/admin?page=${page}&page_size=${pageSize}&sort=${sort}${tagParam}`,
     );
+  }
+  /** Distinct tag vocabulary across the whole library (admin). */
+  getPhotoTags(): Observable<string[]> {
+    return this.http.get<string[]>(`${this.base}/photos/tags`);
   }
   uploadPhotos(files: File[]): Observable<Photo[]> {
     const form = new FormData();
@@ -80,6 +93,7 @@ export class ApiService {
       title?: string | null;
       caption?: string | null;
       visible?: boolean;
+      tags?: string[];
       gallery_ids?: string[];
     },
   ): Observable<Photo> {
@@ -105,6 +119,14 @@ export class ApiService {
       gallery_ids,
     });
   }
+  /** Add and/or remove tags across many photos at once. */
+  bulkTags(photo_ids: string[], add: string[] = [], remove: string[] = []) {
+    return this.http.post(`${this.base}/photos/bulk/tags`, {
+      photo_ids,
+      add,
+      remove,
+    });
+  }
 
   // ── Galleries ──
   /** Public list — omits unlisted/password galleries. */
@@ -117,6 +139,16 @@ export class ApiService {
   }
   getGallery(slug: string): Observable<GalleryDetail> {
     return this.http.get<GalleryDetail>(`${this.base}/galleries/${slug}`);
+  }
+  /** Admin detail by id — always full, regardless of visibility/password. */
+  getAdminGallery(id: string): Observable<GalleryDetail> {
+    return this.http.get<GalleryDetail>(`${this.base}/galleries/admin/${id}`);
+  }
+  /** Remove one photo from a gallery; the photo stays in the library. */
+  removePhotoFromGallery(galleryId: string, photoId: string) {
+    return this.http.delete(
+      `${this.base}/galleries/${galleryId}/photos/${photoId}`,
+    );
   }
   /** Try to unlock a password-gated gallery; 401 on wrong password. */
   unlockGallery(slug: string, password: string): Observable<GalleryDetail> {

@@ -11,7 +11,7 @@ from sqlalchemy import (
     Text,
     func,
 )
-from sqlalchemy.dialects.postgresql import JSONB, UUID
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from .database import Base
@@ -38,6 +38,11 @@ class Photo(Base):
     height: Mapped[int | None] = mapped_column(Integer)
 
     exif: Mapped[dict | None] = mapped_column(JSONB)
+    # Freeform lowercase tags. The reserved "featured" tag drives the homepage
+    # hero feed. Stored as a Postgres text[] with a GIN index for containment.
+    tags: Mapped[list[str]] = mapped_column(
+        ARRAY(Text), nullable=False, server_default="{}", default=list
+    )
     uploaded_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -173,6 +178,9 @@ class CollageLayer(Base):
     border_enabled: Mapped[bool] = mapped_column(
         Boolean, default=False, nullable=False
     )
+    # When locked, the editor won't move/resize/rotate this layer. Persisted so
+    # a locked composition stays locked when the draft is reopened.
+    locked: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     z_index: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
 
     collage: Mapped["Collage"] = relationship(back_populates="layers")

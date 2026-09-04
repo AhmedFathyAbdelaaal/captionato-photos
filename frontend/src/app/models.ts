@@ -24,8 +24,12 @@ export interface Photo {
   thumbnail_url: string;
   display_url: string; // ~2560px lightbox derivative
   original_url: string;
+  tags?: string[]; // freeform lowercase tags; 'featured' drives the homepage
   gallery_ids?: string[] | null; // admin listing only
 }
+
+/** The reserved tag that decides which photos appear on the homepage hero. */
+export const FEATURED_TAG = 'featured';
 
 export interface PhotoPage {
   items: Photo[];
@@ -93,6 +97,7 @@ export interface CollageLayer {
   crop_width: number;
   crop_height: number;
   border_enabled: boolean;
+  locked: boolean;
   z_index: number;
 }
 

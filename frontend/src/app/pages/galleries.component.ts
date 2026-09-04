@@ -5,11 +5,12 @@ import { RouterLink } from '@angular/router';
 import { Gallery } from '../models';
 import { ApiService } from '../services/api.service';
 import { RevealDirective } from '../components/reveal.directive';
+import { PhotoComponent } from '../components/photo.component';
 
 @Component({
   selector: 'app-galleries',
   standalone: true,
-  imports: [CommonModule, RouterLink, RevealDirective],
+  imports: [CommonModule, RouterLink, RevealDirective, PhotoComponent],
   template: `
     <div class="wrap">
       <header class="head" appReveal>
@@ -29,12 +30,12 @@ import { RevealDirective } from '../components/reveal.directive';
           [style.--reveal-delay]="revealDelay(i)"
         >
           <div class="cover">
-            <img
+            <app-photo
               *ngIf="g.cover_thumbnail_url"
               [src]="api.imageUrl(g.cover_thumbnail_url)"
               [alt]="g.name"
-              loading="lazy"
-            />
+              fit="cover"
+            ></app-photo>
             <div class="overlay">
               <h2>{{ g.name }}</h2>
               <span class="mono">{{ g.photo_count }} · view →</span>
@@ -125,14 +126,12 @@ import { RevealDirective } from '../components/reveal.directive';
       .card:hover .cover {
         box-shadow: 0 32px 60px -28px rgba(20, 17, 16, 0.55);
       }
-      .cover img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.7s var(--ease), filter 0.5s var(--ease);
+      /* Hover-zoom drives the encapsulated <app-photo> image via the inherited
+         custom property; saturate lifts the whole element. */
+      .card:hover .cover {
+        --photo-scale: 1.06;
       }
-      .card:hover .cover img {
-        transform: scale(1.06);
+      .card:hover app-photo {
         filter: saturate(1.08);
       }
       .overlay {

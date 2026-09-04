@@ -22,6 +22,7 @@ from ..models import Gallery, GalleryPhoto, Photo
 from ..schemas import (
     BulkAddGalleries,
     BulkIds,
+    BulkTags,
     BulkVisibility,
     PhotoOut,
     PhotoPage,
@@ -32,6 +33,20 @@ from ..serializers import photo_out
 router = APIRouter(prefix="/photos", tags=["photos"])
 
 ALLOWED_EXT = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"}
+
+# The reserved tag that drives the public homepage hero feed.
+FEATURED_TAG = "featured"
+
+
+def normalize_tags(tags: list[str]) -> list[str]:
+    """Lowercase, trim, drop empties, cap length, and de-dupe (order-preserving).
+    Keeps the tag vocabulary tidy so 'Street', ' street ' and 'street' collapse."""
+    seen: list[str] = []
+    for raw in tags:
+        t = (raw or "").strip().lower()[:40]
+        if t and t not in seen:
+            seen.append(t)
+    return seen[:30]
 
 
 def _delete_photo_files(photo: Photo) -> None:
@@ -94,12 +109,46 @@ def list_admin_photos(
     page: int = Query(1, ge=1),
     page_size: int = Query(60, ge=1, le=200),
     sort: str = Query("taken", pattern="^(taken|uploaded)$"),
+    tag: str | None = Query(None),
     _admin=Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
+    stmt = select(Photo)
+    if tag:
+        stmt = stmt.where(Photo.tags.any(tag.strip().lower()))
     return _paginate(
-        db, select(Photo), page, page_size, include_galleries=True, sort=sort
+        db, stmt, page, page_size, include_galleries=True, sort=sort
     )
+
+
+# ── Public: homepage hero feed (visible + reserved "featured" tag) ──
+# Falls back to the most recent visible photos when nothing is featured yet, so
+# the hero is never empty.
+@router.get("/featured", response_model=PhotoPage)
+def list_featured_photos(
+    page: int = Query(1, ge=1),
+    page_size: int = Query(30, ge=1, le=60),
+    db: Session = Depends(get_db),
+):
+    featured = select(Photo).where(
+        Photo.visible.is_(True), Photo.tags.any(FEATURED_TAG)
+    )
+    has_featured = db.scalar(select(func.count()).select_from(featured.subquery()))
+    if not has_featured:
+        featured = select(Photo).where(Photo.visible.is_(True))
+    return _paginate(db, featured, page, page_size, sort="taken")
+
+
+# ── Admin: distinct tag vocabulary (for autocomplete + the tag picker) ──
+@router.get("/tags", response_model=list[str])
+def list_tags(
+    _admin=Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    # SELECT DISTINCT unnest(tags) — flattens every photo's tag array into a
+    # distinct vocabulary list.
+    rows = db.scalars(select(func.unnest(Photo.tags)).distinct()).all()
+    return sorted(t for t in rows if t)
 
 
 # ── Upload (one or many) ──
@@ -202,6 +251,29 @@ def bulk_delete(
     db.commit()
 
 
+@router.post("/bulk/tags", status_code=status.HTTP_204_NO_CONTENT)
+def bulk_tags(
+    body: BulkTags,
+    _admin=Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    """Add and/or remove tags across the selected photos in one pass."""
+    add = normalize_tags(body.add)
+    remove = set(normalize_tags(body.remove))
+    if not body.photo_ids or (not add and not remove):
+        return
+    photos = db.scalars(select(Photo).where(Photo.id.in_(body.photo_ids))).all()
+    for photo in photos:
+        current = [t for t in (photo.tags or []) if t not in remove]
+        for t in add:
+            if t not in current:
+                current.append(t)
+        # Reassign a new list so SQLAlchemy detects the change (ARRAY isn't
+        # mutation-tracked in place).
+        photo.tags = current
+    db.commit()
+
+
 @router.post("/bulk/galleries", status_code=status.HTTP_204_NO_CONTENT)
 def bulk_add_to_galleries(
     body: BulkAddGalleries,
@@ -247,6 +319,8 @@ def update_photo(
         photo.caption = body.caption
     if body.visible is not None:
         photo.visible = body.visible
+    if body.tags is not None:
+        photo.tags = normalize_tags(body.tags)
 
     if body.gallery_ids is not None:
         # Replace gallery membership wholesale, appending to each gallery's end.

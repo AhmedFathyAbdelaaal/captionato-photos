@@ -34,6 +34,7 @@ def photo_out(photo: Photo, include_galleries: bool = False) -> PhotoOut:
         thumbnail_url=thumb_url(photo),
         display_url=display_url(photo),
         original_url=original_url(photo),
+        tags=list(photo.tags or []),
         gallery_ids=(
             [link.gallery_id for link in photo.gallery_links]
             if include_galleries
@@ -69,6 +70,7 @@ def collage_layer_out(layer: CollageLayer) -> CollageLayerOut:
         crop_width=layer.crop_width,
         crop_height=layer.crop_height,
         border_enabled=layer.border_enabled,
+        locked=layer.locked,
         z_index=layer.z_index,
     )
 

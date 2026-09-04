@@ -77,6 +77,23 @@ def list_admin_galleries(
     return [gallery_out(g, _cover_for(db, g)) for g in galleries]
 
 
+# ── Admin detail by id (always full, regardless of visibility/password) ──
+@router.get("/admin/{gallery_id}", response_model=GalleryDetailOut)
+def get_admin_gallery(
+    gallery_id: uuid.UUID,
+    _admin=Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    gallery = db.scalar(
+        select(Gallery)
+        .where(Gallery.id == gallery_id)
+        .options(selectinload(Gallery.photo_links).selectinload(GalleryPhoto.photo))
+    )
+    if gallery is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
+    return _detail(gallery, _cover_for(db, gallery), locked=False)
+
+
 # ── Public detail by slug ──
 # Password-gated galleries return a locked stub (no photos) until POST /unlock.
 # Unlisted galleries return full detail — the URL itself is the gate.
@@ -224,6 +241,23 @@ def reorder_galleries(
         gallery = db.get(Gallery, gid)
         if gallery:
             gallery.display_order = index
+    db.commit()
+
+
+# ── Remove a single photo from a gallery (photo stays in the library) ──
+@router.delete(
+    "/{gallery_id}/photos/{photo_id}", status_code=status.HTTP_204_NO_CONTENT
+)
+def remove_photo_from_gallery(
+    gallery_id: uuid.UUID,
+    photo_id: uuid.UUID,
+    _admin=Depends(get_current_admin),
+    db: Session = Depends(get_db),
+):
+    link = db.get(GalleryPhoto, (gallery_id, photo_id))
+    if link is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Photo not in this gallery")
+    db.delete(link)
     db.commit()
 
 

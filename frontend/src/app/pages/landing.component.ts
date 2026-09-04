@@ -13,6 +13,7 @@ import { RouterLink } from '@angular/router';
 import { Gallery, Photo } from '../models';
 import { ApiService } from '../services/api.service';
 import { LightboxComponent } from '../components/lightbox.component';
+import { PhotoComponent } from '../components/photo.component';
 
 /** One scattered slot in the hero: position (% of hero), width (vw), depth
  *  (0 = far/slow/soft, 1 = near/fast/sharp) and a small resting tilt. */
@@ -67,7 +68,7 @@ const SLOTS: Slot[] = [
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterLink, LightboxComponent],
+  imports: [CommonModule, RouterLink, LightboxComponent, PhotoComponent],
   template: `
     <!-- ── Parallax scatter hero ── -->
     <section class="hero" #hero>
@@ -123,7 +124,12 @@ const SLOTS: Slot[] = [
           [style.--accent]="g.accent_color || 'var(--color-accent)'"
         >
           <div class="gal-cover">
-            <img *ngIf="g.cover_thumbnail_url" [src]="api.imageUrl(g.cover_thumbnail_url)" [alt]="g.name" loading="lazy" />
+            <app-photo
+              *ngIf="g.cover_thumbnail_url"
+              [src]="api.imageUrl(g.cover_thumbnail_url)"
+              [alt]="g.name"
+              fit="cover"
+            ></app-photo>
             <div class="gal-overlay"><span>{{ g.name }}</span></div>
           </div>
           <div class="gal-meta">
@@ -206,6 +212,9 @@ const SLOTS: Slot[] = [
         width: 100%;
         height: auto;
         border-radius: var(--radius);
+        /* Warm block behind the thumb so slow loads show a placeholder,
+           not empty space, before the image paints. */
+        background: var(--color-surface);
         box-shadow: 0 18px 50px rgba(0, 0, 0, 0.4);
         transform: rotate(var(--r));
         filter: blur(calc((1 - var(--d)) * 1.6px));
@@ -325,14 +334,8 @@ const SLOTS: Slot[] = [
         border-radius: var(--radius);
         background: var(--color-surface);
       }
-      .gal-cover img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s var(--ease);
-      }
-      .gal:hover .gal-cover img {
-        transform: scale(1.05);
+      .gal:hover .gal-cover {
+        --photo-scale: 1.05;
       }
       .gal-overlay {
         position: absolute;
@@ -455,11 +458,13 @@ export class LandingComponent implements OnInit {
   constructor(public api: ApiService) {}
 
   ngOnInit(): void {
-    this.api.getPhotos(1, SLOTS.length).subscribe({
-      next: (res) => {
-        this.recents.set(res.items);
-        this.total.set(res.total);
-      },
+    // Hero scatter = the curated "featured"-tagged feed (falls back to recent).
+    this.api.getFeaturedPhotos(1, SLOTS.length).subscribe({
+      next: (res) => this.recents.set(res.items),
+    });
+    // The CTA count reflects the whole public archive, not just the featured set.
+    this.api.getPhotos(1, 1).subscribe({
+      next: (res) => this.total.set(res.total),
     });
     this.api.getGalleries().subscribe({
       next: (g) => this.galleries.set(g.slice(0, 6)),

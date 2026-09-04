@@ -38,6 +38,7 @@ class PhotoOut(BaseModel):
     thumbnail_url: str
     display_url: str
     original_url: str
+    tags: list[str] = []
     # Populated only in the admin listing so the editor can pre-check galleries.
     gallery_ids: list[uuid.UUID] | None = None
 
@@ -46,6 +47,7 @@ class PhotoUpdate(BaseModel):
     title: str | None = None
     caption: str | None = None
     visible: bool | None = None
+    tags: list[str] | None = None  # replaces the tag set wholesale
     gallery_ids: list[uuid.UUID] | None = None  # replaces gallery membership
 
 
@@ -67,6 +69,13 @@ class BulkVisibility(BulkIds):
 
 class BulkAddGalleries(BulkIds):
     gallery_ids: list[uuid.UUID]  # photos are appended to each (membership kept)
+
+
+class BulkTags(BulkIds):
+    """Add and/or remove tags across the selected photos. Applied atomically:
+    removals then additions, so the same tag in both nets to 'present'."""
+    add: list[str] = []
+    remove: list[str] = []
 
 
 # ── Galleries ──
@@ -146,6 +155,7 @@ class CollageLayerGeometry(BaseModel):
     crop_width: float = Field(1, gt=0, le=1)
     crop_height: float = Field(1, gt=0, le=1)
     border_enabled: bool = False
+    locked: bool = False
     z_index: int = 0
 
 
@@ -166,6 +176,7 @@ class CollageLayerUpdate(BaseModel):
     crop_width: float | None = Field(None, gt=0, le=1)
     crop_height: float | None = Field(None, gt=0, le=1)
     border_enabled: bool | None = None
+    locked: bool | None = None
     z_index: int | None = None
 
 

@@ -52,6 +52,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'galleries/:id',
+        loadComponent: () =>
+          import('./admin/gallery-editor.component').then(
+            (m) => m.GalleryEditorComponent,
+          ),
+      },
+      {
         path: 'collages',
         loadComponent: () =>
           import('./admin/admin-collages.component').then(

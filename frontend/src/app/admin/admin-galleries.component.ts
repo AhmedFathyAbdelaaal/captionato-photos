@@ -1,42 +1,16 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, computed, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 
-import {
-  ForceTheme,
-  Gallery,
-  GalleryInput,
-  GalleryLayout,
-  GalleryVisibility,
-} from '../models';
+import { Gallery, GalleryInput, GalleryVisibility } from '../models';
 import { ApiService } from '../services/api.service';
-
-const LAYOUTS: GalleryLayout[] = [
-  'masonry',
-  'grid',
-  'editorial',
-  'slideshow',
-  'moodboard',
-  'collage',
-  'polaroid',
-  'filmstrip',
-  'marquee',
-];
-const THEMES: ForceTheme[] = ['system', 'light', 'dark'];
-const VISIBILITIES: { value: GalleryVisibility; label: string; hint: string }[] = [
-  { value: 'public', label: 'Public', hint: 'Listed on Galleries page' },
-  { value: 'unlisted', label: 'Unlisted', hint: 'Hidden — link only' },
-  { value: 'password', label: 'Password', hint: 'Requires a password to view' },
-];
-
-/** Editable form-state we hold per gallery. Adds the transient `password` field
- *  used when creating or updating a password — it never comes back on read. */
-type GalleryDraft = Gallery & { password?: string | null };
+import { PhotoComponent } from '../components/photo.component';
 
 @Component({
   selector: 'app-admin-galleries',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, RouterLink, PhotoComponent],
   template: `
     <header class="top">
       <h1>Galleries</h1>
@@ -110,16 +84,20 @@ type GalleryDraft = Gallery & { password?: string | null };
 
     <!-- Row template — reused for public + private sections -->
     <ng-template #row let-g="g" let-i="i">
-      <li class="row" [class.editing]="expand() === g.id">
-        <div class="cover">
-          <img
+      <li class="row">
+        <a class="cover" [routerLink]="['/admin/galleries', g.id]" [title]="'Edit ' + g.name">
+          <app-photo
             *ngIf="g.cover_thumbnail_url"
             [src]="api.imageUrl(g.cover_thumbnail_url)"
             [alt]="g.name"
-          />
-        </div>
+            fit="cover"
+          ></app-photo>
+          <span class="no-cover" *ngIf="!g.cover_thumbnail_url">◔</span>
+        </a>
         <div class="info">
-          <strong class="name">{{ g.name }}</strong>
+          <a class="name-link" [routerLink]="['/admin/galleries', g.id]">
+            <strong class="name">{{ g.name }}</strong>
+          </a>
           <span class="mono muted meta">
             /{{ g.slug }} · {{ g.photo_count }} · {{ g.layout }}
           </span>
@@ -146,148 +124,7 @@ type GalleryDraft = Gallery & { password?: string | null };
         >
           🔗
         </button>
-        <button
-          class="btn-ghost"
-          (click)="expand.set(expand() === g.id ? null : g.id)"
-        >
-          {{ expand() === g.id ? 'Close' : 'Edit' }}
-        </button>
-
-        <!-- Editor -->
-        <div class="editor" *ngIf="expand() === g.id">
-          <label>Name<input [(ngModel)]="g.name" name="n{{ g.id }}" /></label>
-          <label>Slug<input [(ngModel)]="g.slug" name="s{{ g.id }}" /></label>
-          <label class="span-2">
-            Description
-            <textarea
-              [(ngModel)]="g.description"
-              rows="2"
-              name="d{{ g.id }}"
-            ></textarea>
-          </label>
-          <label>
-            Layout
-            <select [(ngModel)]="g.layout" name="l{{ g.id }}">
-              <option *ngFor="let l of layouts" [value]="l">{{ l }}</option>
-            </select>
-          </label>
-          <label>
-            Theme
-            <select [(ngModel)]="g.force_theme" name="t{{ g.id }}">
-              <option *ngFor="let t of themes" [value]="t">{{ t }}</option>
-            </select>
-          </label>
-
-          <!-- Visibility -->
-          <div class="vis-field span-2">
-            <span class="af-label">Who can see this?</span>
-            <div class="vis-row">
-              <label
-                class="vis-opt"
-                *ngFor="let v of visibilities"
-                [class.on]="g.visibility === v.value"
-              >
-                <input
-                  type="radio"
-                  name="v{{ g.id }}"
-                  [value]="v.value"
-                  [(ngModel)]="g.visibility"
-                />
-                <span class="vg">{{ visGlyph(v.value) }}</span>
-                <span class="vt">
-                  <b>{{ v.label }}</b>
-                  <small>{{ v.hint }}</small>
-                </span>
-              </label>
-            </div>
-
-            <!-- Password field (only when password visibility) -->
-            <div class="pw-row" *ngIf="g.visibility === 'password'">
-              <label class="pw">
-                {{ g.has_password && !g.password ? 'Change password (leave blank to keep)' : 'Password' }}
-                <input
-                  type="text"
-                  [(ngModel)]="g.password"
-                  name="pw{{ g.id }}"
-                  placeholder="{{ g.has_password ? '••••••••' : 'Choose a password' }}"
-                  autocomplete="off"
-                />
-              </label>
-              <button
-                type="button"
-                class="btn-ghost small"
-                *ngIf="g.has_password"
-                (click)="g.password = ''; toast.set('Password will clear on save')"
-                title="Remove password on save"
-              >
-                Clear password
-              </button>
-            </div>
-
-            <!-- Share link -->
-            <div class="share-row" *ngIf="g.visibility !== 'public'">
-              <span class="mono muted">Share link</span>
-              <code class="link">{{ shareLink(g) }}</code>
-              <button type="button" class="btn-ghost small" (click)="copyShareLink(g)">
-                Copy
-              </button>
-            </div>
-          </div>
-
-          <!-- Accent picker -->
-          <div class="accent-field span-2">
-            <span class="af-label">Accent color</span>
-            <div class="swatches">
-              <button
-                type="button"
-                class="swatch none"
-                [class.on]="!g.accent_color"
-                (click)="g.accent_color = null"
-                title="Default (Ember)"
-              >
-                ✕
-              </button>
-              <button
-                type="button"
-                class="swatch"
-                *ngFor="let c of presets"
-                [style.background]="c"
-                [class.on]="g.accent_color === c"
-                (click)="g.accent_color = c"
-                [title]="c"
-              ></button>
-              <label
-                class="swatch custom"
-                [class.on]="isCustom(g.accent_color)"
-                [style.background]="isCustom(g.accent_color) ? g.accent_color : 'transparent'"
-                title="Custom hex"
-              >
-                <input
-                  type="color"
-                  [ngModel]="g.accent_color || '#d6362b'"
-                  (ngModelChange)="g.accent_color = $event"
-                  name="a{{ g.id }}"
-                />
-                <span *ngIf="!isCustom(g.accent_color)">+</span>
-              </label>
-            </div>
-            <div
-              class="accent-preview"
-              [style.--pa]="g.accent_color || defaultAccent"
-            >
-              <span class="pa-title">{{ g.name || 'Gallery title' }}</span>
-              <span class="pa-rule"></span>
-              <button type="button" class="pa-btn">Button</button>
-            </div>
-          </div>
-
-          <div class="actions span-2">
-            <button class="btn-accent" (click)="saveEdit(g)" [disabled]="busy()">
-              {{ busy() ? 'Saving…' : 'Save' }}
-            </button>
-            <button class="btn-ghost danger" (click)="remove(g)">Delete</button>
-          </div>
-        </div>
+        <a class="btn-accent edit-link" [routerLink]="['/admin/galleries', g.id]">Edit</a>
       </li>
     </ng-template>
   `,
@@ -402,16 +239,20 @@ type GalleryDraft = Gallery & { password?: string | null };
         transform: translateY(-1px);
       }
       .cover {
+        display: block;
         width: 56px;
         height: 56px;
         border-radius: var(--radius);
         overflow: hidden;
         background: var(--color-paper);
       }
-      .cover img {
+      .no-cover {
+        display: grid;
+        place-items: center;
         width: 100%;
         height: 100%;
-        object-fit: cover;
+        font-family: var(--font-display);
+        color: var(--cap-capy);
       }
       .info {
         display: flex;
@@ -419,10 +260,22 @@ type GalleryDraft = Gallery & { password?: string | null };
         gap: 0.15rem;
         min-width: 0;
       }
+      .name-link {
+        color: inherit;
+      }
+      .name-link:hover .name {
+        color: var(--color-accent);
+      }
       .name {
         font-family: var(--font-display);
         font-weight: 700;
         letter-spacing: -0.01em;
+        transition: color 0.15s var(--ease);
+      }
+      .edit-link {
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
       }
       .meta {
         font-size: 0.75rem;
@@ -746,27 +599,11 @@ type GalleryDraft = Gallery & { password?: string | null };
   ],
 })
 export class AdminGalleriesComponent implements OnInit {
-  galleries = signal<GalleryDraft[]>([]);
+  galleries = signal<Gallery[]>([]);
   loading = signal(true);
-  expand = signal<string | null>(null);
   error = signal('');
   toast = signal('');
-  busy = signal(false);
   draft: GalleryInput = { name: '', slug: '' };
-  layouts = LAYOUTS;
-  themes = THEMES;
-  visibilities = VISIBILITIES;
-  defaultAccent = '#d6362b';
-  presets = [
-    '#E0901E', // amber
-    '#1FA6A6', // teal
-    '#6C5CE7', // violet
-    '#2E7D5B', // forest
-    '#3A6EA5', // ocean
-    '#C9A227', // gold
-    '#B5179E', // magenta
-    '#5A5A52', // slate
-  ];
 
   publicGalleries = computed(() =>
     this.galleries().filter((g) => g.visibility === 'public'),
@@ -776,12 +613,9 @@ export class AdminGalleriesComponent implements OnInit {
   );
   privateCount = computed(() => this.privateGalleries().length);
 
-  isCustom(c: string | null | undefined): boolean {
-    return !!c && c !== this.defaultAccent && !this.presets.includes(c);
-  }
   trackId = (_: number, g: Gallery) => g.id;
 
-  constructor(public api: ApiService) {}
+  constructor(public api: ApiService, private router: Router) {}
 
   ngOnInit(): void {
     this.load();
@@ -808,54 +642,12 @@ export class AdminGalleriesComponent implements OnInit {
   create(): void {
     this.error.set('');
     this.api.createGallery(this.draft).subscribe({
+      // Jump straight into the new gallery's edit page to add photos.
       next: (g) => {
-        this.galleries.update((cur) => [...cur, g]);
         this.draft = { name: '', slug: '' };
-        this.showToast('Gallery created');
+        this.router.navigate(['/admin/galleries', g.id]);
       },
       error: (e) => this.error.set(e.error?.detail || 'Could not create gallery.'),
-    });
-  }
-
-  saveEdit(g: GalleryDraft): void {
-    this.busy.set(true);
-    // Only send password when the admin actually typed/edited it. undefined =
-    // leave unchanged; '' = clear; non-empty = new password.
-    const passwordPatch =
-      g.password === undefined ? {} : { password: g.password };
-    this.api
-      .updateGallery(g.id, {
-        name: g.name,
-        slug: g.slug,
-        description: g.description,
-        layout: g.layout,
-        force_theme: g.force_theme,
-        accent_color: g.accent_color,
-        visibility: g.visibility,
-        ...passwordPatch,
-      })
-      .subscribe({
-        next: (fresh) => {
-          this.galleries.update((cur) =>
-            cur.map((x) => (x.id === g.id ? fresh : x)),
-          );
-          this.expand.set(null);
-          this.busy.set(false);
-          this.showToast('Saved');
-        },
-        error: (e) => {
-          this.error.set(e.error?.detail || 'Save failed.');
-          this.busy.set(false);
-        },
-      });
-  }
-
-  remove(g: Gallery): void {
-    if (!confirm(`Delete gallery "${g.name}"? Photos stay, just unassigned.`)) return;
-    this.api.deleteGallery(g.id).subscribe(() => {
-      this.galleries.update((cur) => cur.filter((x) => x.id !== g.id));
-      this.expand.set(null);
-      this.showToast('Deleted');
     });
   }
 
