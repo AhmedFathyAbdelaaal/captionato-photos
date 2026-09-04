@@ -25,7 +25,7 @@ interface Slot {
   r: number;
 }
 
-// A denser scatter (24 slots) so there's less empty space between photos. The
+// A denser scatter (36 slots) so there's less empty space between photos. The
 // centre band (x≈32–68, y≈34–58) is kept light so the title stays readable;
 // only small, dim, far-back items drift through it (behind the scrim).
 const SLOTS: Slot[] = [
@@ -58,6 +58,25 @@ const SLOTS: Slot[] = [
   { x: 62, y: 24, w: 9, d: 0.2, r: -2 },
   { x: 30, y: 60, w: 9, d: 0.24, r: -1.5 },
   { x: 58, y: 62, w: 9, d: 0.26, r: 1.5 },
+
+  // ── +12 fill (24 → 36): denser edges, centre band still kept light ──
+  // top edge gaps
+  { x: 5, y: 6, w: 10, d: 0.35, r: 2 },
+  { x: 35, y: -3, w: 10, d: 0.4, r: -1.5 },
+  { x: 82, y: 5, w: 11, d: 0.62, r: 1.5 },
+  // left column gaps
+  { x: -5, y: 33, w: 12, d: 0.62, r: -2 },
+  { x: 3, y: 67, w: 10, d: 0.42, r: 2 },
+  // right column gaps
+  { x: 93, y: 30, w: 12, d: 0.6, r: -2 },
+  { x: 85, y: 68, w: 12, d: 0.72, r: 2 },
+  // bottom edge gaps
+  { x: 10, y: 90, w: 11, d: 0.45, r: -2 },
+  { x: 44, y: 91, w: 11, d: 0.5, r: 1.5 },
+  { x: 78, y: 89, w: 12, d: 0.66, r: -2 },
+  // two more small far-back drifters above/below the title (dim, behind scrim)
+  { x: 45, y: 18, w: 8, d: 0.2, r: 1.5 },
+  { x: 46, y: 72, w: 8, d: 0.22, r: -1.5 },
 ];
 
 /**

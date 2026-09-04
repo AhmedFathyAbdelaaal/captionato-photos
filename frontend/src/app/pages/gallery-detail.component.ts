@@ -248,8 +248,9 @@ import { PhotoComponent } from '../components/photo.component';
         aspect-ratio: 1;
       }
 
-      /* Decorative layouts keep plain <img>; give them a warm placeholder block
-         so slow connections don't show empty space before the image paints. */
+      /* Decorative layouts keep a plain image element; give them a warm
+         placeholder block so slow connections don't show empty space
+         before the image paints. */
       .slideshow img,
       .moodboard img,
       .collage img,
