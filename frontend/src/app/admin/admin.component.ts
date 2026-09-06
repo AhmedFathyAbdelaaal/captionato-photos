@@ -21,6 +21,7 @@ import { AuthService } from '../services/auth.service';
           <a routerLink="/admin/photos" routerLinkActive="active">Photos</a>
           <a routerLink="/admin/galleries" routerLinkActive="active">Galleries</a>
           <a routerLink="/admin/collages" routerLinkActive="active">Collages</a>
+          <a routerLink="/admin/posts" routerLinkActive="active">Posts</a>
           <a routerLink="/admin/settings" routerLinkActive="active">Settings</a>
         </nav>
         <div class="foot">

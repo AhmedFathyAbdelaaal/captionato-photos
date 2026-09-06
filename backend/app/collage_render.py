@@ -20,8 +20,13 @@ from .config import settings
 from .models import Collage, CollageLayer
 
 FORMAT_DIMS: dict[str, tuple[int, int]] = {
+    # Standalone collage formats
     "story": (1080, 1920),
     "post": (1080, 1080),
+    # Instagram post-slide formats
+    "square": (1080, 1080),
+    "portrait": (1080, 1350),   # 4:5
+    "landscape": (1080, 566),   # 1.91:1
 }
 
 # Border stroke as a fraction of the canvas short edge (~8px at 1080).

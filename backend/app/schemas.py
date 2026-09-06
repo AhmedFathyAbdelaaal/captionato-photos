@@ -226,3 +226,37 @@ class OneOffUploadOut(BaseModel):
 class GenerateAutoRequest(BaseModel):
     format: Literal["story", "post"]
     photo_ids: list[uuid.UUID] = Field(min_length=2)
+
+
+# ── Posts (multi-slide Instagram posts; each slide is a Collage) ──
+SlideFormat = Literal["square", "portrait", "landscape"]
+
+
+class PostCreate(BaseModel):
+    name: str = Field(min_length=1, max_length=120)
+
+
+class PostUpdate(BaseModel):
+    name: str | None = Field(default=None, min_length=1, max_length=120)
+    status: Literal["draft", "exported"] | None = None
+
+
+class SlideCreate(BaseModel):
+    format: SlideFormat = "square"
+
+
+class PostOut(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: uuid.UUID
+    name: str
+    status: str
+    created_at: datetime
+    updated_at: datetime
+    exported_at: datetime | None = None
+    slide_count: int = 0
+    cover_thumb_url: str | None = None
+
+
+class PostDetailOut(PostOut):
+    slides: list[CollageDetailOut] = []

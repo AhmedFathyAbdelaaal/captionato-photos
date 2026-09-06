@@ -14,6 +14,9 @@ import {
   OneOffUpload,
   Photo,
   PhotoPage,
+  Post,
+  PostDetail,
+  SlideFormat,
 } from '../models';
 
 /** Thin typed wrapper over the Captionato Photos API. The base URL comes from
@@ -241,6 +244,46 @@ export class ApiService {
   exportCollage(id: string, format: 'jpg' | 'png' = 'jpg'): Observable<Blob> {
     return this.http.post(
       `${this.base}/collages/${id}/export?format=${format}`,
+      null,
+      { responseType: 'blob' },
+    );
+  }
+
+  // ── Posts (multi-slide) ──
+  getPosts(): Observable<Post[]> {
+    return this.http.get<Post[]>(`${this.base}/posts`);
+  }
+  getPost(id: string): Observable<PostDetail> {
+    return this.http.get<PostDetail>(`${this.base}/posts/${id}`);
+  }
+  createPost(name: string): Observable<PostDetail> {
+    return this.http.post<PostDetail>(`${this.base}/posts`, { name });
+  }
+  updatePost(
+    id: string,
+    body: { name?: string; status?: 'draft' | 'exported' },
+  ): Observable<PostDetail> {
+    return this.http.patch<PostDetail>(`${this.base}/posts/${id}`, body);
+  }
+  deletePost(id: string) {
+    return this.http.delete(`${this.base}/posts/${id}`);
+  }
+  addSlide(postId: string, format: SlideFormat): Observable<PostDetail> {
+    return this.http.post<PostDetail>(`${this.base}/posts/${postId}/slides`, {
+      format,
+    });
+  }
+  reorderSlides(postId: string, ids: string[]): Observable<void> {
+    return this.http.post<void>(`${this.base}/posts/${postId}/slides/reorder`, {
+      ids,
+    });
+  }
+  deleteSlide(postId: string, slideId: string) {
+    return this.http.delete(`${this.base}/posts/${postId}/slides/${slideId}`);
+  }
+  exportPost(id: string, format: 'jpg' | 'png' = 'jpg'): Observable<Blob> {
+    return this.http.post(
+      `${this.base}/posts/${id}/export?format=${format}`,
       null,
       { responseType: 'blob' },
     );

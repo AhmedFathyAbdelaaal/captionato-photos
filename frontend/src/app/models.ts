@@ -81,6 +81,10 @@ export interface GalleryDetail extends Gallery {
 // Geometry is normalized: pos/size are fractions of canvas width/height,
 // crop bounds fractions of the source image. Rotation degrees, clockwise.
 export type CollageFormat = 'story' | 'post';
+/** Instagram post-slide sizes. */
+export type SlideFormat = 'square' | 'portrait' | 'landscape';
+/** Any canvas the collage editor can render. */
+export type CanvasFormat = CollageFormat | SlideFormat;
 
 export interface CollageLayer {
   id: string;
@@ -107,7 +111,7 @@ export type CollageLayerInput = Partial<
 
 export interface Collage {
   id: string;
-  format: CollageFormat;
+  format: CanvasFormat;
   background_color: string;
   status: 'draft' | 'exported';
   created_at: string;
@@ -115,6 +119,8 @@ export interface Collage {
   exported_at?: string | null;
   layer_count: number;
   layers: CollageLayer[];
+  post_id?: string | null; // set when this collage is a slide of a post
+  slide_order?: number;
 }
 
 export interface OneOffUpload {
@@ -122,6 +128,22 @@ export interface OneOffUpload {
   thumb_url: string;
   width?: number | null;
   height?: number | null;
+}
+
+// ── Posts (multi-slide; each slide is a Collage) ──
+export interface Post {
+  id: string;
+  name: string;
+  status: 'draft' | 'exported';
+  created_at: string;
+  updated_at: string;
+  exported_at?: string | null;
+  slide_count: number;
+  cover_thumb_url?: string | null;
+}
+
+export interface PostDetail extends Post {
+  slides: Collage[];
 }
 
 export interface GalleryInput {

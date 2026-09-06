@@ -2,10 +2,17 @@ import { CommonModule } from '@angular/common';
 import {
   Component,
   ElementRef,
+  EventEmitter,
   HostListener,
+  Input,
+  OnChanges,
   OnDestroy,
   OnInit,
+  Output,
+  SimpleChanges,
   ViewChild,
+  computed,
+  effect,
   signal,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
@@ -19,7 +26,19 @@ import { ApiService } from '../services/api.service';
 const FORMAT_DIMS: Record<string, [number, number]> = {
   story: [1080, 1920],
   post: [1080, 1080],
+  square: [1080, 1080],
+  portrait: [1080, 1350],
+  landscape: [1080, 566],
 };
+/** CSS aspect-ratio per format (mirrors FORMAT_DIMS). */
+const CANVAS_ASPECT: Record<string, string> = {
+  story: '9 / 16',
+  post: '1 / 1',
+  square: '1 / 1',
+  portrait: '4 / 5',
+  landscape: '1080 / 566',
+};
+
 const MIN_SIZE = 0.04; // layers can't shrink below 4% of the canvas
 const MIN_CROP = 0.05;
 const MIN_COLS = 2;
@@ -66,8 +85,8 @@ interface Snapshot {
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <header class="bar" *ngIf="collage() as c">
-      <a routerLink="/admin/collages" class="btn-ghost">← Collages</a>
-      <span class="badge">{{ c.format }} · 1080×{{ c.format === 'story' ? 1920 : 1080 }}</span>
+      <a *ngIf="!embedded" routerLink="/admin/collages" class="btn-ghost">← Collages</a>
+      <span class="badge">{{ c.format }} · {{ dimsLabel() }}</span>
       <div class="stepper" title="Undo / redo">
         <button class="btn-ghost" (click)="undo()" [disabled]="!canUndo()" title="Undo (Ctrl+Z)">↶</button>
         <button class="btn-ghost" (click)="redo()" [disabled]="!canRedo()" title="Redo (Ctrl+Shift+Z)">↷</button>
@@ -113,7 +132,7 @@ interface Snapshot {
           <button class="btn-ghost" (click)="zoomBy(1)" [disabled]="zoom() >= zoomMax">+</button>
         </div>
         <button class="btn-ghost" (click)="drawer.set(!drawer())">+ Photos</button>
-        <div class="export">
+        <div class="export" *ngIf="!embedded">
           <button class="btn-accent" [disabled]="exporting()" (click)="export('jpg')">
             {{ exporting() ? 'Exporting…' : 'Export JPG' }}
           </button>
@@ -196,7 +215,9 @@ interface Snapshot {
       <div
         #canvas
         class="canvas"
-        [class.story]="c.format === 'story'"
+        [class.tall]="isTall()"
+        [class.wide]="isWide()"
+        [style.aspectRatio]="canvasRatio()"
         [style.background]="c.background_color"
         [style.--zoom]="zoom()"
         (pointerdown)="onCanvasDown($event)"
@@ -447,15 +468,18 @@ interface Snapshot {
         position: relative;
         flex: 0 0 auto;
         width: calc(min(560px, 92vw) * var(--zoom, 1));
-        aspect-ratio: 1;
         overflow: hidden;
         border: 1px solid var(--color-border);
         box-shadow: 0 8px 30px rgba(0, 0, 0, 0.18);
         touch-action: none;
       }
-      .canvas.story {
+      /* Tall formats (story/portrait) get a narrower canvas so they fit; wide
+         (landscape) gets a roomier one. Aspect-ratio is set inline per format. */
+      .canvas.tall {
         width: calc(min(380px, 88vw) * var(--zoom, 1));
-        aspect-ratio: 9 / 16;
+      }
+      .canvas.wide {
+        width: calc(min(640px, 94vw) * var(--zoom, 1));
       }
       .grid-overlay {
         position: absolute;
@@ -653,8 +677,20 @@ interface Snapshot {
     `,
   ],
 })
-export class CollageEditorComponent implements OnInit, OnDestroy {
+export class CollageEditorComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('canvas') canvasRef?: ElementRef<HTMLDivElement>;
+
+  /** When embedded (inside the Post editor), the collage id comes from an input
+   *  instead of the route, and the standalone chrome (back link, export) hides. */
+  @Input() collageId?: string;
+  @Input() embedded = false;
+  /** Emits the live slide state so a parent can keep its rail/preview in sync.
+   *  Carries the slide id so a fast slide-switch can't misattribute an update. */
+  @Output() slideChange = new EventEmitter<{
+    id: string;
+    background_color: string;
+    layers: CollageLayer[];
+  }>();
 
   collage = signal<Collage | null>(null);
   layers = signal<CollageLayer[]>([]);
@@ -698,22 +734,42 @@ export class CollageEditorComponent implements OnInit, OnDestroy {
   private readonly onMove = (e: PointerEvent) => this.pointerMove(e);
   private readonly onUp = () => this.pointerUp();
 
+  // ── Canvas sizing per format ──
+  // CSS aspect-ratio string for the canvas element (distinct from the numeric
+  // canvasAspect() used in geometry math).
+  canvasRatio = computed(
+    () => CANVAS_ASPECT[this.collage()?.format ?? 'post'] ?? '1 / 1',
+  );
+  isTall = computed(() =>
+    ['story', 'portrait'].includes(this.collage()?.format ?? ''),
+  );
+  isWide = computed(() => this.collage()?.format === 'landscape');
+  dimsLabel = computed(() => {
+    const d = FORMAT_DIMS[this.collage()?.format ?? 'post'];
+    return d ? `${d[0]}×${d[1]}` : '';
+  });
+
   constructor(
     public api: ApiService,
     private route: ActivatedRoute,
     private router: Router,
-  ) {}
+  ) {
+    // Keep an embedding parent's rail/preview in sync with live edits. The emit
+    // is deferred to a microtask so the parent's signal write lands outside this
+    // effect's run (Angular forbids signal writes inside an effect's stack).
+    effect(() => {
+      const c = this.collage();
+      const layers = this.layers();
+      if (this.embedded && c) {
+        const payload = { id: c.id, background_color: c.background_color, layers };
+        queueMicrotask(() => this.slideChange.emit(payload));
+      }
+    });
+  }
 
   ngOnInit(): void {
-    const id = this.route.snapshot.paramMap.get('id')!;
-    this.api.getCollage(id).subscribe({
-      next: (c) => {
-        this.collage.set(c);
-        this.layers.set([...c.layers]);
-        this.resetHistory();
-      },
-      error: () => this.router.navigate(['/admin/collages']),
-    });
+    const id = this.collageId ?? this.route.snapshot.paramMap.get('id') ?? undefined;
+    if (id) this.loadCollage(id);
     this.api.getAdminPhotos(1, 200).subscribe({
       next: (page) => this.photos.set(page.items),
     });
@@ -721,10 +777,58 @@ export class CollageEditorComponent implements OnInit, OnDestroy {
     window.addEventListener('pointerup', this.onUp);
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    const c = changes['collageId'];
+    // Slide switch: persist the old slide, then load the newly-selected one.
+    if (c && !c.firstChange && c.currentValue && c.currentValue !== c.previousValue) {
+      this.flushNow().subscribe();
+      this.loadCollage(c.currentValue);
+    }
+  }
+
   ngOnDestroy(): void {
     window.removeEventListener('pointermove', this.onMove);
     window.removeEventListener('pointerup', this.onUp);
     this.flushNow().subscribe();
+  }
+
+  /** Flush any pending autosave to the server immediately. Used by an embedding
+   *  parent before exporting so the render matches what's on screen. */
+  saveNow(): Observable<unknown> {
+    return this.flushNow();
+  }
+
+  private loadCollage(id: string): void {
+    this.resetEditorState();
+    this.api.getCollage(id).subscribe({
+      next: (c) => {
+        this.collage.set(c);
+        this.layers.set([...c.layers]);
+        this.resetHistory();
+      },
+      error: () => {
+        if (!this.embedded) this.router.navigate(['/admin/collages']);
+      },
+    });
+  }
+
+  /** Clear per-slide editor state (selection, history, pending saves) so a
+   *  switched-in slide starts clean. User prefs (zoom/grid/snap) persist. */
+  private resetEditorState(): void {
+    this.selected.set(null);
+    this.cropMode.set(false);
+    this.drawer.set(false);
+    this.guideLines.set([]);
+    this.dirty.clear();
+    if (this.flushTimer) {
+      clearTimeout(this.flushTimer);
+      this.flushTimer = null;
+    }
+    this.history = [];
+    this.histIndex = -1;
+    this.canUndo.set(false);
+    this.canRedo.set(false);
+    this.saveState.set('saved');
   }
 
   trackLayer(_i: number, l: CollageLayer): string {

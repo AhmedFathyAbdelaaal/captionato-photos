@@ -95,8 +95,11 @@ def list_collages(
     _admin=Depends(get_current_admin),
     db: Session = Depends(get_db),
 ):
+    # Standalone collages only — post slides (post_id set) are managed under
+    # their post, not here.
     collages = db.scalars(
         select(Collage)
+        .where(Collage.post_id.is_(None))
         .options(selectinload(Collage.layers))
         .order_by(Collage.updated_at.desc())
     ).all()

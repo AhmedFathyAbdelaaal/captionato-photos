@@ -9,7 +9,7 @@ from sqlalchemy import select
 from .config import settings
 from .database import SessionLocal
 from .models import AdminUser
-from .routers import auth, collages, galleries, photos
+from .routers import auth, collages, galleries, photos, posts
 from .routers.collages import sweep_abandoned_one_offs
 from .security import hash_password
 
@@ -76,6 +76,7 @@ app.include_router(auth.router)
 app.include_router(photos.router)
 app.include_router(galleries.router)
 app.include_router(collages.router)
+app.include_router(posts.router)
 
 
 @app.get("/health")

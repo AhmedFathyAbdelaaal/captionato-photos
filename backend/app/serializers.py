@@ -3,8 +3,16 @@ lives in one place. URLs are API-relative; the frontend prefixes them with its
 configured apiBaseUrl."""
 from pathlib import Path
 
-from .models import Collage, CollageLayer, Gallery, Photo
-from .schemas import CollageDetailOut, CollageLayerOut, CollageOut, GalleryOut, PhotoOut
+from .models import Collage, CollageLayer, Gallery, Photo, Post
+from .schemas import (
+    CollageDetailOut,
+    CollageLayerOut,
+    CollageOut,
+    GalleryOut,
+    PhotoOut,
+    PostDetailOut,
+    PostOut,
+)
 
 
 def thumb_url(photo: Photo) -> str:
@@ -93,6 +101,37 @@ def collage_detail_out(collage: Collage) -> CollageDetailOut:
     return CollageDetailOut(
         **base.model_dump(),
         layers=[collage_layer_out(l) for l in collage.layers],
+    )
+
+
+def _post_cover_url(post: Post) -> str | None:
+    """First layer of the first slide, as a thumbnail — the post's cover."""
+    for slide in sorted(post.slides, key=lambda s: s.slide_order):
+        layers = sorted(slide.layers, key=lambda l: l.z_index)
+        if layers:
+            return collage_layer_out(layers[0]).thumb_url
+    return None
+
+
+def post_out(post: Post) -> PostOut:
+    return PostOut(
+        id=post.id,
+        name=post.name,
+        status=post.status,
+        created_at=post.created_at,
+        updated_at=post.updated_at,
+        exported_at=post.exported_at,
+        slide_count=len(post.slides),
+        cover_thumb_url=_post_cover_url(post),
+    )
+
+
+def post_detail_out(post: Post) -> PostDetailOut:
+    base = post_out(post)
+    slides = sorted(post.slides, key=lambda s: s.slide_order)
+    return PostDetailOut(
+        **base.model_dump(),
+        slides=[collage_detail_out(s) for s in slides],
     )
 
 

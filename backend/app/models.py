@@ -110,12 +110,47 @@ class GalleryPhoto(Base):
     photo: Mapped["Photo"] = relationship(back_populates="gallery_links")
 
 
+class Post(Base):
+    """An Instagram-style multi-slide post. Each slide is a Collage (reusing the
+    whole collage editor + renderer); a Post is just an ordered set of them.
+    Exporting a Post renders every slide and zips the images."""
+
+    __tablename__ = "posts"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    name: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(
+        String(10), default="draft", nullable=False
+    )  # draft|exported
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        onupdate=func.now(),
+        nullable=False,
+    )
+    exported_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    slides: Mapped[list["Collage"]] = relationship(
+        back_populates="post",
+        cascade="all, delete-orphan",
+        order_by="Collage.slide_order",
+    )
+
+
 class Collage(Base):
     """A collage draft/project built in the admin Collage Maker.
 
     Layer geometry is stored normalized: pos/size are fractions of the canvas
     width/height (0..1), so the editor (working resolution) and the export
     renderer (full 1080x1080 / 1080x1920) share the same coordinates.
+
+    A collage with `post_id` set is a *slide* of a Post; standalone collages
+    (post_id NULL) are the classic single-image Collage Maker drafts.
     """
 
     __tablename__ = "collages"
@@ -123,7 +158,12 @@ class Collage(Base):
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    format: Mapped[str] = mapped_column(String(10), nullable=False)  # story|post
+    # story|post for standalone collages; square|portrait|landscape for slides.
+    format: Mapped[str] = mapped_column(String(10), nullable=False)
+    post_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("posts.id", ondelete="CASCADE")
+    )
+    slide_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
     background_color: Mapped[str] = mapped_column(
         String(9), default="#000000", nullable=False
     )
@@ -141,6 +181,7 @@ class Collage(Base):
     )
     exported_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
+    post: Mapped["Post | None"] = relationship(back_populates="slides")
     layers: Mapped[list["CollageLayer"]] = relationship(
         back_populates="collage",
         cascade="all, delete-orphan",

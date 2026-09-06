@@ -73,6 +73,20 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'posts',
+        loadComponent: () =>
+          import('./admin/admin-posts.component').then(
+            (m) => m.AdminPostsComponent,
+          ),
+      },
+      {
+        path: 'posts/:id',
+        loadComponent: () =>
+          import('./admin/post-editor.component').then(
+            (m) => m.PostEditorComponent,
+          ),
+      },
+      {
         path: 'settings',
         loadComponent: () =>
           import('./admin/admin-settings.component').then(
