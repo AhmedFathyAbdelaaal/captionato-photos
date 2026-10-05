@@ -21,6 +21,16 @@ class Settings(BaseSettings):
     ADMIN_USERNAME: str = "capcap"
     ADMIN_PASSWORD: str = "changeme"
 
+    # Cloudflare Turnstile secret for register/login. Empty = verification
+    # skipped (local dev); always set it in production.
+    TURNSTILE_SECRET_KEY: str = ""
+
+    # Image URLs are HMAC-signed and expire, so a copied link stops working and
+    # revoking someone's access actually takes effect. Expiry is rounded to a
+    # bucket so the URL (and browser cache) stays stable within a window; a
+    # signed URL lives between IMAGE_URL_TTL_HOURS and 1.5x that.
+    IMAGE_URL_TTL_HOURS: int = 24
+
     # ── Image storage (mapped to a Coolify persistent volume) ──
     PHOTOS_ORIGINAL_PATH: str = "/data/photos/originals"
     PHOTOS_THUMB_PATH: str = "/data/photos/thumbs"

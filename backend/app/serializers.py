@@ -1,6 +1,7 @@
 """Model -> response-schema helpers, centralised so image URL construction
 lives in one place. URLs are API-relative; the frontend prefixes them with its
-configured apiBaseUrl."""
+configured apiBaseUrl. Photo URLs are signed (see security.sign_image_path):
+only callers allowed to see a photo ever receive a working URL for it."""
 from pathlib import Path
 
 from .models import Collage, CollageLayer, Gallery, Photo, Post
@@ -13,18 +14,19 @@ from .schemas import (
     PostDetailOut,
     PostOut,
 )
+from .security import sign_image_path
 
 
 def thumb_url(photo: Photo) -> str:
-    return f"/photos/{photo.id}/thumb"
+    return sign_image_path(f"/photos/{photo.id}/thumb")
 
 
 def display_url(photo: Photo) -> str:
-    return f"/photos/{photo.id}/display"
+    return sign_image_path(f"/photos/{photo.id}/display")
 
 
 def original_url(photo: Photo) -> str:
-    return f"/photos/{photo.id}/original"
+    return sign_image_path(f"/photos/{photo.id}/original")
 
 
 def photo_out(photo: Photo, include_galleries: bool = False) -> PhotoOut:
@@ -57,7 +59,7 @@ def one_off_thumb_name(one_off_path: str) -> str:
 
 def collage_layer_out(layer: CollageLayer) -> CollageLayerOut:
     if layer.photo_id is not None:
-        thumb = f"/photos/{layer.photo_id}/thumb"
+        thumb = sign_image_path(f"/photos/{layer.photo_id}/thumb")
     else:
         thumb = (
             f"/collages/{layer.collage_id}/one-off/"

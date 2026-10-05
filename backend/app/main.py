@@ -8,8 +8,8 @@ from sqlalchemy import select
 
 from .config import settings
 from .database import SessionLocal
-from .models import AdminUser
-from .routers import auth, collages, galleries, photos, posts
+from .models import User
+from .routers import auth, collages, galleries, photos, posts, users
 from .routers.collages import sweep_abandoned_one_offs
 from .security import hash_password
 
@@ -17,12 +17,13 @@ from .security import hash_password
 def seed_admin() -> None:
     """Create the initial admin from env vars if no admin exists yet."""
     with SessionLocal() as db:
-        existing = db.scalar(select(AdminUser).limit(1))
+        existing = db.scalar(select(User).where(User.role == "admin").limit(1))
         if existing is None:
             db.add(
-                AdminUser(
+                User(
                     username=settings.ADMIN_USERNAME,
                     password_hash=hash_password(settings.ADMIN_PASSWORD),
+                    role="admin",
                 )
             )
             db.commit()
@@ -57,6 +58,8 @@ async def lifespan(app: FastAPI):
         seed_admin()
     except Exception as exc:  # noqa: BLE001 — don't crash boot if DB not ready
         print(f"[captionato] admin seed skipped: {exc}")
+    if not settings.TURNSTILE_SECRET_KEY:
+        print("[captionato] TURNSTILE_SECRET_KEY unset — captcha checks are OFF")
     sweep_task = asyncio.create_task(one_off_sweep_loop())
     yield
     sweep_task.cancel()
@@ -77,6 +80,7 @@ app.include_router(photos.router)
 app.include_router(galleries.router)
 app.include_router(collages.router)
 app.include_router(posts.router)
+app.include_router(users.router)
 
 
 @app.get("/health")

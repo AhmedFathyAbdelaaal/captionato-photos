@@ -6,9 +6,20 @@ from pydantic import BaseModel, ConfigDict, Field
 
 
 # ── Auth ──
+UserRole = Literal["pending", "client", "verified", "admin"]
+
+
 class LoginRequest(BaseModel):
     username: str
     password: str
+    turnstile_token: str | None = None
+
+
+class RegisterRequest(BaseModel):
+    username: str = Field(min_length=3, max_length=32, pattern=r"^[A-Za-z0-9_.-]+$")
+    password: str = Field(min_length=8, max_length=200)
+    note: str | None = Field(default=None, max_length=300)
+    turnstile_token: str | None = None
 
 
 class TokenResponse(BaseModel):
@@ -18,7 +29,33 @@ class TokenResponse(BaseModel):
 
 class PasswordChange(BaseModel):
     current_password: str
-    new_password: str = Field(min_length=6)
+    new_password: str = Field(min_length=8)
+
+
+class MeOut(BaseModel):
+    id: uuid.UUID
+    username: str
+    role: UserRole
+
+
+# ── Users (admin) ──
+class UserOut(BaseModel):
+    id: uuid.UUID
+    username: str
+    role: UserRole
+    note: str | None = None
+    created_at: datetime
+    last_login_at: datetime | None = None
+    gallery_ids: list[uuid.UUID] = []
+
+
+class UserUpdate(BaseModel):
+    role: UserRole | None = None
+    gallery_ids: list[uuid.UUID] | None = None  # replaces the grant set
+
+
+class PasswordReset(BaseModel):
+    new_password: str = Field(min_length=8, max_length=200)
 
 
 # ── Photos ──
@@ -79,7 +116,7 @@ class BulkTags(BulkIds):
 
 
 # ── Galleries ──
-GalleryVisibility = Literal["public", "unlisted", "password"]
+GalleryVisibility = Literal["assigned", "password"]
 
 
 class GalleryBase(BaseModel):
@@ -90,7 +127,7 @@ class GalleryBase(BaseModel):
     layout: str = "masonry"
     force_theme: str = "system"
     accent_color: str | None = None
-    visibility: GalleryVisibility = "public"
+    visibility: GalleryVisibility = "assigned"
 
 
 class GalleryCreate(GalleryBase):

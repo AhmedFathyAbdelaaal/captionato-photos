@@ -4,8 +4,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from ..deps import get_current_admin, get_db
-from ..models import Gallery, GalleryPhoto, Photo
+from ..deps import get_approved_user, get_current_admin, get_db
+from ..models import Gallery, GalleryPhoto, Photo, User, UserGallery
 from ..schemas import (
     GalleryCreate,
     GalleryDetailOut,
@@ -38,6 +38,25 @@ def _cover_for(db: Session, gallery: Gallery) -> Photo | None:
     return link.photo if link else None
 
 
+def _granted_ids(db: Session, user: User) -> set[uuid.UUID]:
+    return set(
+        db.scalars(
+            select(UserGallery.gallery_id).where(UserGallery.user_id == user.id)
+        ).all()
+    )
+
+
+def _load_by_slug(db: Session, slug: str) -> Gallery:
+    gallery = db.scalar(
+        select(Gallery)
+        .where(Gallery.slug == slug)
+        .options(selectinload(Gallery.photo_links).selectinload(GalleryPhoto.photo))
+    )
+    if gallery is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
+    return gallery
+
+
 def _detail(gallery: Gallery, cover: Photo | None, *, locked: bool) -> GalleryDetailOut:
     """Build the detail response, hiding photos when locked."""
     base = gallery_out(gallery, cover)
@@ -51,19 +70,27 @@ def _detail(gallery: Gallery, cover: Photo | None, *, locked: bool) -> GalleryDe
     )
 
 
-# ── Public list (public visibility only) ──
+# ── The caller's galleries: everything for admin, granted ones for others ──
+# Password galleries that aren't granted stay link-only (not listed).
 @router.get("", response_model=list[GalleryOut])
-def list_galleries(db: Session = Depends(get_db)):
-    galleries = db.scalars(
+def list_galleries(
+    user: User = Depends(get_approved_user),
+    db: Session = Depends(get_db),
+):
+    stmt = (
         select(Gallery)
-        .where(Gallery.visibility == "public")
         .options(selectinload(Gallery.photo_links))
         .order_by(Gallery.display_order, Gallery.created_at)
-    ).all()
+    )
+    if user.role != "admin":
+        stmt = stmt.join(UserGallery, UserGallery.gallery_id == Gallery.id).where(
+            UserGallery.user_id == user.id
+        )
+    galleries = db.scalars(stmt).all()
     return [gallery_out(g, _cover_for(db, g)) for g in galleries]
 
 
-# ── Admin list (all visibilities, including hidden + password-gated) ──
+# ── Admin list (all galleries, with full metadata) ──
 @router.get("/admin", response_model=list[GalleryOut])
 def list_admin_galleries(
     _admin=Depends(get_current_admin),
@@ -94,42 +121,40 @@ def get_admin_gallery(
     return _detail(gallery, _cover_for(db, gallery), locked=False)
 
 
-# ── Public detail by slug ──
-# Password-gated galleries return a locked stub (no photos) until POST /unlock.
-# Unlisted galleries return full detail — the URL itself is the gate.
+# ── Detail by slug (approved users) ──
+# Granted (or admin) → full. Otherwise a password gallery returns a locked stub
+# until POST /unlock; anything else is a 404 so its existence isn't revealed.
 @router.get("/{slug}", response_model=GalleryDetailOut)
-def get_gallery(slug: str, db: Session = Depends(get_db)):
-    gallery = db.scalar(
-        select(Gallery)
-        .where(Gallery.slug == slug)
-        .options(selectinload(Gallery.photo_links).selectinload(GalleryPhoto.photo))
-    )
-    if gallery is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
+def get_gallery(
+    slug: str,
+    user: User = Depends(get_approved_user),
+    db: Session = Depends(get_db),
+):
+    gallery = _load_by_slug(db, slug)
+    if user.role == "admin" or gallery.id in _granted_ids(db, user):
+        return _detail(gallery, _cover_for(db, gallery), locked=False)
+    if gallery.visibility == "password" and gallery.password_hash:
+        return _detail(gallery, _cover_for(db, gallery), locked=True)
+    raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
 
-    locked = gallery.visibility == "password" and bool(gallery.password_hash)
-    return _detail(gallery, _cover_for(db, gallery), locked=locked)
 
-
-# ── Unlock a password-gated gallery ──
+# ── Unlock a password-gated gallery (approved users) ──
 @router.post("/{slug}/unlock", response_model=GalleryDetailOut)
 def unlock_gallery(
     slug: str,
     body: GalleryUnlock,
+    user: User = Depends(get_approved_user),
     db: Session = Depends(get_db),
 ):
-    gallery = db.scalar(
-        select(Gallery)
-        .where(Gallery.slug == slug)
-        .options(selectinload(Gallery.photo_links).selectinload(GalleryPhoto.photo))
-    )
-    if gallery is None:
-        raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
-    if gallery.visibility != "password" or not gallery.password_hash:
-        # Not a password gallery — return the full detail so a stale UI recovers.
+    gallery = _load_by_slug(db, slug)
+    if user.role == "admin" or gallery.id in _granted_ids(db, user):
+        # Already has access — return the full detail so a stale UI recovers.
         return _detail(gallery, _cover_for(db, gallery), locked=False)
+    if gallery.visibility != "password" or not gallery.password_hash:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
     if not verify_password(body.password, gallery.password_hash):
-        raise HTTPException(status.HTTP_401_UNAUTHORIZED, "Wrong password")
+        # 403, not 401: a wrong gallery password must not log the user out.
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Wrong password")
     return _detail(gallery, _cover_for(db, gallery), locked=False)
 
 

@@ -76,9 +76,10 @@ class Gallery(Base):
     )  # system|light|dark
     accent_color: Mapped[str | None] = mapped_column(String(9))  # hex, nullable
     display_order: Mapped[int] = mapped_column(Integer, default=0, nullable=False)
-    # public: listed everywhere · unlisted: link-only · password: link + bcrypt gate
+    # assigned: only users granted it (user_galleries) can see it
+    # password: also openable by any approved user who knows the password
     visibility: Mapped[str] = mapped_column(
-        String(15), default="public", nullable=False
+        String(15), default="assigned", nullable=False
     )
     # bcrypt hash — populated only when visibility="password".
     password_hash: Mapped[str | None] = mapped_column(Text)
@@ -228,11 +229,53 @@ class CollageLayer(Base):
     photo: Mapped["Photo | None"] = relationship()
 
 
-class AdminUser(Base):
-    __tablename__ = "admin_users"
+class User(Base):
+    """Every account, admin included. New sign-ups start as `pending` and see
+    only the landing hero until the admin promotes them:
+
+      pending  → nothing beyond the landing hero
+      client   → only galleries explicitly granted to them
+      verified → the full portfolio + granted galleries
+      admin    → everything, plus the admin panel
+    """
+
+    __tablename__ = "users"
 
     id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
     )
-    username: Mapped[str] = mapped_column(Text, unique=True, nullable=False)
+    # Uniqueness is case-insensitive (functional index on lower(username)).
+    username: Mapped[str] = mapped_column(Text, nullable=False)
     password_hash: Mapped[str] = mapped_column(Text, nullable=False)
+    role: Mapped[str] = mapped_column(
+        String(10), default="pending", nullable=False
+    )  # pending|client|verified|admin
+    # "Who are you" note from sign-up, so the admin knows who they're approving.
+    note: Mapped[str | None] = mapped_column(Text)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    gallery_grants: Mapped[list["UserGallery"]] = relationship(
+        back_populates="user", cascade="all, delete-orphan"
+    )
+
+
+class UserGallery(Base):
+    """Grants one user access to one gallery (any visibility, no password)."""
+
+    __tablename__ = "user_galleries"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("users.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+    gallery_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True),
+        ForeignKey("galleries.id", ondelete="CASCADE"),
+        primary_key=True,
+    )
+
+    user: Mapped["User"] = relationship(back_populates="gallery_grants")
