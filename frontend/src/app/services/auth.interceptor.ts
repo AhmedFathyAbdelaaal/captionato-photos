@@ -5,7 +5,10 @@ import { catchError, throwError } from 'rxjs';
 
 import { AuthService } from './auth.service';
 
-/** Attaches the JWT and, on a 401, logs out + bounces to the admin login. */
+/** Attaches the JWT and, when a stored token gets a 401 (expired, user
+ *  deleted), drops it and sends the user to the login page. Login/register
+ *  401s are just wrong credentials, and /auth/me is AuthService's own check
+ *  (it drops the token quietly), so those are left to their callers. */
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const auth = inject(AuthService);
   const router = inject(Router);
@@ -17,9 +20,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(authReq).pipe(
     catchError((err) => {
-      if (err.status === 401) {
+      const handledByCaller = /\/auth\/(login|register|me)$/.test(req.url);
+      if (err.status === 401 && token && !handledByCaller) {
         auth.logout();
-        router.navigate(['/admin/login']);
+        router.navigate(['/login']);
       }
       return throwError(() => err);
     }),

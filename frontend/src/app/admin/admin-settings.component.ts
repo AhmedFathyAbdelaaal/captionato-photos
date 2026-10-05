@@ -14,7 +14,7 @@ import { ApiService } from '../services/api.service';
     <form class="card" (ngSubmit)="submit()">
       <h2>Change password</h2>
       <label>Current password<input type="password" [(ngModel)]="current" name="current" required /></label>
-      <label>New password<input type="password" [(ngModel)]="next" name="next" required minlength="6" /></label>
+      <label>New password<input type="password" [(ngModel)]="next" name="next" required minlength="8" /></label>
       <label>Confirm new password<input type="password" [(ngModel)]="confirm" name="confirm" required /></label>
 
       <p class="msg" [class.ok]="ok()" *ngIf="msg()">{{ msg() }}</p>
@@ -78,9 +78,9 @@ export class AdminSettingsComponent {
 
   submit(): void {
     this.msg.set('');
-    if (this.next.length < 6) {
+    if (this.next.length < 8) {
       this.ok.set(false);
-      this.msg.set('New password must be at least 6 characters.');
+      this.msg.set('New password must be at least 8 characters.');
       return;
     }
     if (this.next !== this.confirm) {

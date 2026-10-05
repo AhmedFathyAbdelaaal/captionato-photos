@@ -99,7 +99,17 @@ derivative is for the lightbox; the original is only ever the download target.
 
 ### Image serving
 
-- `GET /photos/{id}/thumb` → the thumbnail (long-cache headers).
+Every image URL the API hands out is **signed**: `?exp=<unix>&sig=<hmac>`, an
+HMAC-SHA256 (keyed by `SECRET_KEY`) over the path + expiry. `<img>` tags can't
+send a Bearer token, so the URL itself is the permission — the API only emits
+URLs for photos the caller may see, and the image routes reject anything
+unsigned, tampered or expired (403). Expiry is rounded up to a half-TTL bucket
+(`IMAGE_URL_TTL_HOURS`, default 24h) so a photo keeps the same URL — and browser
+cache hit — for hours at a time. A signature for `/thumb` doesn't open
+`/original`. Images are sent `Cache-Control: private` so shared caches don't
+keep them.
+
+- `GET /photos/{id}/thumb` → the thumbnail.
 - `GET /photos/{id}/display` → the ~2560px display derivative for the lightbox
   (generated on upload; lazily created + cached on first request for older
   photos, falling back to the original if it can't be produced).
@@ -108,17 +118,43 @@ derivative is for the lightbox; the original is only ever the download target.
   `Content-Disposition: attachment` header so the browser downloads it with the
   real filename. This powers the lightbox "Download original" button.
 
-### Auth
+### Users, roles & access
 
-Single admin user, JWT-based (`backend/app/security.py`, `deps.py`):
+Everyone has an account in `users`; the site is members-only
+(`backend/app/security.py`, `deps.py`, `routers/auth.py`, `routers/users.py`):
 
-- On first boot, `main.py`'s lifespan seeds an admin from `ADMIN_USERNAME` /
-  `ADMIN_PASSWORD` **only if no admin exists**.
-- `POST /auth/login` verifies the bcrypt hash and returns a JWT.
-- Protected routes depend on `get_current_admin`, which validates the
-  `Authorization: Bearer <jwt>` header.
-- The frontend stores the token in `localStorage`; an HTTP interceptor attaches
-  it to every request and bounces to the login on a 401.
+| Role | Sees |
+|---|---|
+| *(logged out)* | Landing hero (the `featured` scatter) + "request access / log in" |
+| `pending` | Same, plus "Awaiting verification" — the default after sign-up |
+| `client` | Only galleries granted to them (no portfolio) |
+| `verified` | The full portfolio + granted galleries |
+| `admin` | Everything, plus the admin panel |
+
+- **Sign-up / login** (`/register`, `/login`) are protected by **Cloudflare
+  Turnstile**, verified server-side (`TURNSTILE_SECRET_KEY`; skipped when
+  empty so local dev works). No email — the "who are you?" note shows in the
+  admin Users tab so you know who you're approving.
+- **Approval** happens in **Admin → Users**: pending users are listed first
+  (with a nav badge), one click approves as Verified or Client, and gallery
+  chips toggle per-user grants (`user_galleries`). Password resets happen here
+  too, since there's no email recovery.
+- **Galleries** are `assigned` (only granted users) or `password` (granted
+  users, plus any *approved* user who enters the password). The header's
+  "galleries" link and the landing section list the caller's granted galleries
+  (all of them for admin). An ungranted, non-password gallery is a 404.
+- **The hero feed** (`/photos/featured`) is the only public window, capped to a
+  single page of ≤40 so it can't be paged through to scrape the archive.
+- **JWTs** carry only the user id; the **role is read from the DB on every
+  request**, so approving / demoting / deleting someone applies immediately.
+  A pending user's page re-checks every 30s and opens up on its own.
+- On first boot `main.py` seeds an admin from `ADMIN_USERNAME` /
+  `ADMIN_PASSWORD` **only if no admin exists**. Migration `0008_users` moved
+  the old `admin_users` rows into `users` as role `admin` (same password).
+- The frontend keeps the token in `localStorage`; the interceptor attaches it
+  and, if a stored token starts getting 401s, drops it and goes to `/login`.
+  Route guards (`adminGuard`, `portfolioGuard`, `approvedGuard`) wait for the
+  first `/auth/me` before deciding.
 
 ### Frontend rendering
 
@@ -175,6 +211,8 @@ galleries
   force_theme    varchar(10) = 'system'   -- system|light|dark
   accent_color   varchar(9)  null         -- hex, overrides default accent
   display_order  int  = 0
+  visibility     varchar(15) = 'assigned' -- assigned|password
+  password_hash  text  null               -- bcrypt, password galleries only
   created_at     timestamptz
 
 gallery_photos                  -- many-to-many, ordered
@@ -182,10 +220,18 @@ gallery_photos                  -- many-to-many, ordered
   photo_id       UUID → photos.id    (ON DELETE CASCADE)  PK
   display_order  int  = 0
 
-admin_users
+users                           -- every account, admin included
   id             UUID  PK
-  username       text  unique
+  username       text          -- unique on lower(username)
   password_hash  text          -- bcrypt
+  role           varchar(10) = 'pending'  -- pending|client|verified|admin
+  note           text  null    -- "who are you?" from sign-up
+  created_at     timestamptz
+  last_login_at  timestamptz null
+
+user_galleries                  -- per-user gallery grants
+  user_id        UUID → users.id     (ON DELETE CASCADE)  PK
+  gallery_id     UUID → galleries.id (ON DELETE CASCADE)  PK
 
 collages                        -- admin collage-maker drafts
   id               UUID  PK
@@ -208,7 +254,7 @@ collage_layers                  -- one placed photo on a collage canvas
 
 A photo can live in multiple galleries. Deleting a gallery unassigns its photos
 (it does not delete them). The schema is created by Alembic migrations
-(`0001_initial` → `0004_photo_taken_at`), which `start.sh` runs
+(`0001_initial` → `0008_users`), which `start.sh` runs
 (`alembic upgrade head`) on every boot. `0004` also **backfills** `taken_at`
 from each existing photo's stored EXIF date.
 
@@ -236,10 +282,10 @@ captionato-photos/
 │   │   ├── main.py          # app, CORS, lifespan (mkdir volumes + seed admin), /health
 │   │   ├── config.py        # pydantic-settings (env vars)
 │   │   ├── database.py      # SQLAlchemy engine / session / Base
-│   │   ├── models.py        # ORM models (the four tables above)
+│   │   ├── models.py        # ORM models (the tables above)
 │   │   ├── schemas.py       # Pydantic request/response models
-│   │   ├── security.py      # bcrypt hashing + JWT encode/decode
-│   │   ├── deps.py          # get_db, get_current_admin (HTTPBearer)
+│   │   ├── security.py      # bcrypt, JWT, signed image URLs, Turnstile check
+│   │   ├── deps.py          # get_db + role dependencies (approved/portfolio/admin)
 │   │   ├── imaging.py       # Pillow: EXIF extract + sanitise + thumbnail
 │   │   ├── serializers.py   # ORM → response schema (+ image URL building)
 │   │   ├── collage_render.py# Pillow full-res collage composition (export)
@@ -247,7 +293,8 @@ captionato-photos/
 │   │   └── routers/
 │   │       ├── auth.py      # login, me, change password
 │   │       ├── photos.py    # list/upload/update/delete + thumb/original/exif
-│   │       ├── galleries.py # CRUD + reorder
+│   │       ├── galleries.py # CRUD + reorder + per-user access
+│   │       ├── users.py     # admin: roles, gallery grants, password resets
 │   │       └── collages.py  # collage drafts, layers, one-offs, export, sweep
 │   ├── alembic/             # migrations (env.py + versions/)
 │   ├── requirements.txt
@@ -326,6 +373,7 @@ docker compose up --build             # frontend :8080, backend :8000, postgres
 | `SECRET_KEY` | JWT signing secret | `python -c "import secrets; print(secrets.token_hex(32))"` |
 | `ADMIN_USERNAME` | Initial admin (seeded once) | `capcap` |
 | `ADMIN_PASSWORD` | Initial admin password (bcrypt-hashed on seed) | `your-password` |
+| `TURNSTILE_SECRET_KEY` | Cloudflare Turnstile secret (empty = captcha off) | `0x4AAA…` |
 | `PHOTOS_ORIGINAL_PATH` | Volume path for originals | `/data/photos/originals` |
 | `PHOTOS_THUMB_PATH` | Volume path for thumbnails | `/data/photos/thumbs` |
 | `PHOTOS_DISPLAY_PATH` | Volume path for lightbox derivatives | `/data/photos/display` |
@@ -333,7 +381,7 @@ docker compose up --build             # frontend :8080, backend :8000, postgres
 | `ALLOWED_ORIGINS` | Comma-separated CORS origins | `https://photos.captionato.tech,http://localhost:4200` |
 
 Optional: `THUMB_MAX_EDGE` (default 1600), `DISPLAY_MAX_EDGE` (default 2560),
-`JWT_EXPIRE_MINUTES` (default 1 week),
+`JWT_EXPIRE_MINUTES` (default 1 week), `IMAGE_URL_TTL_HOURS` (default 24),
 `COLLAGE_SWEEP_DAYS` (default 30), `COLLAGE_EXPORT_QUALITY` (default 92),
 `COLLAGE_BORDER_COLOR` (default `#B23A52`).
 
@@ -342,6 +390,7 @@ Optional: `THUMB_MAX_EDGE` (default 1600), `DISPLAY_MAX_EDGE` (default 2560),
 | Variable | Description | Example |
 |---|---|---|
 | `API_BASE_URL` | Backend base URL (baked into `config.json` at start) | `https://api.photos.captionato.tech` |
+| `TURNSTILE_SITE_KEY` | Cloudflare Turnstile site key (empty = no widget) | `0x4AAA…` |
 
 ---
 
@@ -360,7 +409,32 @@ Three resources in **one Coolify project** (so they share an internal network):
 
 **Order:** Postgres → backend (it runs migrations + seeds the admin on boot) →
 frontend. Verify `https://api.photos.captionato.tech/health` returns
-`{"status":"ok"}`, then log in at `photos.captionato.tech/admin/login`.
+`{"status":"ok"}`, then log in at `photos.captionato.tech/login`.
+
+### Auto-deploy (GitHub Actions → Coolify)
+
+`.github/workflows/deploy.yml` runs on every push and PR: it applies **all
+migrations to a throwaway Postgres** and **builds the Angular app**. On a push
+to `main`, if both pass, it calls Coolify's deploy API for whichever app's
+folder changed (`backend/` and/or `frontend/`). The gate matters because
+`start.sh` runs migrations against prod on boot — a broken migration would
+otherwise crash-loop the live backend. Run it by hand from the Actions tab
+(*Run workflow*) to redeploy both.
+
+One-time setup:
+
+1. **Coolify → Settings → Advanced:** enable **API Access**.
+2. **Coolify → Keys & Tokens → API tokens:** create a token with the
+   **deploy** permission.
+3. Copy each app's **UUID** (Coolify app page → the id in the URL, or the
+   *Webhooks* tab's deploy URL `…/deploy?uuid=<this>`).
+4. **GitHub → repo Settings → Secrets and variables → Actions**, add:
+   `COOLIFY_URL` (e.g. `https://coolify.example.com`, no trailing slash),
+   `COOLIFY_TOKEN`, `COOLIFY_BACKEND_UUID`, `COOLIFY_FRONTEND_UUID`.
+5. Leave Coolify's own auto-deploy **off** for both apps, or each push deploys
+   twice (and the un-gated one can ship a broken migration).
+6. Turn on **scheduled backups** for the Postgres resource — migrations now
+   run unattended.
 
 ---
 
@@ -396,22 +470,32 @@ Real issues hit while shipping this — documented so you don't re-hit them:
 
 ## API reference
 
+Auth: – public · 👤 any logged-in user · ✓ approved (client/verified/admin)
+· ★ verified/admin · ✔ admin · 🔑 signed URL (`?exp=&sig=`)
+
 | Method | Path | Auth | Purpose |
 |---|---|---|---|
-| POST | `/auth/login` | – | Get a JWT |
-| GET | `/auth/me` | ✔ | Current admin |
-| POST | `/auth/password` | ✔ | Change password |
-| GET | `/photos` | – | Public feed (visible, paginated; `?sort=taken\|uploaded`) |
+| POST | `/auth/register` | – | Sign up (Turnstile) → JWT, role `pending` |
+| POST | `/auth/login` | – | Log in (Turnstile) → JWT |
+| GET | `/auth/me` | 👤 | `{ id, username, role }` |
+| POST | `/auth/password` | 👤 | Change own password |
+| GET | `/users` | ✔ | All users, pending first (`?role=`) |
+| PATCH | `/users/{id}` | ✔ | Set role and/or gallery grants (`gallery_ids` replaces) |
+| POST | `/users/{id}/password` | ✔ | Reset a user's password |
+| DELETE | `/users/{id}` | ✔ | Delete a user (not yourself) |
+| GET | `/photos/featured` | – | Landing hero feed (single page, `page_size` ≤ 40) |
+| GET | `/photos` | ★ | Portfolio feed (visible, paginated; `?sort=taken\|uploaded`) |
 | GET | `/photos/admin` | ✔ | All photos incl. hidden (+ gallery ids; `?sort=`) |
 | POST | `/photos` | ✔ | Upload (multipart, one or many) |
 | PATCH | `/photos/{id}` | ✔ | Title / caption / visibility / gallery membership |
 | DELETE | `/photos/{id}` | ✔ | Delete photo + files |
-| GET | `/photos/{id}/thumb` | – | Thumbnail |
-| GET | `/photos/{id}/display` | – | ~2560px lightbox derivative (lazy-generated) |
-| GET | `/photos/{id}/original` | – | Original (inline; `?download=1` to download) |
+| GET | `/photos/{id}/thumb` | 🔑 | Thumbnail |
+| GET | `/photos/{id}/display` | 🔑 | ~2560px lightbox derivative (lazy-generated) |
+| GET | `/photos/{id}/original` | 🔑 | Original (inline; `&download=1` to download) |
 | GET | `/photos/{id}/exif` | – | EXIF JSON |
-| GET | `/galleries` | – | Gallery index (with cover + count) |
-| GET | `/galleries/{slug}` | – | Gallery detail with ordered photos |
+| GET | `/galleries` | ✓ | The caller's galleries (granted; all for admin) |
+| GET | `/galleries/{slug}` | ✓ | Detail if granted; locked stub for password galleries; else 404 |
+| POST | `/galleries/{slug}/unlock` | ✓ | Unlock a password gallery (403 on wrong password) |
 | POST | `/galleries` | ✔ | Create |
 | PATCH | `/galleries/{id}` | ✔ | Update |
 | DELETE | `/galleries/{id}` | ✔ | Delete (photos kept, just unassigned) |

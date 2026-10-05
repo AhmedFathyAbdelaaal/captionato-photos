@@ -12,6 +12,7 @@ import { RouterLink } from '@angular/router';
 
 import { Gallery, Photo } from '../models';
 import { ApiService } from '../services/api.service';
+import { AuthService } from '../services/auth.service';
 import { LightboxComponent } from '../components/lightbox.component';
 import { PhotoComponent } from '../components/photo.component';
 
@@ -159,8 +160,40 @@ const SLOTS: Slot[] = [
       </div>
     </section>
 
+    <!-- ── Members gate: logged-out visitors + pending sign-ups ── -->
+    <section class="cta-wrap" *ngIf="!auth.isApproved()">
+      <div class="cta gate" *ngIf="!auth.isLoggedIn(); else waiting">
+        <span class="cta-sub mono">members only</span>
+        <span class="cta-main">The archive is invite-only.</span>
+        <p>Make an account and I'll let you in — usually takes a few mins.</p>
+        <div class="gate-actions">
+          <a routerLink="/register" class="btn-accent">Request access</a>
+          <a routerLink="/login" class="btn-ghost">Log in</a>
+        </div>
+      </div>
+      <ng-template #waiting>
+        <div class="cta gate">
+          <span class="cta-sub mono">hey {{ auth.me()?.username }}</span>
+          <span class="cta-main">Awaiting verification</span>
+          <p>Just takes a few mins — this page opens up on its own once you're in.</p>
+        </div>
+      </ng-template>
+    </section>
+
+    <!-- ── Approved, but nothing shared yet (client with no grants) ── -->
+    <section
+      class="cta-wrap"
+      *ngIf="auth.isApproved() && !auth.canSeePortfolio() && !galleries().length"
+    >
+      <div class="cta gate">
+        <span class="cta-sub mono">you're in</span>
+        <span class="cta-main">Nothing shared with you yet</span>
+        <p>Your galleries will show up here as soon as they're ready.</p>
+      </div>
+    </section>
+
     <!-- ── Portfolio CTA ── -->
-    <section class="cta-wrap">
+    <section class="cta-wrap" *ngIf="auth.canSeePortfolio()">
       <a routerLink="/portfolio" class="cta">
         <span class="cta-sub mono">{{ total() ? total() + ' photographs' : 'the full archive' }}</span>
         <span class="cta-main">View the full portfolio <span class="arr">→</span></span>
@@ -420,6 +453,21 @@ const SLOTS: Slot[] = [
         font-size: clamp(1.4rem, 4vw, 2.4rem);
         letter-spacing: -0.03em;
       }
+      .gate {
+        text-align: center;
+        max-width: 34rem;
+      }
+      .gate p {
+        margin: 0.3rem 0 0;
+        color: var(--color-muted);
+      }
+      .gate-actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 0.6rem;
+        margin-top: 1rem;
+      }
       .cta .arr {
         color: var(--color-accent);
         display: inline-block;
@@ -447,7 +495,8 @@ export class LandingComponent implements OnInit {
   @ViewChild('hero') heroRef?: ElementRef<HTMLElement>;
 
   recents = signal<Photo[]>([]);
-  galleries = signal<Gallery[]>([]);
+  /** The viewer's gallery menu (granted galleries; everything for admin). */
+  galleries = computed<Gallery[]>(() => this.auth.galleries().slice(0, 6));
   total = signal(0);
   lightboxIndex = signal<number | null>(null);
 
@@ -474,19 +523,20 @@ export class LandingComponent implements OnInit {
     return `${this.MONTHS[d.getMonth()]} ${d.getFullYear()}`;
   });
 
-  constructor(public api: ApiService) {}
+  constructor(public api: ApiService, public auth: AuthService) {}
 
   ngOnInit(): void {
     // Hero scatter = the curated "featured"-tagged feed (falls back to recent).
-    this.api.getFeaturedPhotos(1, SLOTS.length).subscribe({
+    this.api.getFeaturedPhotos(SLOTS.length).subscribe({
       next: (res) => this.recents.set(res.items),
     });
-    // The CTA count reflects the whole public archive, not just the featured set.
-    this.api.getPhotos(1, 1).subscribe({
-      next: (res) => this.total.set(res.total),
-    });
-    this.api.getGalleries().subscribe({
-      next: (g) => this.galleries.set(g.slice(0, 6)),
+    // The CTA count reflects the whole archive, not just the featured set —
+    // only fetched for roles that can open the portfolio.
+    this.auth.whenReady().subscribe(() => {
+      if (!this.auth.canSeePortfolio()) return;
+      this.api.getPhotos(1, 1).subscribe({
+        next: (res) => this.total.set(res.total),
+      });
     });
   }
 

@@ -336,11 +336,12 @@ export class LightboxComponent implements OnChanges {
    *  retry so the browser actually re-requests a previously-failed image. */
   fullSrc(): string {
     const url = this.api.imageUrl(this.current.display_url);
-    return this.retryCount() ? `${url}?r=${this.retryCount()}` : url;
+    // Signed URLs already carry a query string (exp/sig), so append with '&'.
+    return this.retryCount() ? `${url}&r=${this.retryCount()}` : url;
   }
 
   get downloadUrl(): string {
-    return this.api.imageUrl(this.current.original_url) + '?download=1';
+    return this.api.imageUrl(this.current.original_url) + '&download=1';
   }
 
   /** Aspect ratio for the skeleton placeholder, so it matches the incoming

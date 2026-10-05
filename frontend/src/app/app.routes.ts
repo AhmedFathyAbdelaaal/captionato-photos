@@ -1,6 +1,11 @@
 import { Routes } from '@angular/router';
 
-import { authGuard } from './services/auth.guard';
+import {
+  adminGuard,
+  approvedGuard,
+  guestGuard,
+  portfolioGuard,
+} from './services/auth.guard';
 
 export const routes: Routes = [
   {
@@ -9,30 +14,44 @@ export const routes: Routes = [
       import('./pages/landing.component').then((m) => m.LandingComponent),
   },
   {
+    path: 'login',
+    canActivate: [guestGuard],
+    data: { mode: 'login' },
+    loadComponent: () =>
+      import('./pages/auth.component').then((m) => m.AuthComponent),
+  },
+  {
+    path: 'register',
+    canActivate: [guestGuard],
+    data: { mode: 'register' },
+    loadComponent: () =>
+      import('./pages/auth.component').then((m) => m.AuthComponent),
+  },
+  {
     path: 'portfolio',
+    canActivate: [portfolioGuard],
     loadComponent: () =>
       import('./pages/portfolio.component').then((m) => m.PortfolioComponent),
   },
   {
     path: 'galleries',
+    canActivate: [approvedGuard],
     loadComponent: () =>
       import('./pages/galleries.component').then((m) => m.GalleriesComponent),
   },
   {
     path: 'galleries/:slug',
+    canActivate: [approvedGuard],
     loadComponent: () =>
       import('./pages/gallery-detail.component').then(
         (m) => m.GalleryDetailComponent,
       ),
   },
-  {
-    path: 'admin/login',
-    loadComponent: () =>
-      import('./admin/login.component').then((m) => m.LoginComponent),
-  },
+  // Old admin login URL — everyone signs in through /login now.
+  { path: 'admin/login', redirectTo: 'login', pathMatch: 'full' },
   {
     path: 'admin',
-    canActivate: [authGuard],
+    canActivate: [adminGuard],
     loadComponent: () =>
       import('./admin/admin.component').then((m) => m.AdminComponent),
     children: [
@@ -84,6 +103,13 @@ export const routes: Routes = [
         loadComponent: () =>
           import('./admin/post-editor.component').then(
             (m) => m.PostEditorComponent,
+          ),
+      },
+      {
+        path: 'users',
+        loadComponent: () =>
+          import('./admin/admin-users.component').then(
+            (m) => m.AdminUsersComponent,
           ),
       },
       {

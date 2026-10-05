@@ -15,7 +15,7 @@ import { PhotoComponent } from '../components/photo.component';
     <header class="top">
       <h1>Galleries</h1>
       <span class="mono muted count" *ngIf="galleries().length">
-        {{ galleries().length }} total · {{ privateCount() }} private
+        {{ galleries().length }} total · {{ privateCount() }} password
       </span>
     </header>
 
@@ -43,10 +43,10 @@ import { PhotoComponent } from '../components/photo.component';
     <!-- Toast -->
     <div class="toast" *ngIf="toast()" role="status">{{ toast() }}</div>
 
-    <!-- Public section -->
+    <!-- Assigned section (visible only to users granted access) -->
     <section *ngIf="publicGalleries().length">
       <h2 class="sec">
-        <span class="dot pub"></span> Public
+        <span class="dot pub"></span> Assigned
         <span class="mono muted">·</span>
         <span class="mono muted">{{ publicGalleries().length }}</span>
       </h2>
@@ -59,10 +59,10 @@ import { PhotoComponent } from '../components/photo.component';
       </ul>
     </section>
 
-    <!-- Private section (unlisted + password) -->
+    <!-- Password section (also openable by approved users with the password) -->
     <section *ngIf="privateGalleries().length" class="private-band">
       <h2 class="sec private-head">
-        <span class="dot priv"></span> Private
+        <span class="dot priv"></span> Password
         <span class="mono muted">·</span>
         <span class="mono muted">{{ privateGalleries().length }}</span>
       </h2>
@@ -118,7 +118,6 @@ import { PhotoComponent } from '../components/photo.component';
         </div>
         <button
           class="share"
-          *ngIf="g.visibility !== 'public'"
           (click)="copyShareLink(g)"
           [title]="'Copy link' + (g.visibility === 'password' ? ' (password required to view)' : '')"
         >
@@ -306,13 +305,9 @@ import { PhotoComponent } from '../components/photo.component';
         background: color-mix(in srgb, var(--cap-ink) 60%, transparent);
         color: var(--cap-cream-hi);
       }
-      .chip[data-vis='public'] {
+      .chip[data-vis='assigned'] {
         color: var(--cap-ember);
         box-shadow: inset 0 0 0 1px var(--cap-ember);
-      }
-      .chip[data-vis='unlisted'] {
-        color: var(--cap-capy);
-        box-shadow: inset 0 0 0 1px var(--cap-capy);
       }
       .chip[data-vis='password'] {
         color: var(--cap-brass-deep);
@@ -606,10 +601,10 @@ export class AdminGalleriesComponent implements OnInit {
   draft: GalleryInput = { name: '', slug: '' };
 
   publicGalleries = computed(() =>
-    this.galleries().filter((g) => g.visibility === 'public'),
+    this.galleries().filter((g) => g.visibility === 'assigned'),
   );
   privateGalleries = computed(() =>
-    this.galleries().filter((g) => g.visibility !== 'public'),
+    this.galleries().filter((g) => g.visibility === 'password'),
   );
   privateCount = computed(() => this.privateGalleries().length);
 
@@ -672,10 +667,10 @@ export class AdminGalleriesComponent implements OnInit {
 
   // ── Visibility helpers ──
   visLabel(v: GalleryVisibility): string {
-    return { public: 'Public', unlisted: 'Unlisted', password: 'Password' }[v];
+    return { assigned: 'Assigned', password: 'Password' }[v];
   }
   visGlyph(v: GalleryVisibility): string {
-    return { public: '●', unlisted: '🔗', password: '🔒' }[v];
+    return { assigned: '●', password: '🔒' }[v];
   }
 
   shareLink(g: Gallery): string {

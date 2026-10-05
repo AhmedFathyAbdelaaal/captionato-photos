@@ -205,9 +205,7 @@ import { ApiService } from '../services/api.service';
             [class.on]="pickerSel().has(g.id)"
             (click)="togglePicker(g.id)"
           >
-            <span class="chip-vis" *ngIf="g.visibility !== 'public'">
-              {{ g.visibility === 'password' ? '🔒' : '🔗' }}
-            </span>
+            <span class="chip-vis" *ngIf="g.visibility === 'password'">🔒</span>
             <span class="chip-name">{{ g.name }}</span>
             <span class="chip-count mono">{{ g.photo_count }}</span>
             <span class="chip-tick" aria-hidden="true">✓</span>

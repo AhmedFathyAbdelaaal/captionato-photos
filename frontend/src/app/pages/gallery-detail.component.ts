@@ -645,7 +645,7 @@ export class GalleryDetailComponent implements OnInit, OnDestroy {
       error: (e) => {
         this.unlocking.set(false);
         this.unlockError.set(
-          e.status === 401 ? 'Wrong password.' : 'Something went wrong. Try again.',
+          e.status === 403 ? 'Wrong password.' : 'Something went wrong. Try again.',
         );
       },
     });

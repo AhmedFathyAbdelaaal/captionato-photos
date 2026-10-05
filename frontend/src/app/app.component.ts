@@ -9,6 +9,7 @@ import {
 } from '@angular/router';
 import { filter } from 'rxjs';
 
+import { AuthService } from './services/auth.service';
 import { ThemeService } from './services/theme.service';
 
 @Component({
@@ -28,8 +29,21 @@ import { ThemeService } from './services/theme.service';
         <span class="wordmark">captionato<span class="rule">photos</span></span>
       </a>
       <nav>
-        <a routerLink="/portfolio" routerLinkActive="active">portfolio</a>
-        <a routerLink="/galleries" routerLinkActive="active">galleries</a>
+        <a *ngIf="auth.canSeePortfolio()" routerLink="/portfolio" routerLinkActive="active">portfolio</a>
+        <a *ngIf="auth.galleries().length" routerLink="/galleries" routerLinkActive="active">galleries</a>
+        <a *ngIf="auth.isAdmin()" routerLink="/admin">admin</a>
+        <ng-container *ngIf="!auth.isLoggedIn()">
+          <a routerLink="/login" routerLinkActive="active">log in</a>
+          <a routerLink="/register" class="pill">register</a>
+        </ng-container>
+        <button
+          *ngIf="auth.isLoggedIn()"
+          class="linkish"
+          (click)="logout()"
+          [title]="'Signed in as ' + auth.me()?.username"
+        >
+          log out
+        </button>
         <button class="toggle" (click)="theme.toggle()" [attr.aria-label]="'Toggle theme'">
           {{ theme.mode() === 'dark' ? '☾' : '☀' }}
         </button>
@@ -87,6 +101,35 @@ import { ThemeService } from './services/theme.service';
       nav a.active {
         color: var(--color-ink);
       }
+      .pill {
+        color: var(--color-paper);
+        background: var(--color-accent);
+        padding: 0.3rem 0.8rem;
+        border-radius: 999px;
+      }
+      nav a.pill:hover {
+        color: var(--color-paper);
+      }
+      .linkish {
+        background: none;
+        border: 0;
+        padding: 0;
+        font: inherit;
+        color: var(--color-muted);
+        cursor: pointer;
+      }
+      .linkish:hover {
+        color: var(--color-ink);
+      }
+      @media (max-width: 480px) {
+        nav {
+          gap: 0.85rem;
+          font-size: 0.88rem;
+        }
+        .brand .wordmark {
+          display: none;
+        }
+      }
       .toggle {
         background: transparent;
         border: 1px solid var(--color-border);
@@ -106,9 +149,18 @@ export class AppComponent {
   /** Public chrome is hidden inside the admin area (it has its own layout). */
   showChrome = computed(() => !this.url().startsWith('/admin'));
 
-  constructor(private router: Router, public theme: ThemeService) {
+  constructor(
+    private router: Router,
+    public theme: ThemeService,
+    public auth: AuthService,
+  ) {
     this.router.events
       .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
       .subscribe((e) => this.url.set(e.urlAfterRedirects));
+  }
+
+  logout(): void {
+    this.auth.logout();
+    this.router.navigate(['/']);
   }
 }
