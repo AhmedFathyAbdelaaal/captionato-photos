@@ -1,0 +1,124 @@
+# CI + auto-deploy to Coolify.
+#
+# Every push / PR: run all migrations against a throwaway Postgres and build the
+# Angular app. On a push to `main`, if those pass, ask Coolify to redeploy only
+# the app(s) whose folder changed. Coolify's own auto-deploy should stay OFF so
+# a broken migration (which `start.sh` runs against prod on boot) never ships.
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   COOLIFY_URL            e.g. https://coolify.example.com  (no trailing slash)
+#   COOLIFY_TOKEN          Coolify API token with "deploy" permission
+#   COOLIFY_BACKEND_UUID   backend resource UUID
+#   COOLIFY_FRONTEND_UUID  frontend resource UUID
+
+name: CI & Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      deploy_all:
+        description: "Deploy both backend and frontend"
+        type: boolean
+        default: true
+
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  changes:
+    runs-on: ubuntu-latest
+    outputs:
+      backend: ${{ steps.filter.outputs.backend }}
+      frontend: ${{ steps.filter.outputs.frontend }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            backend:
+              - 'backend/**'
+            frontend:
+              - 'frontend/**'
+
+  backend:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: photos
+          POSTGRES_PASSWORD: photos
+          POSTGRES_DB: captionato_photos
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U photos"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    defaults:
+      run:
+        working-directory: backend
+    env:
+      DATABASE_URL: postgresql://photos:photos@localhost:5432/captionato_photos
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - run: pip install -r requirements.txt
+      - name: Migrations apply cleanly from scratch
+        run: alembic upgrade head
+      - name: App imports
+        run: python -c "import app.main"
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "18"
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - run: npm run build
+
+  deploy:
+    needs: [changes, backend, frontend]
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Coolify deploys
+        env:
+          COOLIFY_URL: ${{ secrets.COOLIFY_URL }}
+          COOLIFY_TOKEN: ${{ secrets.COOLIFY_TOKEN }}
+          DEPLOY_ALL: ${{ github.event_name == 'workflow_dispatch' && inputs.deploy_all }}
+          BACKEND_CHANGED: ${{ needs.changes.outputs.backend }}
+          FRONTEND_CHANGED: ${{ needs.changes.outputs.frontend }}
+          BACKEND_UUID: ${{ secrets.COOLIFY_BACKEND_UUID }}
+          FRONTEND_UUID: ${{ secrets.COOLIFY_FRONTEND_UUID }}
+        run: |
+          uuids=""
+          if [ "$DEPLOY_ALL" = "true" ] || [ "$BACKEND_CHANGED" = "true" ]; then
+            uuids="$BACKEND_UUID"
+          fi
+          if [ "$DEPLOY_ALL" = "true" ] || [ "$FRONTEND_CHANGED" = "true" ]; then
+            uuids="${uuids:+$uuids,}$FRONTEND_UUID"
+          fi
+          if [ -z "$uuids" ]; then
+            echo "Nothing under backend/ or frontend/ changed — skipping deploy."
+            exit 0
+          fi
+          curl --fail-with-body -sS \
+            -H "Authorization: Bearer $COOLIFY_TOKEN" \
+            "$COOLIFY_URL/api/v1/deploy?uuid=$uuids&force=false"
