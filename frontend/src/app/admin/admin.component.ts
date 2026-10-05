@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
   Router,
   RouterLink,
@@ -7,6 +7,7 @@ import {
   RouterOutlet,
 } from '@angular/router';
 
+import { AdminStateService } from '../services/admin-state.service';
 import { AuthService } from '../services/auth.service';
 
 @Component({
@@ -22,6 +23,10 @@ import { AuthService } from '../services/auth.service';
           <a routerLink="/admin/galleries" routerLinkActive="active">Galleries</a>
           <a routerLink="/admin/collages" routerLinkActive="active">Collages</a>
           <a routerLink="/admin/posts" routerLinkActive="active">Posts</a>
+          <a routerLink="/admin/users" routerLinkActive="active">
+            Users
+            <span class="badge" *ngIf="pendingCount()">{{ pendingCount() }}</span>
+          </a>
           <a routerLink="/admin/settings" routerLinkActive="active">Settings</a>
         </nav>
         <div class="foot">
@@ -79,6 +84,19 @@ import { AuthService } from '../services/auth.service';
         background: var(--color-paper);
         color: var(--color-accent);
       }
+      .badge {
+        display: inline-grid;
+        place-items: center;
+        min-width: 1.25rem;
+        height: 1.25rem;
+        padding: 0 0.35rem;
+        margin-left: 0.35rem;
+        border-radius: 999px;
+        background: var(--color-accent);
+        color: var(--color-paper);
+        font-family: var(--font-mono);
+        font-size: 0.7rem;
+      }
       .foot {
         margin-top: auto;
         display: flex;
@@ -133,11 +151,22 @@ import { AuthService } from '../services/auth.service';
     `,
   ],
 })
-export class AdminComponent {
-  constructor(private auth: AuthService, private router: Router) {}
+export class AdminComponent implements OnInit {
+  /** Shared with the Users tab so approving someone updates the badge. */
+  pendingCount = this.adminState.pendingCount;
+
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private adminState: AdminStateService,
+  ) {}
+
+  ngOnInit(): void {
+    this.adminState.refreshPending();
+  }
 
   logout(): void {
     this.auth.logout();
-    this.router.navigate(['/admin/login']);
+    this.router.navigate(['/']);
   }
 }

@@ -23,6 +23,7 @@ services:
       SECRET_KEY: ${SECRET_KEY:-dev-secret-change-me}
       ADMIN_USERNAME: ${ADMIN_USERNAME:-capcap}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-changeme}
+      TURNSTILE_SECRET_KEY: ${TURNSTILE_SECRET_KEY:-}
       PHOTOS_ORIGINAL_PATH: /data/photos/originals
       PHOTOS_THUMB_PATH: /data/photos/thumbs
       PHOTOS_DISPLAY_PATH: /data/photos/display
@@ -40,6 +41,7 @@ services:
     restart: unless-stopped
     environment:
       API_BASE_URL: ${API_BASE_URL:-http://localhost:8000}
+      TURNSTILE_SITE_KEY: ${TURNSTILE_SITE_KEY:-}
     ports:
       - "8080:80"
     depends_on:

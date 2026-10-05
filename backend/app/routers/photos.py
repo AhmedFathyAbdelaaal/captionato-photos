@@ -16,7 +16,7 @@ from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session, selectinload
 
 from ..config import settings
-from ..deps import get_current_admin, get_db
+from ..deps import get_current_admin, get_db, get_portfolio_user
 from ..imaging import generate_display, parse_exif_taken, process_upload
 from ..models import Gallery, GalleryPhoto, Photo
 from ..schemas import (
@@ -28,6 +28,7 @@ from ..schemas import (
     PhotoPage,
     PhotoUpdate,
 )
+from ..security import verify_image_sig
 from ..serializers import photo_out
 
 router = APIRouter(prefix="/photos", tags=["photos"])
@@ -36,6 +37,13 @@ ALLOWED_EXT = {".jpg", ".jpeg", ".png", ".webp", ".tif", ".tiff"}
 
 # The reserved tag that drives the public homepage hero feed.
 FEATURED_TAG = "featured"
+# The hero is the one public window into the archive, so it's capped to a
+# single page — anonymous visitors can't page through it to scrape everything.
+FEATURED_MAX = 40
+
+# Signed URLs rotate every few hours, so per-URL caching is safe but must stay
+# out of shared caches.
+IMAGE_CACHE = {"Cache-Control": "private, max-age=86400"}
 
 
 def normalize_tags(tags: list[str]) -> list[str]:
@@ -91,12 +99,13 @@ def _paginate(
     )
 
 
-# ── Public: landing feed (visible photos only) ──
+# ── Portfolio feed (visible photos only; verified users + admin) ──
 @router.get("", response_model=PhotoPage)
-def list_public_photos(
+def list_portfolio_photos(
     page: int = Query(1, ge=1),
     page_size: int = Query(60, ge=1, le=200),
     sort: str = Query("taken", pattern="^(taken|uploaded)$"),
+    _user=Depends(get_portfolio_user),
     db: Session = Depends(get_db),
 ):
     stmt = select(Photo).where(Photo.visible.is_(True))
@@ -123,11 +132,10 @@ def list_admin_photos(
 
 # ── Public: homepage hero feed (visible + reserved "featured" tag) ──
 # Falls back to the most recent visible photos when nothing is featured yet, so
-# the hero is never empty.
+# the hero is never empty. Always page 1 (see FEATURED_MAX).
 @router.get("/featured", response_model=PhotoPage)
 def list_featured_photos(
-    page: int = Query(1, ge=1),
-    page_size: int = Query(30, ge=1, le=60),
+    page_size: int = Query(30, ge=1, le=FEATURED_MAX),
     db: Session = Depends(get_db),
 ):
     featured = select(Photo).where(
@@ -136,7 +144,7 @@ def list_featured_photos(
     has_featured = db.scalar(select(func.count()).select_from(featured.subquery()))
     if not has_featured:
         featured = select(Photo).where(Photo.visible.is_(True))
-    return _paginate(db, featured, page, page_size, sort="taken")
+    return _paginate(db, featured, 1, page_size, sort="taken")
 
 
 # ── Admin: distinct tag vocabulary (for autocomplete + the tag picker) ──
@@ -364,24 +372,41 @@ def get_exif(photo_id: uuid.UUID, db: Session = Depends(get_db)):
     return photo.exif or {}
 
 
-# ── Image serving (public) ──
+# ── Image serving (signed URLs only — see security.sign_image_path) ──
+def _require_sig(path: str, exp: int | None, sig: str | None) -> None:
+    if not verify_image_sig(path, exp, sig):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Invalid or expired image link")
+
+
 @router.get("/{photo_id}/thumb")
-def serve_thumb(photo_id: uuid.UUID, db: Session = Depends(get_db)):
+def serve_thumb(
+    photo_id: uuid.UUID,
+    exp: int | None = Query(None),
+    sig: str | None = Query(None),
+    db: Session = Depends(get_db),
+):
+    _require_sig(f"/photos/{photo_id}/thumb", exp, sig)
     photo = db.get(Photo, photo_id)
     if photo is None or not Path(photo.thumb_path).exists():
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Thumbnail not found")
     return FileResponse(
         photo.thumb_path,
         media_type="image/jpeg",
-        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+        headers=IMAGE_CACHE,
     )
 
 
 @router.get("/{photo_id}/display")
-def serve_display(photo_id: uuid.UUID, db: Session = Depends(get_db)):
+def serve_display(
+    photo_id: uuid.UUID,
+    exp: int | None = Query(None),
+    sig: str | None = Query(None),
+    db: Session = Depends(get_db),
+):
     """The lightbox image: a ~2560px derivative. Generated on upload; for older
     photos (or if generation failed) it's created lazily on first request and
     the path cached. Falls back to the original if it can't be produced."""
+    _require_sig(f"/photos/{photo_id}/display", exp, sig)
     photo = db.get(Photo, photo_id)
     if photo is None or not Path(photo.original_path).exists():
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Photo not found")
@@ -398,13 +423,13 @@ def serve_display(photo_id: uuid.UUID, db: Session = Depends(get_db)):
             print(f"[captionato] lazy display gen failed for {photo.id}: {exc}")
             return FileResponse(
                 photo.original_path,
-                headers={"Cache-Control": "public, max-age=31536000, immutable"},
+                headers=IMAGE_CACHE,
             )
 
     return FileResponse(
         display_path,
         media_type="image/jpeg",
-        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+        headers=IMAGE_CACHE,
     )
 
 
@@ -412,12 +437,15 @@ def serve_display(photo_id: uuid.UUID, db: Session = Depends(get_db)):
 def serve_original(
     photo_id: uuid.UUID,
     download: bool = Query(False),
+    exp: int | None = Query(None),
+    sig: str | None = Query(None),
     db: Session = Depends(get_db),
 ):
+    _require_sig(f"/photos/{photo_id}/original", exp, sig)
     photo = db.get(Photo, photo_id)
     if photo is None or not Path(photo.original_path).exists():
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Original not found")
-    headers = {"Cache-Control": "public, max-age=31536000, immutable"}
+    headers = IMAGE_CACHE
     if download:
         # Force a browser download with the original filename.
         return FileResponse(photo.original_path, filename=photo.filename, headers=headers)

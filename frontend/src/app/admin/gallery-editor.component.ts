@@ -27,9 +27,8 @@ const LAYOUTS: GalleryLayout[] = [
 ];
 const THEMES: ForceTheme[] = ['system', 'light', 'dark'];
 const VISIBILITIES: { value: GalleryVisibility; label: string; hint: string }[] = [
-  { value: 'public', label: 'Public', hint: 'Listed on Galleries page' },
-  { value: 'unlisted', label: 'Unlisted', hint: 'Hidden — link only' },
-  { value: 'password', label: 'Password', hint: 'Requires a password to view' },
+  { value: 'assigned', label: 'Assigned', hint: 'Only users you grant it to (Users tab)' },
+  { value: 'password', label: 'Password', hint: 'Granted users, plus approved users with the password' },
 ];
 
 /**
@@ -114,7 +113,7 @@ const VISIBILITIES: { value: GalleryVisibility; label: string; hint: string }[] 
               Clear
             </button>
           </div>
-          <div class="share-row" *ngIf="g.visibility !== 'public'">
+          <div class="share-row">
             <code class="link">{{ shareLink(g) }}</code>
             <button type="button" class="btn-ghost small" (click)="copyShareLink(g)">Copy</button>
           </div>
@@ -258,8 +257,7 @@ const VISIBILITIES: { value: GalleryVisibility; label: string; hint: string }[] 
         border-radius: 999px;
         box-shadow: inset 0 0 0 1px var(--color-border);
       }
-      .chip[data-vis='public'] { color: var(--cap-ember); box-shadow: inset 0 0 0 1px var(--cap-ember); }
-      .chip[data-vis='unlisted'] { color: var(--cap-capy); box-shadow: inset 0 0 0 1px var(--cap-capy); }
+      .chip[data-vis='assigned'] { color: var(--cap-ember); box-shadow: inset 0 0 0 1px var(--cap-ember); }
       .chip[data-vis='password'] { color: var(--cap-brass-deep); box-shadow: inset 0 0 0 1px var(--cap-brass); }
 
       .err { color: var(--color-accent); margin-bottom: 0.8rem; }
@@ -680,10 +678,10 @@ export class GalleryEditorComponent implements OnInit {
 
   // ── Visibility helpers ──
   visLabel(v: GalleryVisibility): string {
-    return { public: 'Public', unlisted: 'Unlisted', password: 'Password' }[v];
+    return { assigned: 'Assigned', password: 'Password' }[v];
   }
   visGlyph(v: GalleryVisibility): string {
-    return { public: '●', unlisted: '🔗', password: '🔒' }[v];
+    return { assigned: '●', password: '🔒' }[v];
   }
   shareLink(g: Gallery): string {
     return `${window.location.origin}/galleries/${g.slug}`;

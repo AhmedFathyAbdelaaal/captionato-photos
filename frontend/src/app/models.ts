@@ -1,5 +1,23 @@
 /** Mirrors the backend Pydantic schemas (app/schemas.py). */
 
+// ── Users ──
+/** pending: landing hero only · client: granted galleries only ·
+ *  verified: portfolio + granted galleries · admin: everything. */
+export type UserRole = 'pending' | 'client' | 'verified' | 'admin';
+
+export interface Me {
+  id: string;
+  username: string;
+  role: UserRole;
+}
+
+export interface AdminUser extends Me {
+  note?: string | null;
+  created_at: string;
+  last_login_at?: string | null;
+  gallery_ids: string[];
+}
+
 export interface Exif {
   camera?: string;
   lens?: string;
@@ -51,7 +69,9 @@ export type GalleryLayout =
 
 export type ForceTheme = 'system' | 'light' | 'dark';
 
-export type GalleryVisibility = 'public' | 'unlisted' | 'password';
+/** assigned: only users granted it can see it · password: also any approved
+ *  user who knows the password. */
+export type GalleryVisibility = 'assigned' | 'password';
 
 export interface Gallery {
   id: string;

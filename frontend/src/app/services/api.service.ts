@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { APP_CONFIG, AppConfig } from '../config';
 import {
+  AdminUser,
   Collage,
   CollageFormat,
   CollageLayer,
@@ -11,12 +12,14 @@ import {
   Gallery,
   GalleryDetail,
   GalleryInput,
+  Me,
   OneOffUpload,
   Photo,
   PhotoPage,
   Post,
   PostDetail,
   SlideFormat,
+  UserRole,
 } from '../models';
 
 /** Thin typed wrapper over the Captionato Photos API. The base URL comes from
@@ -35,11 +38,27 @@ export class ApiService {
   }
 
   // ── Auth ──
-  login(username: string, password: string): Observable<{ access_token: string }> {
+  login(
+    username: string,
+    password: string,
+    turnstile_token: string | null,
+  ): Observable<{ access_token: string }> {
     return this.http.post<{ access_token: string }>(`${this.base}/auth/login`, {
       username,
       password,
+      turnstile_token,
     });
+  }
+  register(body: {
+    username: string;
+    password: string;
+    note: string;
+    turnstile_token: string | null;
+  }): Observable<{ access_token: string }> {
+    return this.http.post<{ access_token: string }>(`${this.base}/auth/register`, body);
+  }
+  me(): Observable<Me> {
+    return this.http.get<Me>(`${this.base}/auth/me`);
   }
   changePassword(current_password: string, new_password: string) {
     return this.http.post(`${this.base}/auth/password`, {
@@ -48,7 +67,24 @@ export class ApiService {
     });
   }
 
-  // ── Photos (public) ──
+  // ── Users (admin) ──
+  getUsers(): Observable<AdminUser[]> {
+    return this.http.get<AdminUser[]>(`${this.base}/users`);
+  }
+  updateUser(
+    id: string,
+    body: { role?: UserRole; gallery_ids?: string[] },
+  ): Observable<AdminUser> {
+    return this.http.patch<AdminUser>(`${this.base}/users/${id}`, body);
+  }
+  resetUserPassword(id: string, new_password: string) {
+    return this.http.post(`${this.base}/users/${id}/password`, { new_password });
+  }
+  deleteUser(id: string) {
+    return this.http.delete(`${this.base}/users/${id}`);
+  }
+
+  // ── Photos ──
   getPhotos(
     page = 1,
     pageSize = 60,
@@ -58,11 +94,11 @@ export class ApiService {
       `${this.base}/photos?page=${page}&page_size=${pageSize}&sort=${sort}`,
     );
   }
-  /** Homepage hero feed: recent visible photos tagged 'featured'
-   *  (falls back to recent-overall when nothing is featured yet). */
-  getFeaturedPhotos(page = 1, pageSize = 30): Observable<PhotoPage> {
+  /** Homepage hero feed (public, single page): recent visible photos tagged
+   *  'featured' (falls back to recent-overall when nothing is featured yet). */
+  getFeaturedPhotos(pageSize = 30): Observable<PhotoPage> {
     return this.http.get<PhotoPage>(
-      `${this.base}/photos/featured?page=${page}&page_size=${pageSize}`,
+      `${this.base}/photos/featured?page_size=${pageSize}`,
     );
   }
   getExif(photoId: string) {
@@ -132,7 +168,7 @@ export class ApiService {
   }
 
   // ── Galleries ──
-  /** Public list — omits unlisted/password galleries. */
+  /** The caller's galleries — all for admin, granted ones for everyone else. */
   getGalleries(): Observable<Gallery[]> {
     return this.http.get<Gallery[]>(`${this.base}/galleries`);
   }
@@ -153,7 +189,7 @@ export class ApiService {
       `${this.base}/galleries/${galleryId}/photos/${photoId}`,
     );
   }
-  /** Try to unlock a password-gated gallery; 401 on wrong password. */
+  /** Try to unlock a password-gated gallery; 403 on wrong password. */
   unlockGallery(slug: string, password: string): Observable<GalleryDetail> {
     return this.http.post<GalleryDetail>(
       `${this.base}/galleries/${slug}/unlock`,
