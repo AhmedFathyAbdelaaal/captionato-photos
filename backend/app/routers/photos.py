@@ -16,9 +16,15 @@ from sqlalchemy import delete, func, select, update
 from sqlalchemy.orm import Session, selectinload
 
 from ..config import settings
-from ..deps import get_current_admin, get_db, get_portfolio_user
+from ..deps import (
+    can_download_anywhere,
+    get_current_admin,
+    get_db,
+    get_portfolio_user,
+    get_viewer,
+)
 from ..imaging import generate_display, parse_exif_taken, process_upload
-from ..models import Gallery, GalleryPhoto, Photo
+from ..models import Gallery, GalleryPhoto, Photo, User
 from ..schemas import (
     BulkAddGalleries,
     BulkIds,
@@ -72,6 +78,7 @@ def _paginate(
     page_size: int,
     include_galleries: bool = False,
     sort: str = "taken",
+    can_download: bool = False,
 ) -> PhotoPage:
     total = db.scalar(select(func.count()).select_from(stmt.subquery()))
     if include_galleries:
@@ -92,7 +99,10 @@ def _paginate(
         .limit(page_size)
     ).all()
     return PhotoPage(
-        items=[photo_out(p, include_galleries=include_galleries) for p in rows],
+        items=[
+            photo_out(p, include_galleries=include_galleries, can_download=can_download)
+            for p in rows
+        ],
         total=total or 0,
         page=page,
         page_size=page_size,
@@ -105,11 +115,13 @@ def list_portfolio_photos(
     page: int = Query(1, ge=1),
     page_size: int = Query(60, ge=1, le=200),
     sort: str = Query("taken", pattern="^(taken|uploaded)$"),
-    _user=Depends(get_portfolio_user),
+    user: User = Depends(get_portfolio_user),
     db: Session = Depends(get_db),
 ):
     stmt = select(Photo).where(Photo.visible.is_(True))
-    return _paginate(db, stmt, page, page_size, sort=sort)
+    return _paginate(
+        db, stmt, page, page_size, sort=sort, can_download=can_download_anywhere(user)
+    )
 
 
 # ── Admin: every photo, including hidden ──
@@ -126,7 +138,7 @@ def list_admin_photos(
     if tag:
         stmt = stmt.where(Photo.tags.any(tag.strip().lower()))
     return _paginate(
-        db, stmt, page, page_size, include_galleries=True, sort=sort
+        db, stmt, page, page_size, include_galleries=True, sort=sort, can_download=True
     )
 
 
@@ -136,6 +148,7 @@ def list_admin_photos(
 @router.get("/featured", response_model=PhotoPage)
 def list_featured_photos(
     page_size: int = Query(30, ge=1, le=FEATURED_MAX),
+    viewer: User | None = Depends(get_viewer),
     db: Session = Depends(get_db),
 ):
     featured = select(Photo).where(
@@ -144,7 +157,9 @@ def list_featured_photos(
     has_featured = db.scalar(select(func.count()).select_from(featured.subquery()))
     if not has_featured:
         featured = select(Photo).where(Photo.visible.is_(True))
-    return _paginate(db, featured, 1, page_size, sort="taken")
+    return _paginate(
+        db, featured, 1, page_size, sort="taken", can_download=can_download_anywhere(viewer)
+    )
 
 
 # ── Admin: distinct tag vocabulary (for autocomplete + the tag picker) ──
@@ -227,7 +242,7 @@ def upload_photos(
     db.commit()
     for p in created:
         db.refresh(p)
-    return [photo_out(p) for p in created]
+    return [photo_out(p, can_download=True) for p in created]
 
 
 # ── Bulk actions ──
@@ -346,7 +361,7 @@ def update_photo(
 
     db.commit()
     db.refresh(photo)
-    return photo_out(photo)
+    return photo_out(photo, can_download=True)
 
 
 @router.delete("/{photo_id}", status_code=status.HTTP_204_NO_CONTENT)

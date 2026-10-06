@@ -75,7 +75,12 @@ def login(body: LoginRequest, db: Session = Depends(get_db)):
 
 @router.get("/me", response_model=MeOut)
 def me(current: User = Depends(get_current_user)):
-    return MeOut(id=current.id, username=current.username, role=current.role)
+    return MeOut(
+        id=current.id,
+        username=current.username,
+        role=current.role,
+        can_download=current.can_download,
+    )
 
 
 @router.post("/password")

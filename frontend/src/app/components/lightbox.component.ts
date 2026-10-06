@@ -74,7 +74,12 @@ interface ExifRow {
       </button>
 
       <aside class="panel" (click)="$event.stopPropagation()">
-        <a class="download" [href]="downloadUrl" [attr.download]="current.filename">
+        <a
+          class="download"
+          *ngIf="current.original_url"
+          [href]="downloadUrl"
+          [attr.download]="current.filename"
+        >
           ↓ Download original
         </a>
         <dl *ngIf="exifRows().length">
@@ -341,7 +346,7 @@ export class LightboxComponent implements OnChanges {
   }
 
   get downloadUrl(): string {
-    return this.api.imageUrl(this.current.original_url) + '&download=1';
+    return this.api.imageUrl(this.current.original_url ?? '') + '&download=1';
   }
 
   /** Aspect ratio for the skeleton placeholder, so it matches the incoming

@@ -36,6 +36,7 @@ class MeOut(BaseModel):
     id: uuid.UUID
     username: str
     role: UserRole
+    can_download: bool = False
 
 
 # ── Users (admin) ──
@@ -43,6 +44,7 @@ class UserOut(BaseModel):
     id: uuid.UUID
     username: str
     role: UserRole
+    can_download: bool = False
     note: str | None = None
     created_at: datetime
     last_login_at: datetime | None = None
@@ -51,6 +53,7 @@ class UserOut(BaseModel):
 
 class UserUpdate(BaseModel):
     role: UserRole | None = None
+    can_download: bool | None = None  # "Elevated"
     gallery_ids: list[uuid.UUID] | None = None  # replaces the grant set
 
 
@@ -74,7 +77,9 @@ class PhotoOut(BaseModel):
     taken_at: datetime | None = None
     thumbnail_url: str
     display_url: str
-    original_url: str
+    # Only present when the viewer may download originals in this context —
+    # its absence is what hides the download button (and there's no URL to grab).
+    original_url: str | None = None
     tags: list[str] = []
     # Populated only in the admin listing so the editor can pre-check galleries.
     gallery_ids: list[uuid.UUID] | None = None
@@ -164,6 +169,8 @@ class GalleryOut(GalleryBase):
 
 class GalleryDetailOut(GalleryOut):
     photos: list[PhotoOut] = []
+    # Signed zip of every original — only when the viewer may download here.
+    download_all_url: str | None = None
     # True when the caller has NOT unlocked a password-gated gallery. When true,
     # `photos` is empty and only name/description/cover are populated.
     locked: bool = False
