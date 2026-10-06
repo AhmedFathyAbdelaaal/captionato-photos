@@ -4,6 +4,7 @@ import { Component, HostListener, OnInit, computed, signal } from '@angular/core
 import { Photo } from '../models';
 import { ApiService } from '../services/api.service';
 import { LightboxComponent } from '../components/lightbox.component';
+import { PhotoStatsComponent } from '../components/photo-stats.component';
 import { RevealDirective } from '../components/reveal.directive';
 
 interface MonthGroup {
@@ -20,7 +21,7 @@ interface MonthGroup {
 @Component({
   selector: 'app-portfolio',
   standalone: true,
-  imports: [CommonModule, LightboxComponent, RevealDirective],
+  imports: [CommonModule, LightboxComponent, RevealDirective, PhotoStatsComponent],
   template: `
     <header class="intro">
       <h1>Portfolio</h1>
@@ -49,6 +50,7 @@ interface MonthGroup {
                 loading="lazy"
                 (load)="loaded[photo.id] = true"
               />
+              <app-photo-stats [photo]="photo"></app-photo-stats>
             </div>
           </figure>
         </div>
@@ -67,6 +69,7 @@ interface MonthGroup {
       *ngIf="lightboxIndex() !== null"
       [photos]="photos()"
       [index]="lightboxIndex()!"
+      [social]="portfolioSocial"
       (close)="lightboxIndex.set(null)"
     ></app-lightbox>
   `,
@@ -232,6 +235,9 @@ export class PortfolioComponent implements OnInit {
     }
     return out;
   });
+
+  /** The portfolio is the null-gallery comment context (route is verified-only). */
+  readonly portfolioSocial = { galleryId: null };
 
   constructor(public api: ApiService) {}
 

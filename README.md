@@ -152,6 +152,21 @@ Everyone has an account in `users`; the site is members-only
   "elsewhere". Where downloads are allowed, the gallery also gets a signed
   `download_all_url` that streams every original as one zip
   (`app/zipstream.py`: STORED entries, never buffered in memory or on disk).
+- **Comments & capys** (`app/social.py`, `routers/social.py`). Comments are
+  scoped to *where* they were posted — a gallery, a photo inside a gallery,
+  or a photo in the portfolio — so a client's private feedback never shows to
+  portfolio viewers. One level of replies; authors edit/delete their own,
+  admin deletes any (your comments carry a capybara "captionato" badge). You
+  can take part where you're a member: admin, granted galleries, and the
+  portfolio for verified users (password-unlocked galleries are view-only —
+  the unlock isn't remembered server-side). Plain text ≤1000 chars, 8 per
+  minute per user. A **capy** is the capybara-mark "like": one per user per
+  photo, counted globally. Photo responses carry `comment_count` (this
+  context), `capy_count` and `capied`; thumbnails show them as a badge.
+  **Admin → Comments** is a newest-first feed with an unread badge
+  (`users.comments_read_at`), inline replies, delete, and deep links
+  (`/galleries/<slug>?photo=<id>&comments=1`, `#comments` for the gallery
+  thread).
 - **The hero feed** (`/photos/featured`) is the only public window, capped to a
   single page of ≤40 so it can't be paged through to scrape the archive.
 - **JWTs** carry only the user id; the **role is read from the DB on every
@@ -239,6 +254,20 @@ users                           -- every account, admin included
   created_at     timestamptz
   last_login_at  timestamptz null
 
+comments                        -- context-scoped; see "Comments & capys"
+  id             UUID  PK
+  user_id        UUID → users.id     (ON DELETE CASCADE)
+  gallery_id     UUID  null → galleries.id (CASCADE)  -- null = portfolio
+  photo_id       UUID  null → photos.id    (CASCADE)  -- null = the gallery itself
+  parent_id      UUID  null → comments.id  (CASCADE)  -- one level of replies
+  body           text          -- plain text, ≤1000
+  created_at / edited_at
+
+photo_capys                     -- the capybara "like"
+  user_id        UUID → users.id   (CASCADE)  PK
+  photo_id       UUID → photos.id  (CASCADE)  PK
+  created_at     timestamptz
+
 user_galleries                  -- per-user gallery grants
   user_id        UUID → users.id     (ON DELETE CASCADE)  PK
   gallery_id     UUID → galleries.id (ON DELETE CASCADE)  PK
@@ -264,7 +293,7 @@ collage_layers                  -- one placed photo on a collage canvas
 
 A photo can live in multiple galleries. Deleting a gallery unassigns its photos
 (it does not delete them). The schema is created by Alembic migrations
-(`0001_initial` → `0009_user_can_download`), which `start.sh` runs
+(`0001_initial` → `0010_comments_capys`), which `start.sh` runs
 (`alembic upgrade head`) on every boot. `0004` also **backfills** `taken_at`
 from each existing photo's stored EXIF date.
 
@@ -506,6 +535,14 @@ Auth: – public · 👤 any logged-in user · ✓ approved (client/verified/adm
 | GET | `/galleries` | ✓ | The caller's galleries (granted; all for admin) |
 | GET | `/galleries/{slug}` | ✓ | Detail if granted; locked stub for password galleries; else 404 |
 | POST | `/galleries/{slug}/unlock` | ✓ | Unlock a password gallery (403 on wrong password) |
+| GET | `/comments` | ✓ | Thread for a context (`?gallery_id=&photo_id=`), with replies |
+| POST | `/comments` | ✓ | Post (`gallery_id`/`photo_id`, optional `parent_id`, `body`) |
+| PATCH | `/comments/{id}` | ✓ | Edit own comment |
+| DELETE | `/comments/{id}` | ✓ | Delete own (admin: any); replies go with it |
+| GET | `/comments/admin/feed` | ✔ | Newest-first feed with context + unread count |
+| POST | `/comments/admin/read` | ✔ | Mark all read |
+| PUT | `/photos/{id}/capy` | ✓ | Give a capy (`?gallery_id=` = where you see it) |
+| DELETE | `/photos/{id}/capy` | ✓ | Take your capy back |
 | GET | `/galleries/{id}/zip` | 🔑 | Stream every original as a zip (URL only issued to downloaders) |
 | POST | `/galleries` | ✔ | Create |
 | PATCH | `/galleries/{id}` | ✔ | Update |

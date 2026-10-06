@@ -204,6 +204,7 @@ const SLOTS: Slot[] = [
       *ngIf="lightboxIndex() !== null"
       [photos]="scattered()"
       [index]="lightboxIndex()!"
+      [social]="heroSocial()"
       (close)="lightboxIndex.set(null)"
     ></app-lightbox>
   `,
@@ -498,6 +499,8 @@ export class LandingComponent implements OnInit {
   /** The viewer's gallery menu (granted galleries; everything for admin). */
   galleries = computed<Gallery[]>(() => this.auth.galleries().slice(0, 6));
   total = signal(0);
+  /** Hero photos are portfolio photos — members can capy/comment on them. */
+  heroSocial = computed(() => (this.auth.canSeePortfolio() ? { galleryId: null } : null));
   lightboxIndex = signal<number | null>(null);
 
   slots = SLOTS;

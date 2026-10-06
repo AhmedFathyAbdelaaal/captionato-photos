@@ -28,6 +28,7 @@ from ..security import (
     verify_password,
 )
 from ..serializers import gallery_out, photo_out
+from ..social import apply_engagement, gallery_comment_count
 from ..zipstream import stream_zip, unique_names
 
 router = APIRouter(prefix="/galleries", tags=["galleries"])
@@ -97,6 +98,15 @@ def _detail(
     )
 
 
+def _member_detail(db: Session, gallery: Gallery, user: User) -> GalleryDetailOut:
+    """Full detail for admin / granted users: downloads + comments + capys."""
+    out = _detail(gallery, _cover_for(db, gallery), locked=False, can_download=True)
+    out.social = True
+    out.comment_count = gallery_comment_count(db, gallery.id)
+    apply_engagement(db, out.photos, gallery.id, user)
+    return out
+
+
 # ── The caller's galleries: everything for admin, granted ones for others ──
 # Password galleries that aren't granted stay link-only (not listed).
 @router.get("", response_model=list[GalleryOut])
@@ -161,7 +171,7 @@ def get_gallery(
 ):
     gallery = _load_by_slug(db, slug)
     if user.role == "admin" or gallery.id in _granted_ids(db, user):
-        return _detail(gallery, _cover_for(db, gallery), locked=False, can_download=True)
+        return _member_detail(db, gallery, user)
     if gallery.visibility == "password" and gallery.password_hash:
         return _detail(gallery, _cover_for(db, gallery), locked=True)
     raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
@@ -178,7 +188,7 @@ def unlock_gallery(
     gallery = _load_by_slug(db, slug)
     if user.role == "admin" or gallery.id in _granted_ids(db, user):
         # Already has access — return the full detail so a stale UI recovers.
-        return _detail(gallery, _cover_for(db, gallery), locked=False, can_download=True)
+        return _member_detail(db, gallery, user)
     if gallery.visibility != "password" or not gallery.password_hash:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
     if not verify_password(body.password, gallery.password_hash):

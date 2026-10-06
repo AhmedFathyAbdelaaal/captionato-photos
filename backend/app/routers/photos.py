@@ -17,6 +17,7 @@ from sqlalchemy.orm import Session, selectinload
 
 from ..config import settings
 from ..deps import (
+    PORTFOLIO_ROLES,
     can_download_anywhere,
     get_current_admin,
     get_db,
@@ -36,6 +37,7 @@ from ..schemas import (
 )
 from ..security import verify_image_sig
 from ..serializers import photo_out
+from ..social import apply_engagement
 
 router = APIRouter(prefix="/photos", tags=["photos"])
 
@@ -119,9 +121,11 @@ def list_portfolio_photos(
     db: Session = Depends(get_db),
 ):
     stmt = select(Photo).where(Photo.visible.is_(True))
-    return _paginate(
+    result = _paginate(
         db, stmt, page, page_size, sort=sort, can_download=can_download_anywhere(user)
     )
+    apply_engagement(db, result.items, None, user)
+    return result
 
 
 # ── Admin: every photo, including hidden ──
@@ -157,9 +161,13 @@ def list_featured_photos(
     has_featured = db.scalar(select(func.count()).select_from(featured.subquery()))
     if not has_featured:
         featured = select(Photo).where(Photo.visible.is_(True))
-    return _paginate(
+    result = _paginate(
         db, featured, 1, page_size, sort="taken", can_download=can_download_anywhere(viewer)
     )
+    # Hero photos are portfolio photos, so members see their capys/comments too.
+    if viewer is not None and viewer.role in PORTFOLIO_ROLES:
+        apply_engagement(db, result.items, None, viewer)
+    return result
 
 
 # ── Admin: distinct tag vocabulary (for autocomplete + the tag picker) ──

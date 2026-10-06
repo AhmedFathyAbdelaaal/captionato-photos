@@ -23,6 +23,10 @@ import { AuthService } from '../services/auth.service';
           <a routerLink="/admin/galleries" routerLinkActive="active">Galleries</a>
           <a routerLink="/admin/collages" routerLinkActive="active">Collages</a>
           <a routerLink="/admin/posts" routerLinkActive="active">Posts</a>
+          <a routerLink="/admin/comments" routerLinkActive="active">
+            Comments
+            <span class="badge" *ngIf="unreadComments()">{{ unreadComments() }}</span>
+          </a>
           <a routerLink="/admin/users" routerLinkActive="active">
             Users
             <span class="badge" *ngIf="pendingCount()">{{ pendingCount() }}</span>
@@ -154,6 +158,7 @@ import { AuthService } from '../services/auth.service';
 export class AdminComponent implements OnInit {
   /** Shared with the Users tab so approving someone updates the badge. */
   pendingCount = this.adminState.pendingCount;
+  unreadComments = this.adminState.unreadComments;
 
   constructor(
     private auth: AuthService,
@@ -163,6 +168,7 @@ export class AdminComponent implements OnInit {
 
   ngOnInit(): void {
     this.adminState.refreshPending();
+    this.adminState.refreshComments();
   }
 
   logout(): void {

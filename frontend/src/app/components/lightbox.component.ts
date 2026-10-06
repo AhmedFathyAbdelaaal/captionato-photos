@@ -11,6 +11,8 @@ import {
 
 import { Exif, Photo } from '../models';
 import { ApiService } from '../services/api.service';
+import { CapyButtonComponent } from './capy-button.component';
+import { CommentsComponent } from './comments.component';
 
 interface ExifRow {
   label: string;
@@ -20,13 +22,14 @@ interface ExifRow {
 /** Full-screen overlay shared by the landing + gallery views. Shows a skeleton
  *  while the ~2560px display derivative loads (a fraction of the original's
  *  weight), then fades it in. The true original is reserved for the download
- *  button. */
+ *  button. With `social` set, it also shows capys + a comments drawer for the
+ *  current photo in that context. */
 @Component({
   selector: 'app-lightbox',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, CapyButtonComponent, CommentsComponent],
   template: `
-    <div class="backdrop" (click)="onBackdrop($event)">
+    <div class="backdrop" [class.with-drawer]="drawerOpen()" (click)="onBackdrop($event)">
       <button class="close" (click)="close.emit()" aria-label="Close">✕</button>
 
       <button class="nav prev" *ngIf="photos.length > 1" (click)="prev()" aria-label="Previous">
@@ -74,6 +77,18 @@ interface ExifRow {
       </button>
 
       <aside class="panel" (click)="$event.stopPropagation()">
+        <div class="social" *ngIf="social">
+          <app-capy-button [photo]="current" [galleryId]="social.galleryId"></app-capy-button>
+          <button
+            type="button"
+            class="talk"
+            [class.on]="drawerOpen()"
+            [attr.aria-expanded]="drawerOpen()"
+            (click)="commentsOpen.set(!commentsOpen())"
+          >
+            💬 <span class="mono">{{ current.comment_count || 0 }}</span>
+          </button>
+        </div>
         <a
           class="download"
           *ngIf="current.original_url"
@@ -88,6 +103,24 @@ interface ExifRow {
             <dd class="mono">{{ row.value }}</dd>
           </ng-container>
         </dl>
+      </aside>
+
+      <aside
+        class="drawer"
+        *ngIf="drawerOpen() && social"
+        (click)="$event.stopPropagation()"
+        aria-label="Comments"
+      >
+        <header>
+          <h3>Comments</h3>
+          <button class="x" (click)="commentsOpen.set(false)" aria-label="Close comments">✕</button>
+        </header>
+        <app-comments
+          [galleryId]="social.galleryId"
+          [photoId]="current.id"
+          placeholder="Say something about this one…"
+          (countChange)="current.comment_count = $event"
+        ></app-comments>
       </aside>
     </div>
   `,
@@ -262,6 +295,76 @@ interface ExifRow {
         padding: 0.9rem 1.1rem;
         max-width: 260px;
       }
+      .social {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+      .talk {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        background: transparent;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        padding: 0.3rem 0.7rem;
+        color: var(--color-ink);
+        cursor: pointer;
+        font-size: 0.85rem;
+      }
+      .talk .mono {
+        font-size: 0.8rem;
+      }
+      .talk.on {
+        border-color: var(--color-accent);
+      }
+      /* Comments drawer — a right-hand column on desktop, bottom sheet on phones. */
+      .drawer {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 4;
+        width: min(380px, 100vw);
+        overflow-y: auto;
+        background: var(--color-surface);
+        border-left: 1px solid var(--color-border);
+        padding: 1.1rem 1.2rem 1.5rem;
+        box-sizing: border-box;
+        animation: slide-in 0.25s var(--ease);
+      }
+      @keyframes slide-in {
+        from {
+          transform: translateX(24px);
+          opacity: 0;
+        }
+      }
+      .drawer header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1rem;
+      }
+      .drawer h3 {
+        margin: 0;
+        font-size: 1.05rem;
+      }
+      .drawer .x {
+        background: none;
+        border: 0;
+        color: var(--color-muted);
+        font-size: 1rem;
+        cursor: pointer;
+      }
+      .backdrop.with-drawer {
+        padding-right: calc(380px + 1rem);
+      }
+      .with-drawer .panel {
+        right: calc(380px + 1.5rem);
+      }
+      .with-drawer .close {
+        right: calc(380px + 1.4rem);
+      }
       .download {
         display: inline-block;
         text-align: center;
@@ -317,6 +420,36 @@ interface ExifRow {
         .panel dl {
           flex: 1;
         }
+        .drawer {
+          top: auto;
+          left: 0;
+          width: 100vw;
+          height: 68vh;
+          border-left: 0;
+          border-top: 1px solid var(--color-border);
+          border-radius: calc(var(--radius) * 2) calc(var(--radius) * 2) 0 0;
+          animation-name: sheet-up;
+        }
+        @keyframes sheet-up {
+          from {
+            transform: translateY(40px);
+            opacity: 0;
+          }
+        }
+        .backdrop.with-drawer {
+          padding-right: clamp(1rem, 4vw, 3rem);
+          align-items: start;
+        }
+        .with-drawer .panel {
+          display: none;
+        }
+        .with-drawer .close {
+          right: 1.4rem;
+        }
+        .with-drawer .frame,
+        .with-drawer .frame img {
+          max-height: 26vh;
+        }
       }
     `,
   ],
@@ -324,7 +457,20 @@ interface ExifRow {
 export class LightboxComponent implements OnChanges {
   @Input({ required: true }) photos: Photo[] = [];
   @Input() index = 0;
+  /** Set where the viewer may comment / give capys: galleryId is the gallery
+   *  the photos are shown in, or null for the portfolio. */
+  @Input() social: { galleryId: string | null } | null = null;
+  /** Open with the comments drawer showing (deep links from the admin feed). */
+  @Input() set startWithComments(v: boolean) {
+    if (v) this.commentsOpen.set(true);
+  }
   @Output() close = new EventEmitter<void>();
+
+  /** Stays open while flipping between photos. */
+  commentsOpen = signal(false);
+  drawerOpen(): boolean {
+    return !!this.social && this.commentsOpen();
+  }
 
   fullLoaded = signal(false);
   fullError = signal(false);
@@ -405,8 +551,14 @@ export class LightboxComponent implements OnChanges {
 
   @HostListener('document:keydown', ['$event'])
   onKey(e: KeyboardEvent): void {
-    if (e.key === 'Escape') this.close.emit();
-    else if (e.key === 'ArrowRight') this.next();
+    // Typing in a comment box: arrows move the caret, not the photo.
+    const typing = (e.target as HTMLElement | null)?.closest?.('textarea, input');
+    if (e.key === 'Escape') {
+      if (this.drawerOpen()) this.commentsOpen.set(false);
+      else this.close.emit();
+    } else if (typing) {
+      return;
+    } else if (e.key === 'ArrowRight') this.next();
     else if (e.key === 'ArrowLeft') this.prev();
   }
 }

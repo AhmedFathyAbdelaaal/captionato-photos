@@ -5,10 +5,14 @@ import { Observable } from 'rxjs';
 import { APP_CONFIG, AppConfig } from '../config';
 import {
   AdminUser,
+  CapyState,
   Collage,
   CollageFormat,
   CollageLayer,
   CollageLayerInput,
+  CommentContext,
+  CommentFeed,
+  CommentItem,
   Gallery,
   GalleryDetail,
   GalleryInput,
@@ -82,6 +86,38 @@ export class ApiService {
   }
   deleteUser(id: string) {
     return this.http.delete(`${this.base}/users/${id}`);
+  }
+
+  // ── Comments + capys ──
+  getComments(ctx: CommentContext): Observable<CommentItem[]> {
+    return this.http.get<CommentItem[]>(`${this.base}/comments?${contextQuery(ctx)}`);
+  }
+  postComment(ctx: CommentContext, body: string, parent_id?: string): Observable<CommentItem> {
+    return this.http.post<CommentItem>(`${this.base}/comments`, {
+      ...ctx,
+      parent_id: parent_id ?? null,
+      body,
+    });
+  }
+  editComment(id: string, body: string): Observable<CommentItem> {
+    return this.http.patch<CommentItem>(`${this.base}/comments/${id}`, { body });
+  }
+  deleteComment(id: string) {
+    return this.http.delete(`${this.base}/comments/${id}`);
+  }
+  getCommentFeed(): Observable<CommentFeed> {
+    return this.http.get<CommentFeed>(`${this.base}/comments/admin/feed`);
+  }
+  markCommentsRead() {
+    return this.http.post(`${this.base}/comments/admin/read`, {});
+  }
+  /** `galleryId` is where the viewer sees the photo (null = portfolio). */
+  giveCapy(photoId: string, galleryId: string | null): Observable<CapyState> {
+    const q = galleryId ? `?gallery_id=${galleryId}` : '';
+    return this.http.put<CapyState>(`${this.base}/photos/${photoId}/capy${q}`, {});
+  }
+  takeCapyBack(photoId: string): Observable<CapyState> {
+    return this.http.delete<CapyState>(`${this.base}/photos/${photoId}/capy`);
   }
 
   // ── Photos ──
@@ -324,4 +360,11 @@ export class ApiService {
       { responseType: 'blob' },
     );
   }
+}
+
+function contextQuery(ctx: CommentContext): string {
+  const parts: string[] = [];
+  if (ctx.gallery_id) parts.push(`gallery_id=${ctx.gallery_id}`);
+  if (ctx.photo_id) parts.push(`photo_id=${ctx.photo_id}`);
+  return parts.join('&');
 }

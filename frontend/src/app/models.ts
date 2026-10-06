@@ -45,6 +45,11 @@ export interface Photo {
   display_url: string; // ~2560px lightbox derivative
   /** Only present when the viewer may download originals here. */
   original_url?: string | null;
+  /** Social counts — only filled where the viewer can take part. comment_count
+   *  is for the current context (this gallery / the portfolio). */
+  comment_count?: number;
+  capy_count?: number;
+  capied?: boolean;
   tags?: string[]; // freeform lowercase tags; 'featured' drives the homepage
   gallery_ids?: string[] | null; // admin listing only
 }
@@ -100,6 +105,10 @@ export interface GalleryDetail extends Gallery {
   locked: boolean;
   /** Signed zip of every original — only when the viewer may download here. */
   download_all_url?: string | null;
+  /** True when the viewer may comment / give capys here (admin or granted). */
+  social?: boolean;
+  /** Comments on the gallery as a whole. */
+  comment_count?: number;
 }
 
 // ── Collage maker ──
@@ -183,4 +192,51 @@ export interface GalleryInput {
   visibility?: GalleryVisibility;
   /** Plaintext — hashed server-side. Empty string clears an existing password. */
   password?: string | null;
+}
+
+// ── Comments + capys ──
+/** Where a comment lives: a gallery (photo_id null), a photo inside a gallery,
+ *  or a photo in the portfolio (gallery_id null). */
+export interface CommentContext {
+  gallery_id: string | null;
+  photo_id: string | null;
+}
+
+export interface CommentAuthor {
+  id: string;
+  username: string;
+  is_admin: boolean;
+}
+
+export interface CommentItem {
+  id: string;
+  body: string;
+  created_at: string;
+  edited_at?: string | null;
+  author: CommentAuthor;
+  mine: boolean;
+  can_delete: boolean;
+  replies: CommentItem[];
+}
+
+export interface CommentFeedItem {
+  id: string;
+  body: string;
+  created_at: string;
+  edited_at?: string | null;
+  author: CommentAuthor;
+  parent_id?: string | null;
+  gallery?: { id: string; slug: string; name: string } | null;
+  photo?: { id: string; thumbnail_url: string; filename: string } | null;
+  unread: boolean;
+}
+
+export interface CommentFeed {
+  items: CommentFeedItem[];
+  unread: number;
+}
+
+export interface CapyState {
+  capy_count: number;
+  capied: boolean;
 }
