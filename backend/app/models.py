@@ -263,6 +263,8 @@ class User(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     last_login_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    # Admin only: comments newer than this count as unread in the Comments tab.
+    comments_read_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     gallery_grants: Mapped[list["UserGallery"]] = relationship(
         back_populates="user", cascade="all, delete-orphan"
@@ -286,3 +288,59 @@ class UserGallery(Base):
     )
 
     user: Mapped["User"] = relationship(back_populates="gallery_grants")
+
+
+class Comment(Base):
+    """A comment, scoped to *where* it was posted so private feedback never
+    leaks into another context:
+
+      gallery_id set, photo_id NULL  → on the gallery as a whole
+      gallery_id set, photo_id set   → on a photo, inside that gallery
+      gallery_id NULL, photo_id set  → on a photo, in the portfolio
+
+    Replies (parent_id) are one level deep and share their parent's context.
+    """
+
+    __tablename__ = "comments"
+
+    id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    gallery_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("galleries.id", ondelete="CASCADE")
+    )
+    photo_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("photos.id", ondelete="CASCADE")
+    )
+    parent_id: Mapped[uuid.UUID | None] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("comments.id", ondelete="CASCADE")
+    )
+    body: Mapped[str] = mapped_column(Text, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )
+    edited_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+
+    user: Mapped["User"] = relationship()
+    gallery: Mapped["Gallery | None"] = relationship()
+    photo: Mapped["Photo | None"] = relationship()
+
+
+class PhotoCapy(Base):
+    """A "capy" — the site's capybara-flavoured like. One per user per photo,
+    counted globally (unlike comments, a count isn't sensitive)."""
+
+    __tablename__ = "photo_capys"
+
+    user_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    photo_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("photos.id", ondelete="CASCADE"), primary_key=True
+    )
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now(), nullable=False
+    )

@@ -81,6 +81,11 @@ class PhotoOut(BaseModel):
     # its absence is what hides the download button (and there's no URL to grab).
     original_url: str | None = None
     tags: list[str] = []
+    # Social counts — filled only where the viewer can comment/capy (portfolio
+    # for verified users, granted galleries). comment_count is per context.
+    comment_count: int = 0
+    capy_count: int = 0
+    capied: bool = False
     # Populated only in the admin listing so the editor can pre-check galleries.
     gallery_ids: list[uuid.UUID] | None = None
 
@@ -171,6 +176,10 @@ class GalleryDetailOut(GalleryOut):
     photos: list[PhotoOut] = []
     # Signed zip of every original — only when the viewer may download here.
     download_all_url: str | None = None
+    # True when the viewer may comment / give capys here (admin or granted).
+    social: bool = False
+    # Comments on the gallery as a whole (not on its photos).
+    comment_count: int = 0
     # True when the caller has NOT unlocked a password-gated gallery. When true,
     # `photos` is empty and only name/description/cover are populated.
     locked: bool = False
@@ -304,3 +313,68 @@ class PostOut(BaseModel):
 
 class PostDetailOut(PostOut):
     slides: list[CollageDetailOut] = []
+
+
+# ── Comments + capys ──
+class CommentCreate(BaseModel):
+    """Context: gallery_id and/or photo_id (see models.Comment)."""
+    gallery_id: uuid.UUID | None = None
+    photo_id: uuid.UUID | None = None
+    parent_id: uuid.UUID | None = None
+    body: str = Field(min_length=1, max_length=1000)
+
+
+class CommentUpdate(BaseModel):
+    body: str = Field(min_length=1, max_length=1000)
+
+
+class CommentAuthor(BaseModel):
+    id: uuid.UUID
+    username: str
+    is_admin: bool = False
+
+
+class CommentOut(BaseModel):
+    id: uuid.UUID
+    body: str
+    created_at: datetime
+    edited_at: datetime | None = None
+    author: CommentAuthor
+    mine: bool = False
+    can_delete: bool = False
+    replies: list["CommentOut"] = []
+
+
+class CommentContextGallery(BaseModel):
+    id: uuid.UUID
+    slug: str
+    name: str
+
+
+class CommentContextPhoto(BaseModel):
+    id: uuid.UUID
+    thumbnail_url: str
+    filename: str
+
+
+class CommentFeedItem(BaseModel):
+    """Admin feed row: the comment plus where it lives."""
+    id: uuid.UUID
+    body: str
+    created_at: datetime
+    edited_at: datetime | None = None
+    author: CommentAuthor
+    parent_id: uuid.UUID | None = None
+    gallery: CommentContextGallery | None = None
+    photo: CommentContextPhoto | None = None
+    unread: bool = False
+
+
+class CommentFeed(BaseModel):
+    items: list[CommentFeedItem]
+    unread: int
+
+
+class CapyOut(BaseModel):
+    capy_count: int
+    capied: bool

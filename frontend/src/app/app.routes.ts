@@ -106,6 +106,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'comments',
+        loadComponent: () =>
+          import('./admin/admin-comments.component').then(
+            (m) => m.AdminCommentsComponent,
+          ),
+      },
+      {
         path: 'users',
         loadComponent: () =>
           import('./admin/admin-users.component').then(

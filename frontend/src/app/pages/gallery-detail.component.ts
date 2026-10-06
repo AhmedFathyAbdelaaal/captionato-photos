@@ -1,12 +1,20 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnDestroy, OnInit, signal } from '@angular/core';
+import {
+  Component,
+  OnDestroy,
+  OnInit,
+  signal,
+  computed,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 
 import { GalleryDetail, Photo } from '../models';
 import { ApiService } from '../services/api.service';
 import { ThemeService } from '../services/theme.service';
+import { CommentsComponent } from '../components/comments.component';
 import { LightboxComponent } from '../components/lightbox.component';
+import { PhotoStatsComponent } from '../components/photo-stats.component';
 import { RevealDirective } from '../components/reveal.directive';
 import { PhotoComponent } from '../components/photo.component';
 
@@ -19,6 +27,8 @@ import { PhotoComponent } from '../components/photo.component';
     LightboxComponent,
     RevealDirective,
     PhotoComponent,
+    PhotoStatsComponent,
+    CommentsComponent,
   ],
   template: `
     <div class="wrap" *ngIf="gallery() as g">
@@ -75,6 +85,7 @@ import { PhotoComponent } from '../components/photo.component';
               [width]="p.width"
               [height]="p.height"
             ></app-photo>
+            <app-photo-stats *ngIf="g.social" [photo]="p"></app-photo-stats>
           </figure>
         </section>
 
@@ -86,6 +97,7 @@ import { PhotoComponent } from '../components/photo.component';
               [alt]="p.title || p.filename"
               fit="cover"
             ></app-photo>
+            <app-photo-stats *ngIf="g.social" [photo]="p"></app-photo-stats>
           </figure>
         </section>
 
@@ -103,6 +115,7 @@ import { PhotoComponent } from '../components/photo.component';
               <strong *ngIf="p.title">{{ p.title }}</strong>
               <span *ngIf="p.caption">{{ p.caption }}</span>
             </figcaption>
+            <app-photo-stats *ngIf="g.social" [photo]="p"></app-photo-stats>
           </figure>
         </section>
 
@@ -131,6 +144,7 @@ import { PhotoComponent } from '../components/photo.component';
             (click)="open(i)"
           >
             <img [src]="api.imageUrl(p.thumbnail_url)" [alt]="p.title || p.filename" loading="lazy" />
+            <app-photo-stats *ngIf="g.social" [photo]="p"></app-photo-stats>
           </figure>
         </section>
 
@@ -146,6 +160,7 @@ import { PhotoComponent } from '../components/photo.component';
             (click)="open(i)"
           >
             <img [src]="api.imageUrl(p.thumbnail_url)" [alt]="p.title || p.filename" loading="lazy" />
+            <app-photo-stats *ngIf="g.social" [photo]="p"></app-photo-stats>
           </figure>
         </section>
 
@@ -156,6 +171,7 @@ import { PhotoComponent } from '../components/photo.component';
               <img [src]="api.imageUrl(p.thumbnail_url)" [alt]="p.title || p.filename" loading="lazy" />
               <span class="cap">{{ p.title || p.caption || ' ' }}</span>
             </div>
+            <app-photo-stats *ngIf="g.social" [photo]="p"></app-photo-stats>
           </figure>
         </section>
 
@@ -179,6 +195,19 @@ import { PhotoComponent } from '../components/photo.component';
           </div>
         </section>
       </ng-container>
+
+      <section class="talk" id="comments" *ngIf="g.social">
+        <h2>Comments <span class="mono">{{ g.comment_count || 0 }}</span></h2>
+        <app-comments
+          [galleryId]="g.id"
+          [photoId]="null"
+          placeholder="Leave a note on the whole gallery…"
+          (countChange)="g.comment_count = $event"
+        ></app-comments>
+      </section>
+      <p class="talk-note" *ngIf="!g.social && !g.locked">
+        Comments and capys are for people this gallery is shared with.
+      </p>
     </div>
 
     <p class="hint" *ngIf="loading()">loading…</p>
@@ -188,7 +217,9 @@ import { PhotoComponent } from '../components/photo.component';
       *ngIf="lightboxIndex() !== null && gallery()"
       [photos]="gallery()!.photos"
       [index]="lightboxIndex()!"
-      (close)="lightboxIndex.set(null)"
+      [social]="socialCtx()"
+      [startWithComments]="startWithComments"
+      (close)="closeLightbox()"
     ></app-lightbox>
   `,
   styles: [
@@ -216,6 +247,29 @@ import { PhotoComponent } from '../components/photo.component';
         color: var(--color-muted);
         max-width: 60ch;
         margin: 0.8rem auto 0;
+      }
+      .talk {
+        max-width: 640px;
+        margin: clamp(2rem, 5vw, 3.5rem) auto 0;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--color-border);
+      }
+      .talk h2 {
+        display: flex;
+        align-items: baseline;
+        gap: 0.6rem;
+        font-size: 1.3rem;
+        margin: 0 0 1rem;
+      }
+      .talk h2 .mono {
+        font-size: 0.8rem;
+        color: var(--color-muted);
+      }
+      .talk-note {
+        text-align: center;
+        color: var(--color-muted);
+        font-size: 0.85rem;
+        margin: 2rem 0 0;
       }
       .download-all {
         display: inline-flex;
@@ -247,6 +301,7 @@ import { PhotoComponent } from '../components/photo.component';
         border-radius: var(--radius);
       }
       .cell {
+        position: relative; /* anchors the capy/comment stats badge */
         opacity: 0;
         transform: translateY(16px);
         transition: opacity 0.6s var(--ease), transform 0.6s var(--ease);
@@ -630,6 +685,13 @@ export class GalleryDetailComponent implements OnInit, OnDestroy {
     private theme: ThemeService,
   ) {}
 
+  /** Lightbox social context: capys + comments for members of this gallery. */
+  socialCtx = computed(() => {
+    const g = this.gallery();
+    return g?.social ? { galleryId: g.id } : null;
+  });
+  startWithComments = false;
+
   ngOnInit(): void {
     this.slug = this.route.snapshot.paramMap.get('slug')!;
     this.api.getGallery(this.slug).subscribe({
@@ -639,6 +701,7 @@ export class GalleryDetailComponent implements OnInit, OnDestroy {
         this.theme.setGalleryOverride(g.force_theme, g.accent_color ?? null);
         // If a remembered password unlocks this gallery, apply it silently.
         if (g.locked) this.tryRememberedUnlock();
+        this.applyDeepLink(g);
       },
       error: () => {
         this.loading.set(false);
@@ -752,6 +815,27 @@ export class GalleryDetailComponent implements OnInit, OnDestroy {
     photos.forEach((p, i) => rows[i % 3].push(p));
     return rows.filter((r) => r.length > 0);
   }
+  /** ?photo=<id>[&comments=1] opens that photo (and its comments);
+   *  #comments scrolls to the gallery thread — used by admin feed links. */
+  private applyDeepLink(g: GalleryDetail): void {
+    const q = this.route.snapshot.queryParamMap;
+    const photoId = q.get('photo');
+    if (photoId) {
+      const idx = g.photos.findIndex((p) => p.id === photoId);
+      if (idx >= 0) {
+        this.startWithComments = q.get('comments') === '1';
+        this.lightboxIndex.set(idx);
+      }
+    } else if (this.route.snapshot.fragment === 'comments') {
+      setTimeout(() => document.getElementById('comments')?.scrollIntoView({ behavior: 'smooth' }), 300);
+    }
+  }
+
+  closeLightbox(): void {
+    this.startWithComments = false;
+    this.lightboxIndex.set(null);
+  }
+
   /** Duplicate a row so the marquee animation loops seamlessly. */
   dup(row: Photo[]): Photo[] {
     return [...row, ...row];
