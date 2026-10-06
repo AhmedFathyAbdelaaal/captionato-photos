@@ -143,6 +143,15 @@ Everyone has an account in `users`; the site is members-only
   users, plus any *approved* user who enters the password). The header's
   "galleries" link and the landing section list the caller's granted galleries
   (all of them for admin). An ungranted, non-password gallery is a 404.
+- **Downloads.** The original is only ever a download (viewing uses the
+  ~2560px derivative), so the API includes a signed `original_url` *only* when
+  the viewer may download in that context — no URL, no button, nothing to grab.
+  Admin and ⭐ **Elevated** users (`users.can_download`, toggled in Admin →
+  Users) download everywhere they can see; everyone else only inside galleries
+  granted to them (incl. clients). Password-unlocked galleries count as
+  "elsewhere". Where downloads are allowed, the gallery also gets a signed
+  `download_all_url` that streams every original as one zip
+  (`app/zipstream.py`: STORED entries, never buffered in memory or on disk).
 - **The hero feed** (`/photos/featured`) is the only public window, capped to a
   single page of ≤40 so it can't be paged through to scrape the archive.
 - **JWTs** carry only the user id; the **role is read from the DB on every
@@ -225,6 +234,7 @@ users                           -- every account, admin included
   username       text          -- unique on lower(username)
   password_hash  text          -- bcrypt
   role           varchar(10) = 'pending'  -- pending|client|verified|admin
+  can_download   bool = false  -- "Elevated": download originals anywhere visible
   note           text  null    -- "who are you?" from sign-up
   created_at     timestamptz
   last_login_at  timestamptz null
@@ -254,7 +264,7 @@ collage_layers                  -- one placed photo on a collage canvas
 
 A photo can live in multiple galleries. Deleting a gallery unassigns its photos
 (it does not delete them). The schema is created by Alembic migrations
-(`0001_initial` → `0008_users`), which `start.sh` runs
+(`0001_initial` → `0009_user_can_download`), which `start.sh` runs
 (`alembic upgrade head`) on every boot. `0004` also **backfills** `taken_at`
 from each existing photo's stored EXIF date.
 
@@ -480,7 +490,7 @@ Auth: – public · 👤 any logged-in user · ✓ approved (client/verified/adm
 | GET | `/auth/me` | 👤 | `{ id, username, role }` |
 | POST | `/auth/password` | 👤 | Change own password |
 | GET | `/users` | ✔ | All users, pending first (`?role=`) |
-| PATCH | `/users/{id}` | ✔ | Set role and/or gallery grants (`gallery_ids` replaces) |
+| PATCH | `/users/{id}` | ✔ | Set role, `can_download` (Elevated) and/or gallery grants (`gallery_ids` replaces) |
 | POST | `/users/{id}/password` | ✔ | Reset a user's password |
 | DELETE | `/users/{id}` | ✔ | Delete a user (not yourself) |
 | GET | `/photos/featured` | – | Landing hero feed (single page, `page_size` ≤ 40) |
@@ -491,11 +501,12 @@ Auth: – public · 👤 any logged-in user · ✓ approved (client/verified/adm
 | DELETE | `/photos/{id}` | ✔ | Delete photo + files |
 | GET | `/photos/{id}/thumb` | 🔑 | Thumbnail |
 | GET | `/photos/{id}/display` | 🔑 | ~2560px lightbox derivative (lazy-generated) |
-| GET | `/photos/{id}/original` | 🔑 | Original (inline; `&download=1` to download) |
+| GET | `/photos/{id}/original` | 🔑 | Original (inline; `&download=1` to download) — URL only issued to downloaders |
 | GET | `/photos/{id}/exif` | – | EXIF JSON |
 | GET | `/galleries` | ✓ | The caller's galleries (granted; all for admin) |
 | GET | `/galleries/{slug}` | ✓ | Detail if granted; locked stub for password galleries; else 404 |
 | POST | `/galleries/{slug}/unlock` | ✓ | Unlock a password gallery (403 on wrong password) |
+| GET | `/galleries/{id}/zip` | 🔑 | Stream every original as a zip (URL only issued to downloaders) |
 | POST | `/galleries` | ✔ | Create |
 | PATCH | `/galleries/{id}` | ✔ | Update |
 | DELETE | `/galleries/{id}` | ✔ | Delete (photos kept, just unassigned) |

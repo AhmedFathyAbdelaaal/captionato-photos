@@ -9,6 +9,8 @@ export interface Me {
   id: string;
   username: string;
   role: UserRole;
+  /** "Elevated": may download originals anywhere they can see. */
+  can_download: boolean;
 }
 
 export interface AdminUser extends Me {
@@ -41,7 +43,8 @@ export interface Photo {
   taken_at?: string | null; // EXIF capture date; null when unknown
   thumbnail_url: string;
   display_url: string; // ~2560px lightbox derivative
-  original_url: string;
+  /** Only present when the viewer may download originals here. */
+  original_url?: string | null;
   tags?: string[]; // freeform lowercase tags; 'featured' drives the homepage
   gallery_ids?: string[] | null; // admin listing only
 }
@@ -95,6 +98,8 @@ export interface GalleryDetail extends Gallery {
   photos: Photo[];
   /** True when the visitor hasn't unlocked a password-gated gallery yet. */
   locked: boolean;
+  /** Signed zip of every original — only when the viewer may download here. */
+  download_all_url?: string | null;
 }
 
 // ── Collage maker ──

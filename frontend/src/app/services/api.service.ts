@@ -73,7 +73,7 @@ export class ApiService {
   }
   updateUser(
     id: string,
-    body: { role?: UserRole; gallery_ids?: string[] },
+    body: { role?: UserRole; can_download?: boolean; gallery_ids?: string[] },
   ): Observable<AdminUser> {
     return this.http.patch<AdminUser>(`${this.base}/users/${id}`, body);
   }

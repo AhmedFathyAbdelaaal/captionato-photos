@@ -53,6 +53,26 @@ def get_optional_user(
     return user
 
 
+def get_viewer(
+    creds: HTTPAuthorizationCredentials | None = Depends(bearer_scheme),
+    db: Session = Depends(get_db),
+) -> User | None:
+    """Like get_optional_user, but a bad token just means anonymous. For public
+    routes that only *enrich* their response for logged-in users, so a stale
+    token never turns a public page into a 401."""
+    try:
+        return get_optional_user(creds, db)
+    except HTTPException:
+        return None
+
+
+def can_download_anywhere(user: User | None) -> bool:
+    """Admin, or an approved user flagged Elevated (can_download)."""
+    if user is None or user.role not in APPROVED_ROLES:
+        return False
+    return user.role == "admin" or user.can_download
+
+
 def get_current_user(user: User | None = Depends(get_optional_user)) -> User:
     if user is None:
         raise _unauthorized()

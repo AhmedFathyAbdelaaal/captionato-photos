@@ -29,7 +29,9 @@ def original_url(photo: Photo) -> str:
     return sign_image_path(f"/photos/{photo.id}/original")
 
 
-def photo_out(photo: Photo, include_galleries: bool = False) -> PhotoOut:
+def photo_out(
+    photo: Photo, include_galleries: bool = False, can_download: bool = False
+) -> PhotoOut:
     return PhotoOut(
         id=photo.id,
         filename=photo.filename,
@@ -43,7 +45,7 @@ def photo_out(photo: Photo, include_galleries: bool = False) -> PhotoOut:
         taken_at=photo.taken_at,
         thumbnail_url=thumb_url(photo),
         display_url=display_url(photo),
-        original_url=original_url(photo),
+        original_url=original_url(photo) if can_download else None,
         tags=list(photo.tags or []),
         gallery_ids=(
             [link.gallery_id for link in photo.gallery_links]

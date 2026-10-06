@@ -26,6 +26,14 @@ import { PhotoComponent } from '../components/photo.component';
         <h1>{{ g.name }}</h1>
         <div class="accent-rule"></div>
         <p *ngIf="g.description">{{ g.description }}</p>
+        <a
+          class="download-all"
+          *ngIf="g.download_all_url && !g.locked"
+          [href]="api.imageUrl(g.download_all_url)"
+          [attr.download]="g.slug + '.zip'"
+        >
+          ↓ Download all <span class="mono">{{ g.photos.length }}</span>
+        </a>
       </header>
 
       <!-- Password gate for locked galleries -->
@@ -208,6 +216,26 @@ import { PhotoComponent } from '../components/photo.component';
         color: var(--color-muted);
         max-width: 60ch;
         margin: 0.8rem auto 0;
+      }
+      .download-all {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.45rem;
+        margin-top: 1.2rem;
+        padding: 0.45rem 1rem;
+        border: 1px solid var(--color-border);
+        border-radius: 999px;
+        font-family: var(--font-display);
+        font-size: 0.9rem;
+        color: var(--color-ink);
+        transition: border-color 0.2s var(--ease);
+      }
+      .download-all:hover {
+        border-color: var(--color-accent);
+      }
+      .download-all .mono {
+        font-size: 0.75rem;
+        color: var(--color-muted);
       }
       figure {
         margin: 0;

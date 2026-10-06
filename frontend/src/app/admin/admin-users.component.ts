@@ -55,7 +55,10 @@ const ROLES: { value: UserRole; label: string; hint: string }[] = [
               <ng-container *ngIf="u.last_login_at"> · last seen {{ u.last_login_at | date: 'd MMM' }}</ng-container>
             </span>
           </div>
-          <span class="role-chip mono" [attr.data-role]="u.role">{{ u.role }}</span>
+          <span class="chips-right">
+            <span class="role-chip mono elevated" *ngIf="u.can_download && u.role !== 'admin'">⭐ elevated</span>
+            <span class="role-chip mono" [attr.data-role]="u.role">{{ u.role }}</span>
+          </span>
         </div>
 
         <p class="note" *ngIf="u.note">“{{ u.note }}”</p>
@@ -84,6 +87,20 @@ const ROLES: { value: UserRole; label: string; hint: string }[] = [
             {{ r.label }}
           </label>
         </div>
+
+        <label class="elevate" *ngIf="u.role !== 'admin'">
+          <input
+            type="checkbox"
+            [checked]="u.can_download"
+            (change)="setElevated(u, $any($event.target).checked)"
+          />
+          <span>
+            <b>⭐ Elevated</b>
+            <small class="muted">
+              Download originals everywhere they can see. Without it, only in their galleries below.
+            </small>
+          </span>
+        </label>
 
         <div class="grants" *ngIf="u.role !== 'admin' && galleries().length">
           <span class="lbl mono">Galleries</span>
@@ -219,6 +236,40 @@ const ROLES: { value: UserRole; label: string; hint: string }[] = [
         color: var(--color-accent);
       }
       .dates {
+        font-size: 0.75rem;
+      }
+      .chips-right {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 0.35rem;
+      }
+      .role-chip.elevated {
+        color: var(--cap-brass-deep);
+        box-shadow: inset 0 0 0 1px var(--cap-brass);
+        text-transform: none;
+        letter-spacing: 0;
+      }
+      [data-theme='dark'] .role-chip.elevated {
+        color: var(--cap-brass-bright);
+      }
+      .elevate {
+        display: flex;
+        align-items: flex-start;
+        gap: 0.5rem;
+        font-size: 0.85rem;
+        cursor: pointer;
+      }
+      .elevate input {
+        accent-color: var(--color-accent);
+        margin: 0.2rem 0 0;
+      }
+      .elevate span {
+        display: flex;
+        flex-direction: column;
+        gap: 0.1rem;
+      }
+      .elevate small {
         font-size: 0.75rem;
       }
       .role-chip {
@@ -413,6 +464,10 @@ export class AdminUsersComponent implements OnInit {
     this.save(u, { role }, `${u.username} → ${role}`);
   }
 
+  setElevated(u: AdminUser, on: boolean): void {
+    this.save(u, { can_download: on }, `${u.username} ${on ? 'elevated ⭐' : 'no longer elevated'}`);
+  }
+
   toggleGallery(u: AdminUser, g: Gallery): void {
     const ids = u.gallery_ids.includes(g.id)
       ? u.gallery_ids.filter((id) => id !== g.id)
@@ -455,7 +510,7 @@ export class AdminUsersComponent implements OnInit {
 
   private save(
     u: AdminUser,
-    body: { role?: UserRole; gallery_ids?: string[] },
+    body: { role?: UserRole; can_download?: boolean; gallery_ids?: string[] },
     okMsg?: string,
   ): void {
     this.api.updateUser(u.id, body).subscribe({

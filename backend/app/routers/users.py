@@ -17,6 +17,7 @@ def user_out(user: User) -> UserOut:
         id=user.id,
         username=user.username,
         role=user.role,
+        can_download=user.can_download,
         note=user.note,
         created_at=user.created_at,
         last_login_at=user.last_login_at,
@@ -66,6 +67,8 @@ def update_user(
                 status.HTTP_400_BAD_REQUEST, "You can't change your own role."
             )
         user.role = body.role
+    if body.can_download is not None:
+        user.can_download = body.can_download
     if body.gallery_ids is not None:
         wanted = set(body.gallery_ids)
         existing = set(db.scalars(select(Gallery.id).where(Gallery.id.in_(wanted))).all())

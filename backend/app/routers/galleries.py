@@ -1,10 +1,17 @@
 import uuid
+from pathlib import Path
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, Query, status
+from fastapi.responses import StreamingResponse
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
-from ..deps import get_approved_user, get_current_admin, get_db
+from ..deps import (
+    can_download_anywhere,
+    get_approved_user,
+    get_current_admin,
+    get_db,
+)
 from ..models import Gallery, GalleryPhoto, Photo, User, UserGallery
 from ..schemas import (
     GalleryCreate,
@@ -14,8 +21,14 @@ from ..schemas import (
     GalleryUpdate,
     ReorderRequest,
 )
-from ..security import hash_password, verify_password
+from ..security import (
+    hash_password,
+    sign_image_path,
+    verify_image_sig,
+    verify_password,
+)
 from ..serializers import gallery_out, photo_out
+from ..zipstream import stream_zip, unique_names
 
 router = APIRouter(prefix="/galleries", tags=["galleries"])
 
@@ -57,16 +70,30 @@ def _load_by_slug(db: Session, slug: str) -> Gallery:
     return gallery
 
 
-def _detail(gallery: Gallery, cover: Photo | None, *, locked: bool) -> GalleryDetailOut:
-    """Build the detail response, hiding photos when locked."""
+def _zip_path(gallery: Gallery) -> str:
+    return f"/galleries/{gallery.id}/zip"
+
+
+def _detail(
+    gallery: Gallery,
+    cover: Photo | None,
+    *,
+    locked: bool,
+    can_download: bool = False,
+) -> GalleryDetailOut:
+    """Build the detail response, hiding photos when locked. Original + zip
+    URLs are only included when the viewer may download here."""
     base = gallery_out(gallery, cover)
     if locked:
         return GalleryDetailOut(**base.model_dump(), photos=[], locked=True)
     ordered = sorted(gallery.photo_links, key=lambda link: link.display_order)
     return GalleryDetailOut(
         **base.model_dump(),
-        photos=[photo_out(link.photo) for link in ordered],
+        photos=[photo_out(link.photo, can_download=can_download) for link in ordered],
         locked=False,
+        download_all_url=(
+            sign_image_path(_zip_path(gallery)) if can_download and ordered else None
+        ),
     )
 
 
@@ -118,12 +145,14 @@ def get_admin_gallery(
     )
     if gallery is None:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
-    return _detail(gallery, _cover_for(db, gallery), locked=False)
+    return _detail(gallery, _cover_for(db, gallery), locked=False, can_download=True)
 
 
 # ── Detail by slug (approved users) ──
 # Granted (or admin) → full. Otherwise a password gallery returns a locked stub
 # until POST /unlock; anything else is a 404 so its existence isn't revealed.
+# Downloads: granted users (and admin) always; password-unlockers only when
+# Elevated.
 @router.get("/{slug}", response_model=GalleryDetailOut)
 def get_gallery(
     slug: str,
@@ -132,7 +161,7 @@ def get_gallery(
 ):
     gallery = _load_by_slug(db, slug)
     if user.role == "admin" or gallery.id in _granted_ids(db, user):
-        return _detail(gallery, _cover_for(db, gallery), locked=False)
+        return _detail(gallery, _cover_for(db, gallery), locked=False, can_download=True)
     if gallery.visibility == "password" and gallery.password_hash:
         return _detail(gallery, _cover_for(db, gallery), locked=True)
     raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
@@ -149,13 +178,46 @@ def unlock_gallery(
     gallery = _load_by_slug(db, slug)
     if user.role == "admin" or gallery.id in _granted_ids(db, user):
         # Already has access — return the full detail so a stale UI recovers.
-        return _detail(gallery, _cover_for(db, gallery), locked=False)
+        return _detail(gallery, _cover_for(db, gallery), locked=False, can_download=True)
     if gallery.visibility != "password" or not gallery.password_hash:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
     if not verify_password(body.password, gallery.password_hash):
         # 403, not 401: a wrong gallery password must not log the user out.
         raise HTTPException(status.HTTP_403_FORBIDDEN, "Wrong password")
-    return _detail(gallery, _cover_for(db, gallery), locked=False)
+    return _detail(
+        gallery,
+        _cover_for(db, gallery),
+        locked=False,
+        can_download=can_download_anywhere(user),
+    )
+
+
+# ── Download every original as one zip (signed URL from the detail response) ──
+@router.get("/{gallery_id}/zip")
+def download_gallery_zip(
+    gallery_id: uuid.UUID,
+    exp: int | None = Query(None),
+    sig: str | None = Query(None),
+    db: Session = Depends(get_db),
+):
+    if not verify_image_sig(f"/galleries/{gallery_id}/zip", exp, sig):
+        raise HTTPException(status.HTTP_403_FORBIDDEN, "Invalid or expired link")
+    gallery = db.scalar(
+        select(Gallery)
+        .where(Gallery.id == gallery_id)
+        .options(selectinload(Gallery.photo_links).selectinload(GalleryPhoto.photo))
+    )
+    if gallery is None:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Gallery not found")
+    ordered = sorted(gallery.photo_links, key=lambda link: link.display_order)
+    # Resolve everything now — the DB session is closed once streaming starts.
+    names = unique_names(link.photo.filename for link in ordered)
+    entries = [(n, Path(link.photo.original_path)) for n, link in zip(names, ordered)]
+    return StreamingResponse(
+        stream_zip(entries),
+        media_type="application/zip",
+        headers={"Content-Disposition": f'attachment; filename="{gallery.slug}.zip"'},
+    )
 
 
 # ── Create ──

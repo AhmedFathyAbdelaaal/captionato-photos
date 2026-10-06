@@ -237,6 +237,10 @@ class User(Base):
       client   → only galleries explicitly granted to them
       verified → the full portfolio + granted galleries
       admin    → everything, plus the admin panel
+
+    `can_download` ("Elevated") is separate from the role: it lets the user
+    download originals anywhere they can see. Without it, downloads are only
+    allowed inside galleries granted to them.
     """
 
     __tablename__ = "users"
@@ -250,6 +254,9 @@ class User(Base):
     role: Mapped[str] = mapped_column(
         String(10), default="pending", nullable=False
     )  # pending|client|verified|admin
+    can_download: Mapped[bool] = mapped_column(
+        Boolean, default=False, server_default="false", nullable=False
+    )
     # "Who are you" note from sign-up, so the admin knows who they're approving.
     note: Mapped[str | None] = mapped_column(Text)
     created_at: Mapped[datetime] = mapped_column(
