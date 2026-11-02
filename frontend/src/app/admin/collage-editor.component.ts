@@ -39,6 +39,7 @@ const CANVAS_ASPECT: Record<string, string> = {
   landscape: '1080 / 566',
 };
 
+const PHOTO_PAGE_SIZE = 100; // library picker: first page + each "Load more"
 const MIN_SIZE = 0.04; // layers can't shrink below 4% of the canvas
 const MIN_CROP = 0.05;
 const MIN_COLS = 2;
@@ -305,6 +306,19 @@ interface Snapshot {
         >
           <img [src]="api.imageUrl(p.thumbnail_url)" loading="lazy" alt="" />
         </button>
+      </div>
+      <div class="picker-foot">
+        <button
+          class="btn-ghost load-more"
+          *ngIf="!photosDone()"
+          [disabled]="photosLoading()"
+          (click)="loadMorePhotos()"
+        >
+          {{ photosLoading() ? 'Loading…' : 'Load more' }}
+        </button>
+        <span class="muted small" *ngIf="photoTotal()">
+          {{ photos().length }} of {{ photoTotal() }}
+        </span>
       </div>
     </aside>
   `,
@@ -674,6 +688,16 @@ interface Snapshot {
         object-fit: cover;
         display: block;
       }
+      .picker-foot {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.4rem 0 0.2rem;
+      }
+      .load-more {
+        width: 100%;
+      }
     `,
   ],
 })
@@ -695,6 +719,12 @@ export class CollageEditorComponent implements OnInit, OnChanges, OnDestroy {
   collage = signal<Collage | null>(null);
   layers = signal<CollageLayer[]>([]);
   photos = signal<Photo[]>([]);
+  // Library picker pagination (most-recent first, "Load more" pulls older).
+  photoTotal = signal(0);
+  photosLoading = signal(false);
+  photosDone = signal(false);
+  private photoPage = 0;
+  private photoSeen = new Set<string>();
   selected = signal<string | null>(null);
   cropMode = signal(false);
   grid = signal(true);
@@ -770,9 +800,7 @@ export class CollageEditorComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit(): void {
     const id = this.collageId ?? this.route.snapshot.paramMap.get('id') ?? undefined;
     if (id) this.loadCollage(id);
-    this.api.getAdminPhotos(1, 200).subscribe({
-      next: (page) => this.photos.set(page.items),
-    });
+    this.loadMorePhotos(); // first page of the library picker
     window.addEventListener('pointermove', this.onMove);
     window.addEventListener('pointerup', this.onUp);
   }
@@ -1307,6 +1335,26 @@ export class CollageEditorComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   // ── Layer operations ──
+  /** Load the next page of the library picker (100 at a time, newest first). */
+  loadMorePhotos(): void {
+    if (this.photosLoading() || this.photosDone()) return;
+    this.photosLoading.set(true);
+    this.api.getAdminPhotos(this.photoPage + 1, PHOTO_PAGE_SIZE).subscribe({
+      next: (page) => {
+        this.photoPage += 1;
+        this.photoTotal.set(page.total);
+        const fresh = page.items.filter((p) => !this.photoSeen.has(p.id));
+        fresh.forEach((p) => this.photoSeen.add(p.id));
+        this.photos.set([...this.photos(), ...fresh]);
+        if (this.photos().length >= page.total || page.items.length === 0) {
+          this.photosDone.set(true);
+        }
+        this.photosLoading.set(false);
+      },
+      error: () => this.photosLoading.set(false),
+    });
+  }
+
   addFromLibrary(p: Photo): void {
     const c = this.collage();
     if (!c) return;
